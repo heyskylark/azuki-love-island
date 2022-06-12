@@ -62,9 +62,6 @@ function Submission() {
                     setLoadingSubmission={setLoadingSubmission}
                 />
             </div>
-            {/* <div className="block lg:hidden fixed bottom-0 w-screen">
-                <img className="opacity-100 -translate-y-20 block duration-700 w-1/2 absolute ease-in-out transform bottom-0 right-0 z-10 block lg:hidden" src="images/sexy-beanz-cropped.png" alt="Love Island Beanz" />
-            </div> */}
             <div className="lg:w-1/2 hidden lg:block">
                 <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz-2.png" alt="Love Island Beanz" />
             </div>
