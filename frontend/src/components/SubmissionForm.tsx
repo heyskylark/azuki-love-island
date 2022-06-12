@@ -43,6 +43,11 @@ function SubmissionForm(props: Props) {
                 const data = response.data;
                 const toastMessage = `Welcome to Auzki Love Island: ${data.twitterHandle}`;
 
+                props.setAzukiId("");
+                props.setTwitterHandle("");
+                props.setBio("");
+                props.setHobbies("");
+
                 toast.success(toastMessage);
             })
             .catch(err => {
