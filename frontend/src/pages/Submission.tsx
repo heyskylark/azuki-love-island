@@ -63,7 +63,7 @@ function Submission() {
                 />
             </div>
             <div className="lg:w-1/2 hidden lg:block">
-                <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz.png" alt="Love Island Beanz" />
+                <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz-2.png" alt="Love Island Beanz" />
             </div>
         </div>
     )
