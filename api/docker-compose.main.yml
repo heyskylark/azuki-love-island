@@ -1,0 +1,26 @@
+version: '3.8'
+
+networks:
+  azuki:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+services:
+  api:
+    hostname: api
+    container_name: api
+    build:
+      context: ./
+      dockerfile: ./docker-files/Dockerfile
+    image: tomcat
+    volumes:
+      - "./build/libs/azuki-love-island-0.0.1-SNAPSHOT.war:/usr/local/tomcat/webapps/ROOT.war"
+    ports:
+      - "8080:8080"
+    networks:
+      azuki:
+        ipv4_address: 10.0.0.8
+    environment:
+      - JAVA_OPTS=-Dlog4jLevel=INFO -DlogDir=/logs

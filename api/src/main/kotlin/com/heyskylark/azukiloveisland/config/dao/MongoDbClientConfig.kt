@@ -19,7 +19,9 @@ class MongoDbClientConfig(
     @Value("\${mongodb.username}")
     private val username: String,
     @Value("\${mongodb.password}")
-    private val password: String
+    private val password: String,
+    @Value("\${mongodb.uri}")
+    private val mongoDbUri: String
 ) : AbstractMongoClientConfiguration() {
     override fun getDatabaseName(): String {
         return database

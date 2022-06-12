@@ -116,7 +116,7 @@ function SubmissionForm(props: Props) {
             <label>
                 <input
                     className="w-full mb-6 p-3 border-2 border-gray-100 focus:outline-none"
-                    placeholder="Hobbies (comma seperated)"
+                    placeholder="Hobbies (5 max, comma seperated)"
                     value={props.hobbies}
                     onChange={(e) => props.setHobbies(e.target.value)}
                 >
