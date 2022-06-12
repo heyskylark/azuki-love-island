@@ -1,6 +1,7 @@
 package com.heyskylark.azukiloveisland.model
 
 import com.heyskylark.azukiloveisland.model.azuki.BackgroundTrait
+import com.heyskylark.azukiloveisland.model.azuki.Gender
 import com.heyskylark.azukiloveisland.model.season.Season
 import java.net.URL
 import java.time.Instant
@@ -27,6 +28,7 @@ data class Participant(
     val hobbies: Set<String>? = null,
     val submitted: Boolean = false,
     val validated: Boolean = false,
+    val gender: Gender = Gender.UNDETERMINED,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
 )
