@@ -1,7 +1,7 @@
 import { toast } from "react-toastify"
 import { submitParticipant } from "../clients/MainClient"
 
-interface Props {
+interface Props { 
     azukiId: string,
     twitterHandle: string,
     bio: string
@@ -121,7 +121,7 @@ function SubmissionForm(props: Props) {
             <label>
                 <input
                     className="w-full mb-6 p-3 border-2 border-gray-100 focus:outline-none"
-                    placeholder="Hobbies (5 max, comma seperated)"
+                    placeholder="Hobbies (5 max, comma separated)"
                     value={props.hobbies}
                     onChange={(e) => props.setHobbies(e.target.value)}
                 >
