@@ -33,7 +33,7 @@ function Submission() {
 
     return (
         <div className="flex">
-            <div className="lg:w-1/2 lg:pr-4">
+            <div className="lg:w-1/2 lg:pr-4 lg:pb-0">
                 <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Azuki Love Island</h1>
                 <h1 className="mb-6 uppercase font-black text-3xl lg:text-4xl whitespace-pre-line">
                     Submissions: {getParticipantCount(participantCount)}<span className="opacity-10"> //</span>
@@ -62,6 +62,9 @@ function Submission() {
                     setLoadingSubmission={setLoadingSubmission}
                 />
             </div>
+            {/* <div className="block lg:hidden fixed bottom-0 w-screen">
+                <img className="opacity-100 -translate-y-20 block duration-700 w-1/2 absolute ease-in-out transform bottom-0 right-0 z-10 block lg:hidden" src="images/sexy-beanz-cropped.png" alt="Love Island Beanz" />
+            </div> */}
             <div className="lg:w-1/2 hidden lg:block">
                 <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz-2.png" alt="Love Island Beanz" />
             </div>
