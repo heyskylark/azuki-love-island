@@ -1,0 +1,40 @@
+version: '3.8'
+
+networks:
+  azuki:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+services:
+  api:
+    hostname: api
+    container_name: api
+    build:
+      context: ./
+      dockerfile: ./docker-files/Dockerfile
+    image: tomcat
+    volumes:
+      - "./build/libs/azuki-love-island-0.0.1-SNAPSHOT.war:/usr/local/tomcat/webapps/ROOT.war"
+    ports:
+      - "8080:8080"
+    networks:
+      azuki:
+        ipv4_address: 10.0.0.8
+    environment:
+      - JAVA_OPTS=-Dlog4jLevel=INFO -DlogDir=/logs
+
+  mongodb:
+    hostname: mongodb
+    container_name: mongodb
+    image: mongo:5.0.9
+    ports:
+      - "27017:27017"
+    networks:
+      azuki:
+        ipv4_address: 10.0.0.2
+    volumes:
+      - ./data:/data/db
+    environment:
+      - MONG_INITDB_DATABASE=azuki-li
