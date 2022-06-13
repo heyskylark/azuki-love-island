@@ -6,7 +6,7 @@ interface ParticipantResponse {
     twitterHandle: string
     seasonNumber: number
     bio: string | undefined
-    hobbies: string | undefined
+    hobbies: string[] | undefined
     submitted: boolean
     validated: boolean
 }

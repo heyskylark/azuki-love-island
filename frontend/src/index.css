@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+.square {
+    aspect-ratio: 1/1;
+}
+
+.text-3xs {
+    font-size: .65rem;
+}
+
+.font-400 {
+    font-weight: 400;
+}
+
 .single-small button.single-small {
     height: 42px;
     width: 42px;
