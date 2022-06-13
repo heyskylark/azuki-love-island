@@ -5,6 +5,11 @@ enum class ParticipantErrorCodes(
     override val code: String,
     override val type: ErrorType
 ) : ErrorCode {
+    TWITTER_HANDLE_MISSING(
+        message = "Twitter handle cannot be blank or ermpty.",
+        code = "twitterHandleMissing",
+        type = ErrorType.BAD_REQUEST
+    ),
     SEASON_SUBMISSIONS_ARE_NOT_ACTIVE(
         message = "Submissions are not currently active.",
         code = "seasonParticipationIsNotActive",

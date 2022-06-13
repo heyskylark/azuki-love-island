@@ -128,7 +128,7 @@ function SubmissionForm(props: Props) {
                 </input>
             </label>
 
-            <button className="uppercase mb-8 lg:mb-0 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap" type="submit" disabled={props.loadingSubmission}>
+            <button className="transition-opacity ease-in-out delay-50 uppercase mb-8 lg:mb-0 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70" type="submit" disabled={props.loadingSubmission}>
                 Submit
             </button>
         </form>

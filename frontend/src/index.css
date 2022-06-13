@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.single-small button.single-small {
+    height: 42px;
+    width: 42px;
+}
+
+.single-small .single-small, .single-small .single-small:hover {
+    background-color: transparent;
+    opacity: 1;
+}
+
+.single-small .single-small {
+    border: 2px solid transparent;
+    border-radius: 0;
+    color: inherit;
+    cursor: pointer;
+    display: inline-block;
+    font: inherit;
+    overflow: visible;
+    padding: 7px;
+    text-transform: none;
+    transition: opacity .2s cubic-bezier(.645,.045,.355,1), background .2s cubic-bezier(.645,.045,.355,1);
+}
+
+.single-small .single-small > .inner {
+    margin: -.5px 0 0;
+    position: relative;
+    width: 100%;
+}
+
+.single-small .single-small--magnetic span.bar:first-child {
+    transform: translate3d(0,-5px,0);
+}
+
+.single-small .single-small--magnetic span.bar:first-child, .single-small .single-small--magnetic span.bar:nth-child(2) {
+    background: black;
+    top: 0;
+}
+
+.single-small .single-small--magnetic span.bar {
+    transition: transform .2s cubic-bezier(.645,.045,.355,1) .2s;
+}
+
+.single-small .single-small span.bar {
+    background-color: #000;
+    border-radius: 0;
+    content: "";
+    display: block;
+    height: 2px;
+    position: absolute;
+    width: 100%;
+}
+
+.single-small .single-small--magnetic span.bar:nth-child(2) {
+    transform: translate3d(0,5px,0);
+}
+
+.single-small .single-small--magnetic span.bar:first-child, .single-small .single-small--magnetic span.bar:nth-child(2) {
+    background: black;
+    top: 0;
+}
+
+.single-small .single-small--magnetic span.bar {
+    transition: transform .2s cubic-bezier(.645,.045,.355,1) .2s;
+}
+
+.single-small .single-small--magnetic span.bar:nth-child(3) {
+    display: none;
+}
+
+.single-small .single-small span.bar:nth-child(3) {
+    top: 6px;
+}
+
+.single-small .single-small--magnetic span.bar {
+    transition: transform .2s cubic-bezier(.645,.045,.355,1) .2s;
+}
+
+.single-small .single-small span.bar {
+    background-color: #000;
+    border-radius: 0;
+    content: "";
+    display: block;
+    height: 2px;
+    position: absolute;
+    width: 100%;
+}

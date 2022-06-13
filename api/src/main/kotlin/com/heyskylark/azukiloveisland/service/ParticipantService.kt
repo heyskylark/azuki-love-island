@@ -111,6 +111,10 @@ class ParticipantService(
         azukiInfo: AzukiInfo,
         parsedHobbies: Set<String>?
     ): ServiceResponse<ParticipantResponseDto>? {
+        if (participantSubmissionDto.twitterHandle.isBlank()) {
+            return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_MISSING)
+        }
+
         participantSubmissionDto.bio?.takeIf { it.count() > MAX_BIO_LENGTH }
             ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.BIO_TOO_LONG_ERROR) }
 
