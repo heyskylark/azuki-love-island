@@ -5,8 +5,11 @@ import Nav from "./components/Nav";
 import Footer from "./components/Footer";
 import Credits from "./pages/Credits";
 import { Route, Routes } from "react-router-dom";
+import { useState } from "react";
 
 function App() {
+  const [footerType, setFooterType] = useState<number>(1);
+
   return (
     <>
       <ToastContainer
@@ -17,19 +20,10 @@ function App() {
 
       <Nav />
 
-      <div className='container mx-auto'>
-        <div className="duration-300 min-h-screen bg-white">
-          <main className="max-w-11xl mx-auto mb-8 lg:mb-20 px-4 sm:px-6 lg:px-8">
-            <div className="w-full pt-28">
-              <Routes>
-                <Route path="/" element={<Submission />} />
-                <Route path="/credits" element={<Credits />} />
-              </Routes>
-            </div>
-          </main>
-        </div>
-      </div>
-      <Footer />
+      <Routes>
+        <Route path="/" element={<Submission />} />
+        <Route path="/credits" element={<Credits />} />
+      </Routes>
     </>
   );
 }
