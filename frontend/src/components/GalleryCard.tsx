@@ -112,6 +112,7 @@ function GalleryCard(props: Props) {
                                     <div className="pl-3">
                                         <h1 className="uppercase text-3xs font-[400] tracking-widest opacity-50">Azuki</h1>
                                         <h1 className="w-full uppercase lg:text-xl text-xl font-[600]">{props.azukiId}&nbsp;<span className="opacity-20">//</span></h1>
+                                        <p className="text-3xs lg:text-xs opacity-50 font-mono"><a className="underline" href={parseTwitterUrl()} target="_blank" rel="noreferrer">@{parseTwitterHandle()}</a></p>
                                     </div>
                                 </div>
                             </div>
@@ -123,10 +124,6 @@ function GalleryCard(props: Props) {
                             {renderBio()}
 
                             {renderHobbies()}
-
-                            <div className="mt-auto w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
-                                <p className="text-3xs lg:text-xs opacity-50 font-mono">Twitter: <a className="underline" href={parseTwitterUrl()} target="_blank" rel="noreferrer">@{parseTwitterHandle()}</a></p>
-                            </div>
                         </div>
                     </div>
                 </div>
