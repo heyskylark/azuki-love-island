@@ -23,8 +23,8 @@ data class ParticipantResponseDto(
         backgroundTrait = participant.backgroundTrait,
         twitterHandle = participant.twitterHandle,
         seasonNumber = participant.seasonNumber,
-        bio = if (participant.validated) participant.bio else null,
-        hobbies = if (participant.validated) participant.hobbies else null,
+        bio = if (true || participant.validated) participant.bio else null,
+        hobbies = if (true || participant.validated) participant.hobbies else null,
         submitted = participant.submitted,
         validated = participant.validated
     )

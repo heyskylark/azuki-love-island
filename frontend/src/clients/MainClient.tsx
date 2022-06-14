@@ -12,3 +12,7 @@ export async function getLatestSeasonParticipantCount(): Promise<AxiosResponse<C
 export async function submitParticipant(body: ParticipantRequest): Promise<AxiosResponse<ParticipantResponse>> {
     return axios.post(`${BASE_URL}/participants`, body);
 }
+
+export async function getLatestSeasonParticipants(): Promise<AxiosResponse<ParticipantResponse[]>> {
+    return axios.get(`${BASE_URL}/participants/seasons/latest`);
+}

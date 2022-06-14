@@ -14,37 +14,37 @@ function Credits() {
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">HeySkylark</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Creator/Developer.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/heyskylark">@heyskylark.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/heyskylark" target="_blank" rel="noreferrer">@heyskylark.</a>
                             </div>
 
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">Aetherfloweth</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Creator/Commissioner.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/aetherfloweth">@aetherfloweth.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/aetherfloweth" target="_blank" rel="noreferrer">@aetherfloweth.</a>
                             </div>
 
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">FastandLucid</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Artist and creator of the sexy Azuki Love Island Beanz.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/FastandLucid">@FastandLucid.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/FastandLucid" target="_blank" rel="noreferrer">@FastandLucid.</a>
                             </div>
 
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">UberFlux</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Blacksmith for the Azuki Love Island Golden Bobu Trophy.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/UberFlux">@UberFlux.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/UberFlux" target="_blank" rel="noreferrer">@UberFlux.</a>
                             </div>
 
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">IamAshChild</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">The inspiration behind this project.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/iamashchild">@iamashchild.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/iamashchild" target="_blank" rel="noreferrer">@iamashchild.</a>
                             </div>
 
                             <div>
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">AzukiOfficial</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Inspired off the characters and world of Azuki.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/AzukiOfficial">@AzukiOfficial.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/AzukiOfficial" target="_blank" rel="noreferrer">@AzukiOfficial.</a>
                             </div>
                         </div>
                     </div>
