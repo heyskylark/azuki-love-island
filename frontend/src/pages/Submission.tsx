@@ -46,7 +46,7 @@ function Submission() {
                                 </h1>
                                 <p className="mb-6 font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">
                                     64 Azuki battle it out in a heated tournament consisting
-                                    of 62 match-ups voted on by the community. Who will become
+                                    of 32 match-ups voted on by the community. Who will become
                                     the King and Queen of the Island? Let's find out.<br/>
                                     <br/>
                                     Tell us about yourself. What is your Azuki's story? 
