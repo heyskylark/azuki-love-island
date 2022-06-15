@@ -1,3 +1,4 @@
+import { pbkdf2 } from "crypto";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getLatestSeasonParticipants } from "../clients/MainClient";
@@ -54,15 +55,21 @@ function Gallery(props: Props) {
                 return participant.gender === "FEMALE"
             });
 
-            setFilteredParticipants(filtered);
+            setFilteredParticipants(filtered.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                return p1.azukiId - p2.azukiId
+            }));
         } else if (filterState === GalleryFilterState.MALE) {
             const filtered = participants.filter(participant => {
                 return participant.gender === "MALE"
             });
 
-            setFilteredParticipants(filtered);
+            setFilteredParticipants(filtered.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                return p1.azukiId - p2.azukiId
+            }));
         } else {
-            setFilteredParticipants(participants);
+            setFilteredParticipants(participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                return p1.azukiId - p2.azukiId
+            }));
         }
     }, [participants, filterState]);
 
