@@ -8,7 +8,11 @@ import { useLatestSeason } from "../context/SeasonContext";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
 
-function Gallery() {
+interface Props {
+    filter: string | null;
+}
+
+function Gallery(props: Props) {
     const latestSeasonContext = useLatestSeason();
 
     const [loading, setLoading] = useState<boolean>(true);
@@ -28,7 +32,8 @@ function Gallery() {
     useEffect(() => {
         async function getParticipants() {
             try {
-                const participantsResponse = await getLatestSeasonParticipants();
+                console.log(props.filter)
+                const participantsResponse = await getLatestSeasonParticipants(props.filter);
                 const data = participantsResponse.data;
 
                 setParticipants(data);
@@ -179,14 +184,14 @@ function Gallery() {
                                     className={`w-full lg:py-1.5 sm:py-1 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.FEMALE ? "bg-white" : ""}`}
                                     onClick={filterButtonEvent}
                                 >
-                                    FEMALE
+                                    GIRLZUKI
                                 </button>
                                 <button
                                     id="maleFilter"
                                     className={`w-full lg:py-1.5 sm:py-1 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.MALE ? "bg-white" : ""}`}
                                     onClick={filterButtonEvent}
                                 >
-                                    MALE
+                                    BOYZUKI
                                 </button>
                             </div>
                         </div>

@@ -8,8 +8,9 @@ import Gallery from "./pages/Gallery";
 import { ProvideLatestSeason } from "./context/SeasonContext";
 
 function App() {
-  return (
+  const params = new URLSearchParams("filter");
 
+  return (
     <ProvideLatestSeason>
       <ToastContainer
         position="bottom-center"
@@ -19,8 +20,8 @@ function App() {
       <Nav />
 
       <Routes>
-        <Route path="/" element={<Gallery />} />
-        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/" element={<Gallery filter={params.get("filter")} />} />
+        <Route path="/gallery" element={<Gallery filter={params.get("filter")} />} />
         <Route path="/submission" element={<Submission />} />
         <Route path="/credits" element={<Credits />} />
       </Routes>

@@ -19,8 +19,8 @@ function GalleryPreview(props: Props) {
     return (
         <a className="group cursor-pointer relative fade-in text-sm lg:-20 duration-300" onClick={open}>
             <div className="w-full relative fade-in lg:group-hover:scale-105 group-hover:shadow-me duration-300 rounded-xl square aspect-w-1 aspect-h-1 overflow-hidden bg-gray-100 shadow-me" style={{background: `rgb(161, 158, 153) none repeat scroll 0% 0%`}}>
-                <div className="w-full h-full bg-white opacity-0 absolute z-50" />
-                <div className="animate-flash-once w-full h-full bg-white opacity-0 absolute z-50" />
+                <div className="w-full h-full bg-white opacity-0 absolute z-49" />
+                <div className="animate-flash-once w-full h-full bg-white opacity-0 absolute z-49" />
                 <img className="duration-300 w-full h-full object-center object-cover absolute" src={props.imageUrl} alt={`Azuki #${props.azukiId}`} />
             </div>
             <p className="opacity-50 mt-3 uppercase font-mono tracking-widest text-3xs text-center">Azuki</p>

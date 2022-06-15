@@ -18,6 +18,13 @@ export async function submitParticipant(body: ParticipantRequest): Promise<Axios
     return axios.post(`${BASE_URL}/participants`, body);
 }
 
-export async function getLatestSeasonParticipants(): Promise<AxiosResponse<ParticipantResponse[]>> {
-    return axios.get(`${BASE_URL}/participants/seasons/latest`);
+export async function getLatestSeasonParticipants(filter: string | null): Promise<AxiosResponse<ParticipantResponse[]>> {
+    let url: string = ""
+    if (filter) {
+        url = `${BASE_URL}/participants/seasons/latest?filter=${filter}`
+    } else {
+        url = `${BASE_URL}/participants/seasons/latest`
+    }
+
+    return axios.get(url);
 }
