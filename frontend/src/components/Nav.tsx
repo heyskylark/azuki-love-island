@@ -26,9 +26,12 @@ function Nav() {
                     </div>
 
                     <div className="items-center hidden lg:flex">
-                        {/* <ul className="flex space-x-2">
+                        <ul className="flex space-x-2">
                             <Link onClick={turnOffMobileMenu} className="mr-2 bg-opacity-20 text-black items-center relative h-7 items-center font-mono tracking-wider pt-0.5 first::pt-0 duration-1000 uppercase text-xs font-500 padding-huge bg-white duration-200 items-center px-4 hover:bg-opacity-70 rounded flex justify-center flex-row" to="/gallery">Gallery</Link>
-                        </ul> */}
+                        </ul>
+                        <ul className="flex space-x-2">
+                            <Link onClick={turnOffMobileMenu} className="mr-2 bg-opacity-20 text-black items-center relative h-7 items-center font-mono tracking-wider pt-0.5 first::pt-0 duration-1000 uppercase text-xs font-500 padding-huge bg-white duration-200 items-center px-4 hover:bg-opacity-70 rounded flex justify-center flex-row" to="/submission">Submission</Link>
+                        </ul>
                         <ul className="flex space-x-2">
                             <Link onClick={turnOffMobileMenu} className="bg-opacity-20 text-black items-center relative h-7 items-center font-mono tracking-wider pt-0.5 first::pt-0 duration-1000 uppercase text-xs font-500 padding-huge bg-white duration-200 items-center px-4 hover:bg-opacity-70 rounded flex justify-center flex-row" to="/credits">Credits</Link>
                         </ul>
@@ -50,6 +53,16 @@ function Nav() {
 
             <div className={`lg:hidden w-screen items-start h-screen flex flex-col fixed px-6 pt-20 bg-white bg-opacity-70 backdrop-blur-lg z-40 pointer will-change-opacity overflow-scroll ${!mobileMenu ? "hidden" : ""}`}>
                 <ul className="text-2xl w-full uppercase font-bold">
+                    <li className="border-b border-black border-opacity-10">
+                        <Link className="py-3 w-full items-center block relative flex text-black" to="/gallery" onClick={turnOffMobileMenu}>
+                            Gallery
+                        </Link>
+                    </li>
+                    <li className="border-b border-black border-opacity-10">
+                        <Link className="py-3 w-full items-center block relative flex text-black" to="/submission" onClick={turnOffMobileMenu}>
+                            Submission
+                        </Link>
+                    </li>
                     <li className="border-b border-black border-opacity-10">
                         <Link className="py-3 w-full items-center block relative flex text-black" to="/credits" onClick={turnOffMobileMenu}>
                             Credits

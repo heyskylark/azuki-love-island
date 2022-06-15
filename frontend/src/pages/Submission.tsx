@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { getLatestSeason, getLatestSeasonParticipantCount } from "../clients/MainClient";
+import { getLatestSeasonParticipantCount } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import SubmissionForm from "../components/SubmissionForm";
+import { useLatestSeason } from "../context/SeasonContext";
 
 function Submission() {
     const MAX_PARTICIPANT_NUM_LENGTH = 4
 
+    const latestSeasonContext = useLatestSeason();
+
     const [loading, setLoading] = useState<boolean>(true);
-    const [submissionClosed, setSubmissionClosed] = useState<boolean>(false);
     const [participantCount, setParticipantCount] = useState<number>(-1);
     const [azukiId, setAzukiId] = useState<string>("");
     const [twitterHandle, setTwitterHandle] = useState<string>("");
@@ -21,11 +23,6 @@ function Submission() {
             setLoading(true);
             
             try {
-                const latestSeasonResponse = await getLatestSeason();
-                if (!latestSeasonResponse.data.submissionActive) {
-                    setSubmissionClosed(true);
-                }
-
                 const countResponse = await getLatestSeasonParticipantCount();
                 setParticipantCount(countResponse.data.count);
             } catch (err) {
@@ -48,9 +45,9 @@ function Submission() {
     }
 
     function renderClosed() {
-        if (submissionClosed) {
+        if (latestSeasonContext !== null && latestSeasonContext?.latestSeason !== null && !latestSeasonContext.latestSeason.submissionActive) {
             return (
-                <div className="lg:w-1/2 pr-20 absolute z-50">
+                <div className="lg:w-1/2 pr-20 absolute z-49">
                     <img src="images/closed.png" alt="" />
                 </div>
             );
@@ -86,9 +83,7 @@ function Submission() {
                                     twitterHandle={twitterHandle}
                                     bio={bio}
                                     hobbies={hobbies}
-                                    loadingPage={loading}
                                     loadingSubmission={loadingSubmission}
-                                    submissionsClosed={submissionClosed}
                                     setAzukiId={setAzukiId}
                                     setTwitterHandle={setTwitterHandle}
                                     setBio={setBio}
@@ -96,7 +91,7 @@ function Submission() {
                                     setLoadingSubmission={setLoadingSubmission}
                                 />
                             </div>
-                            <div className="lg:w-1/2 hidden lg:block z-49">
+                            <div className="lg:w-1/2 hidden lg:block z-48">
                                 <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz-2.png" alt="Love Island Beanz" />
                             </div>
                         </div>

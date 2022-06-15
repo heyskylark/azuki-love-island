@@ -1,14 +1,13 @@
 import { toast } from "react-toastify"
 import { submitParticipant } from "../clients/MainClient"
+import { useLatestSeason } from "../context/SeasonContext"
 
 interface Props { 
     azukiId: string,
     twitterHandle: string,
     bio: string
     hobbies: string
-    loadingPage: boolean
     loadingSubmission: boolean
-    submissionsClosed: boolean
     setAzukiId: React.Dispatch<React.SetStateAction<string>>
     setTwitterHandle: React.Dispatch<React.SetStateAction<string>>
     setBio: React.Dispatch<React.SetStateAction<string>>
@@ -18,6 +17,8 @@ interface Props {
 
 function SubmissionForm(props: Props) {
     const AZUKI_MAX_ID = 10000
+
+    const latestSeasonContext = useLatestSeason();
 
     function submitParticipantEvent(e: React.FormEvent<HTMLFormElement> | undefined): void {
         e?.preventDefault();
@@ -88,6 +89,12 @@ function SubmissionForm(props: Props) {
         }
     }
 
+    function submissionsDisabled(): boolean {
+        const submissionsActive = latestSeasonContext?.latestSeason?.submissionActive
+
+        return !submissionsActive || props.loadingSubmission
+    }
+
     return (
         <form onSubmit={submitParticipantEvent}>
             <label>
@@ -133,7 +140,7 @@ function SubmissionForm(props: Props) {
             <button
                 className="transition-opacity ease-in-out delay-50 disabled:opacity-70 uppercase mb-8 lg:mb-0 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70"
                 type="submit"
-                disabled={props.submissionsClosed || props.loadingPage || props.loadingSubmission}
+                disabled={submissionsDisabled()}
             >
                 Submit
             </button>

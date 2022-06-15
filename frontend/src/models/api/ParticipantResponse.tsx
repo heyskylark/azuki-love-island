@@ -5,6 +5,7 @@ interface ParticipantResponse {
     backgroundTrait: string
     twitterHandle: string
     seasonNumber: number
+    gender: string
     bio: string | undefined
     hobbies: string[] | undefined
     submitted: boolean
