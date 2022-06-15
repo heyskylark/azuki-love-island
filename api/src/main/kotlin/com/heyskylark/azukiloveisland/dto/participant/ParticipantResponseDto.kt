@@ -6,7 +6,6 @@ import java.net.URL
 
 data class ParticipantResponseDto(
     val azukiId: Long,
-    val ownerAddress: String,
     val imageUrl: URL,
     val backgroundTrait: BackgroundTrait,
     val twitterHandle: String,
@@ -18,7 +17,6 @@ data class ParticipantResponseDto(
 ) {
     constructor(participant: Participant) : this (
         azukiId = participant.azukiId,
-        ownerAddress = participant.ownerAddress,
         imageUrl = participant.imageUrl,
         backgroundTrait = participant.backgroundTrait,
         twitterHandle = participant.twitterHandle,

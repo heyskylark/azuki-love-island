@@ -12,7 +12,6 @@ import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.ParticipantErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.Web3ErrorCodes
-import kotlin.streams.toList
 import org.springframework.stereotype.Component
 
 @Component("participantService")
@@ -27,7 +26,21 @@ class ParticipantService(
         private const val MAX_HOBBIES = 5
     }
 
-    fun geLatestSeasonParticipants(): ServiceResponse<Set<ParticipantResponseDto>> {
+    fun getLatestSeasonContestants(): ServiceResponse<Set<ParticipantResponseDto>> {
+        val latestSeason = seasonService.getLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+        return ServiceResponse.successResponse(
+            participantDao.findBySeasonNumberAndValidated(latestSeason.seasonNumber, true)
+                .map { ParticipantResponseDto(it) }
+                .toSet()
+        )
+    }
+
+    fun getNoneDtoSeasonsContestants(seasonNumber: Int): Set<Participant> {
+        return participantDao.findBySeasonNumberAndValidated(seasonNumber, true)
+    }
+
+    fun geLatestSeasonSubmissions(): ServiceResponse<Set<ParticipantResponseDto>> {
         val latestSeason = seasonService.getLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         return ServiceResponse.successResponse(
@@ -35,7 +48,7 @@ class ParticipantService(
         )
     }
 
-    fun getSeasonParticipants(seasonNumber: Int): ServiceResponse<Set<ParticipantResponseDto>> {
+    fun getSeasonSubmissions(seasonNumber: Int): ServiceResponse<Set<ParticipantResponseDto>> {
         seasonService.getSeason(seasonNumber)
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
         return ServiceResponse.successResponse(
@@ -43,7 +56,7 @@ class ParticipantService(
         )
     }
 
-    fun getLatestSeasonParticipantCount(): ServiceResponse<ParticipantCountDto> {
+    fun getLatestSeasonSubmissionCount(): ServiceResponse<ParticipantCountDto> {
         val latestSeason = seasonService.getLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         val count = participantDao.findBySeasonNumber(latestSeason.seasonNumber).count()
@@ -51,7 +64,7 @@ class ParticipantService(
         return ServiceResponse.successResponse(ParticipantCountDto(count))
     }
 
-    fun getParticipantCount(seasonNumber: Int): ServiceResponse<ParticipantCountDto> {
+    fun getSubmissionCount(seasonNumber: Int): ServiceResponse<ParticipantCountDto> {
         seasonService.getSeason(seasonNumber)
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
         val count = participantDao.findBySeasonNumber(seasonNumber).count()
@@ -111,6 +124,8 @@ class ParticipantService(
         azukiInfo: AzukiInfo,
         parsedHobbies: Set<String>?
     ): ServiceResponse<ParticipantResponseDto>? {
+        // TODO: Add validation to reject submissions after certain date
+
         if (participantSubmissionDto.twitterHandle.isBlank()) {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_MISSING)
         }

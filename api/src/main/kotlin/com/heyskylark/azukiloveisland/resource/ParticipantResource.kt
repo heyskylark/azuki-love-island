@@ -22,22 +22,22 @@ class ParticipantResource(
 ) {
     @GetMapping("seasons/latest/count")
     fun getLatestSeasonParticipantCount(): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.getLatestSeasonParticipantCount())
+        return ResponseBuilder.buildResponse(participantService.getLatestSeasonSubmissionCount())
     }
 
     @GetMapping("seasons/latest")
     fun getLatestSeasonParticipants(): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.geLatestSeasonParticipants())
+        return ResponseBuilder.buildResponse(participantService.geLatestSeasonSubmissions())
     }
 
     @GetMapping("seasons/{seasonNumber}/count")
     fun getParticipantCount(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.getParticipantCount(seasonNumber))
+        return ResponseBuilder.buildResponse(participantService.getSubmissionCount(seasonNumber))
     }
 
     @GetMapping("seasons/{seasonNumber}")
     fun getSeasonParticipants(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.getSeasonParticipants(seasonNumber))
+        return ResponseBuilder.buildResponse(participantService.getSeasonSubmissions(seasonNumber))
     }
 
     @GetMapping("/{participantId}")

@@ -7,21 +7,26 @@ import java.net.URL
 import java.time.Instant
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
+import org.springframework.data.mongodb.core.index.CompoundIndex
+import org.springframework.data.mongodb.core.index.CompoundIndexes
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.DBRef
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "Participants")
+@CompoundIndexes(
+    CompoundIndex(name = "seasonNumber_validated", def = "{'seasonNumber' : -1, 'validated': 1}")
+)
 data class Participant(
     @Id
     val id: String = ObjectId.get().toString(),
-    @Indexed(unique = false)
+    @Indexed
     val azukiId: Long,
-    @Indexed(unique = false)
+    @Indexed
     val ownerAddress: String,
     val imageUrl: URL,
     val backgroundTrait: BackgroundTrait,
-    @Indexed(unique = false)
+    @Indexed
     val twitterHandle: String,
     val seasonNumber: Int,
     val bio: String? = null,
