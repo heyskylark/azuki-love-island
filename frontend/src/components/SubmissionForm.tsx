@@ -6,7 +6,9 @@ interface Props {
     twitterHandle: string,
     bio: string
     hobbies: string
+    loadingPage: boolean
     loadingSubmission: boolean
+    submissionsClosed: boolean
     setAzukiId: React.Dispatch<React.SetStateAction<string>>
     setTwitterHandle: React.Dispatch<React.SetStateAction<string>>
     setBio: React.Dispatch<React.SetStateAction<string>>
@@ -128,7 +130,11 @@ function SubmissionForm(props: Props) {
                 </input>
             </label>
 
-            <button className="transition-opacity ease-in-out delay-50 uppercase mb-8 lg:mb-0 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70" type="submit" disabled={props.loadingSubmission}>
+            <button
+                className="transition-opacity ease-in-out delay-50 disabled:opacity-70 uppercase mb-8 lg:mb-0 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70"
+                type="submit"
+                disabled={props.submissionsClosed || props.loadingPage || props.loadingSubmission}
+            >
                 Submit
             </button>
         </form>
