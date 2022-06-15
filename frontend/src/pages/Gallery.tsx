@@ -37,8 +37,12 @@ function Gallery(props: Props) {
                 const participantsResponse = await getLatestSeasonParticipants(props.filter);
                 const data = participantsResponse.data;
 
-                setParticipants(data);
-                setFilteredParticipants(data);
+                setParticipants(data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                    return p1.azukiId - p2.azukiId
+                }));
+                setFilteredParticipants(data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                    return p1.azukiId - p2.azukiId
+                }));
             } catch (err) {
                 toast.error("There was a problem loading the participants...")
             } finally {
