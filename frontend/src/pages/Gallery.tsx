@@ -37,12 +37,12 @@ function Gallery(props: Props) {
                 const participantsResponse = await getLatestSeasonParticipants(props.filter);
                 const data = participantsResponse.data;
 
-                setParticipants(data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                const sortedParticipants = data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
                     return p1.azukiId - p2.azukiId
-                }));
-                setFilteredParticipants(data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                    return p1.azukiId - p2.azukiId
-                }));
+                });
+
+                setParticipants(sortedParticipants);
+                setFilteredParticipants(sortedParticipants);
             } catch (err) {
                 toast.error("There was a problem loading the participants...")
             } finally {
@@ -59,21 +59,15 @@ function Gallery(props: Props) {
                 return participant.gender === "FEMALE"
             });
 
-            setFilteredParticipants(filtered.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                return p1.azukiId - p2.azukiId
-            }));
+            setFilteredParticipants(filtered);
         } else if (filterState === GalleryFilterState.MALE) {
             const filtered = participants.filter(participant => {
                 return participant.gender === "MALE"
             });
 
-            setFilteredParticipants(filtered.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                return p1.azukiId - p2.azukiId
-            }));
+            setFilteredParticipants(filtered);
         } else {
-            setFilteredParticipants(participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                return p1.azukiId - p2.azukiId
-            }));
+            setFilteredParticipants(participants);
         }
     }, [participants, filterState]);
 
@@ -124,7 +118,6 @@ function Gallery(props: Props) {
                     azukiId={participant.azukiId}
                     twitterHandle={participant.twitterHandle}
                     color={participant.backgroundTrait}
-                    imageUrl={participant.imageUrl}
                     modalImageUrl={participant.imageUrl}
                     bio={participant.bio}
                     hobbies={participant.hobbies}
