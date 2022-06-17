@@ -11,8 +11,10 @@ interface InitialBracket {
     val id: String
     val seasonNumber: Int
     val type: BracketType
+    val voteStartDate: Instant
     val voteDeadline: Instant
     val combinedGroups: Set<BracketGroup>
+    val numOfBrackets: Int
     val createdAt: Instant
     val updatedAt: Instant
 
@@ -25,23 +27,31 @@ data class GenderedInitialBracket(
     override val id: String = ObjectId.get().toString(),
     @Indexed(unique = true)
     override val seasonNumber: Int,
+    override val voteStartDate: Instant,
     override val voteDeadline: Instant,
     val maleBracketGroups: Set<BracketGroup>,
     val femaleBracketGroups: Set<BracketGroup>,
     override val createdAt: Instant = Instant.now(),
     override val updatedAt: Instant = Instant.now()
 ) : InitialBracket {
-    override val type = BracketType.GENDERED
+    override var type
+        get() = BracketType.GENDERED
+        set(_) {}
+
     override val combinedGroups: Set<BracketGroup>
         @JsonIgnore
         get() = maleBracketGroups + femaleBracketGroups
+
+    override var numOfBrackets: Int
+        get() = numberOfBrackets()
+        set(_) {}
 
     override fun numberOfBrackets(): Int {
         var groupCount = maleBracketGroups.size
         var numOfBrackets = 1
         var loops = 0
 
-        while (groupCount > 4) {
+        while (groupCount > 1) {
             groupCount /= 2
 
             if (loops > 10) {

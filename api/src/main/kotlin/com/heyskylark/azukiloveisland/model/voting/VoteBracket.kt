@@ -12,6 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 interface VoteBracket {
     val id: String
     val ip: String
+    val twitterHandle: String
     val seasonNumber: Int
     val bracketNumber: Int
     val type: BracketType
@@ -30,6 +31,7 @@ data class GenderedVoteBracket(
     @Id
     override val id: String = ObjectId.get().toString(),
     override val ip: String,
+    override val twitterHandle: String,
     override val seasonNumber: Int,
     override val bracketNumber: Int,
     val maleBracketGroups: Set<BracketGroup>,
@@ -38,7 +40,9 @@ data class GenderedVoteBracket(
     override val updatedAt: Instant = Instant.now(),
     override val finishedVoting: Boolean = false
 ) : VoteBracket {
-    override val type = BracketType.GENDERED
+    override var type
+        get() = BracketType.GENDERED
+        set(_) {}
     override val combinedGroup
         @JsonIgnore
         get() = maleBracketGroups + femaleBracketGroups

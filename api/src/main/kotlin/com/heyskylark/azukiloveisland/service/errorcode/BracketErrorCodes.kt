@@ -10,6 +10,11 @@ enum class BracketErrorCodes(
         code = "noBracketFound",
         type = ErrorType.BAD_REQUEST
     ),
+    INVALID_BRACKET_VOTE_DATES(
+      message = "Bracket start date should be before the deadline.",
+      code = "invalidBracketVoteDates",
+      type = ErrorType.BAD_REQUEST
+    ),
     INVALID_BRACKET_VOTE_DEADLINE(
       message = "Bracket vote deadline must be greater than the current date.",
       code = "invalidBracketVoteDeadline",

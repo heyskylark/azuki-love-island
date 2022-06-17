@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -26,8 +27,14 @@ class ParticipantResource(
     }
 
     @GetMapping("seasons/latest")
-    fun getLatestSeasonParticipants(): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.geLatestSeasonSubmissions())
+    fun getLatestSeasonParticipants(
+        @RequestParam("filter", required = false) filter: String?
+    ): ResponseEntity<String> {
+        return if (filter == "ALL") {
+            ResponseBuilder.buildResponse(participantService.getLatestSeasonSubmissions())
+        } else {
+            ResponseBuilder.buildResponse(participantService.getLatestSeasonContestants())
+        }
     }
 
     @GetMapping("seasons/{seasonNumber}/count")

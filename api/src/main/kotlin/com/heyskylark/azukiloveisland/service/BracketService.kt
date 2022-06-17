@@ -21,7 +21,7 @@ class BracketService(
     private val initialBracketDao: InitialBracketDao
 ) : BaseService() {
     fun getLatestSeasonBracket(): ServiceResponse<out InitialBracket> {
-        val latestSeason = seasonService.getLatestSeason()
+        val latestSeason = seasonService.getRawLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         val latestInitBracket = initialBracketDao.findBySeasonNumber(latestSeason.seasonNumber)
 
@@ -31,7 +31,7 @@ class BracketService(
     fun generateLatestSeasonGenderedBracket(
         bracketCreationRequestDto: BracketCreationRequestDto
     ): ServiceResponse<GenderedInitialBracket> {
-        val latestSeason = seasonService.getLatestSeason()
+        val latestSeason = seasonService.getRawLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         val contestants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
 
@@ -70,14 +70,17 @@ class BracketService(
                 bracketGroup
             }.toSet()
 
-            ServiceResponse.successResponse(
-                GenderedInitialBracket(
-                    seasonNumber = latestSeason.seasonNumber,
-                    voteDeadline = bracketCreationRequestDto.voteDeadline,
-                    maleBracketGroups = maleBracketGroups,
-                    femaleBracketGroups = femaleBracketGroups
-                )
+            val genderedInitialBracket = GenderedInitialBracket(
+                seasonNumber = latestSeason.seasonNumber,
+                voteStartDate = Instant.ofEpochMilli(bracketCreationRequestDto.voteStartDateMilli),
+                voteDeadline = Instant.ofEpochMilli(bracketCreationRequestDto.voteDeadlineMilli),
+                maleBracketGroups = maleBracketGroups,
+                femaleBracketGroups = femaleBracketGroups
             )
+
+            initialBracketDao.save(genderedInitialBracket)
+
+            ServiceResponse.successResponse(genderedInitialBracket)
         }
     }
 
@@ -87,7 +90,18 @@ class BracketService(
         type: BracketType,
         bracketCreationRequestDto: BracketCreationRequestDto
     ): ServiceResponse<GenderedInitialBracket>? {
-        if (bracketCreationRequestDto.voteDeadline <= Instant.now()) {
+        LOG.info("MILLI START: ${bracketCreationRequestDto.voteStartDateMilli}")
+        LOG.info("MILLI END: ${bracketCreationRequestDto.voteDeadlineMilli}")
+        val voteStartDate = Instant.ofEpochMilli(bracketCreationRequestDto.voteStartDateMilli)
+        val voteDeadline = Instant.ofEpochMilli(bracketCreationRequestDto.voteDeadlineMilli)
+
+        LOG.info("START: $voteStartDate")
+        LOG.info("END: $voteDeadline")
+        if (voteStartDate >= voteDeadline) {
+            return ServiceResponse.errorResponse(BracketErrorCodes.INVALID_BRACKET_VOTE_DATES)
+        }
+
+        if (voteDeadline <= Instant.now()) {
             return ServiceResponse.errorResponse(BracketErrorCodes.INVALID_BRACKET_VOTE_DEADLINE)
         }
 
@@ -119,5 +133,47 @@ class BracketService(
         }
 
         return null
+    }
+
+    data class BracketPrint(
+        val data: String
+    )
+
+    fun printLatestSeasonBracket(): ServiceResponse<BracketPrint> {
+        val contestants = (participantService.getLatestSeasonContestants().getSuccessValue() ?: emptySet())
+            .associateBy { participant ->
+                participant.id
+            }
+        val latestSeason = seasonService.getRawLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+        val latestInitBracket = initialBracketDao.findBySeasonNumber(latestSeason.seasonNumber)
+
+        val bracket = latestInitBracket as GenderedInitialBracket
+        val sb = StringBuilder("FEMALE:")
+        sb.appendLine()
+        bracket.femaleBracketGroups.forEach {
+            val first = contestants[it.submissionId1]
+            val second = contestants[it.submissionId2]
+            sb.append("${first!!.azukiId} | ${first.twitterHandle}")
+            sb.append(" vs. ")
+            sb.append("${second!!.azukiId} | ${second.twitterHandle}")
+            sb.appendLine()
+        }
+
+        sb.appendLine()
+        sb.append("MALE:")
+        sb.appendLine()
+        bracket.maleBracketGroups.forEach {
+            val first = contestants[it.submissionId1]
+            val second = contestants[it.submissionId2]
+            sb.append("${first!!.azukiId} | ${first.twitterHandle}")
+            sb.append(" vs. ")
+            sb.append("${second!!.azukiId} | ${second.twitterHandle}")
+            sb.appendLine()
+        }
+
+        LOG.info(sb.toString())
+
+        return ServiceResponse.successResponse(BracketPrint(sb.toString()))
     }
 }

@@ -11,7 +11,7 @@ interface ParticipantDao : CrudRepository<Participant, String> {
     @Query("{'seasonNumber' : { '\$eq' : ?0 }}")
     fun findBySeasonNumber(seasonNumber: Int): Set<Participant>
 
-    fun findBySeasonNumberAndValidated(seasonNumber: Int, validated: Boolean): Set<Participant>
+    fun findBySeasonNumberAndSubmitted(seasonNumber: Int, submitted: Boolean): Set<Participant>
 
     fun findByAzukiIdAndSeasonNumber(azukiId: Long, seasonNumber: Int): Participant?
 

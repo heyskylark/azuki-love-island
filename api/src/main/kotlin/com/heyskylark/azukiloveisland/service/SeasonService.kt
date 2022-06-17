@@ -1,19 +1,27 @@
 package com.heyskylark.azukiloveisland.service
 
 import com.heyskylark.azukiloveisland.dao.SeasonsDao
-import com.heyskylark.azukiloveisland.model.Participant
 import com.heyskylark.azukiloveisland.model.season.Season
+import com.heyskylark.azukiloveisland.serialization.ServiceResponse
+import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
 import org.springframework.stereotype.Component
 
 @Component("seasonService")
 class SeasonService(
     private val seasonsDao: SeasonsDao
 ) {
-    fun getSeason(seasonNumber: Int): Season? {
+    fun getRawSeason(seasonNumber: Int): Season? {
         return seasonsDao.findById(seasonNumber).orElse(null)
     }
 
-    fun getLatestSeason(): Season? {
+    fun getLatestSeason(): ServiceResponse<Season> {
+        val latestSeason = getRawLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        return ServiceResponse.successResponse(latestSeason)
+    }
+
+    fun getRawLatestSeason(): Season? {
         return seasonsDao.findFirstByOrderBySeasonNumberDesc()
     }
 
@@ -22,7 +30,7 @@ class SeasonService(
     }
 
     fun createNewSeason(): Season {
-        val latestSeason = getLatestSeason()
+        val latestSeason = getRawLatestSeason()
         latestSeason?.let { deactivateSeasonSubmissions(it) }
 
         val newSeasonNumber = (latestSeason?.seasonNumber ?: 0) + 1

@@ -44,4 +44,9 @@ class BracketResource(
 
         return ResponseBuilder.buildResponse(initialBracket)
     }
+
+    @GetMapping("/latest/print")
+    fun printLatestSeasonBracket(): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(bracketService.printLatestSeasonBracket())
+    }
 }

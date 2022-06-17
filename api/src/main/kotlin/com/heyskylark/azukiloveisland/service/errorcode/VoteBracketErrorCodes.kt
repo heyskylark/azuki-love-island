@@ -5,6 +5,31 @@ enum class VoteBracketErrorCodes(
     override val code: String,
     override val type: ErrorType
 ) : ErrorCode {
+    TWITTER_HANDLE_USED(
+        message = "The twitter handle given has already been used to vote.",
+        code = "twitterHandleUsed",
+        type = ErrorType.BAD_REQUEST
+    ),
+    INVALID_TWITTER_HANDLE(
+        message = "The twitter handle you have given is invalid.",
+        code = "invalidTwitterHandle",
+        type = ErrorType.BAD_REQUEST
+    ),
+    VOTING_HAS_NOT_STARTED(
+        message = "Voting for the season has not started yet.",
+        code = "votingHasNotStarted",
+        type = ErrorType.BAD_REQUEST
+    ),
+    VOTING_HAS_ENDED(
+        message = "Voting has ended for this season.",
+        code = "votingHasEnded",
+        type = ErrorType.BAD_REQUEST
+    ),
+    NO_VOTE_BRACKET_FOUND(
+        message = "No votes have been found for this user.",
+        code = "noVoteBracketFound",
+        type = ErrorType.NOT_FOUND
+    ),
     CANNOT_VOTE_AGAIN(
         message = "You cannot vote again on this season.",
         code = "cannotVoteAgain",

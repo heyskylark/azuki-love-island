@@ -7,7 +7,7 @@ import com.heyskylark.azukiloveisland.util.HttpRequestUtil
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
     value = ["/vote"],
     produces = [MediaType.APPLICATION_JSON_VALUE]
 )
-class VotingResource(
+class VoteResource(
     private val voteService: VoteService
 ) {
     @GetMapping("/latest")
@@ -25,7 +25,7 @@ class VotingResource(
         return ResponseBuilder.buildResponse(voteService.getLatestVoteBracketForLatestSeason())
     }
 
-    @PutMapping
+    @PostMapping
     fun voteOnLatestSeason(@RequestBody voteRequestDto: VoteRequestDto): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(voteService.vote(voteRequestDto))
     }

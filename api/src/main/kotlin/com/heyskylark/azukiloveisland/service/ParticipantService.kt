@@ -27,21 +27,21 @@ class ParticipantService(
     }
 
     fun getLatestSeasonContestants(): ServiceResponse<Set<ParticipantResponseDto>> {
-        val latestSeason = seasonService.getLatestSeason()
+        val latestSeason = seasonService.getRawLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         return ServiceResponse.successResponse(
-            participantDao.findBySeasonNumberAndValidated(latestSeason.seasonNumber, true)
+            participantDao.findBySeasonNumberAndSubmitted(latestSeason.seasonNumber, true)
                 .map { ParticipantResponseDto(it) }
                 .toSet()
         )
     }
 
     fun getNoneDtoSeasonsContestants(seasonNumber: Int): Set<Participant> {
-        return participantDao.findBySeasonNumberAndValidated(seasonNumber, true)
+        return participantDao.findBySeasonNumberAndSubmitted(seasonNumber, true)
     }
 
-    fun geLatestSeasonSubmissions(): ServiceResponse<Set<ParticipantResponseDto>> {
-        val latestSeason = seasonService.getLatestSeason()
+    fun getLatestSeasonSubmissions(): ServiceResponse<Set<ParticipantResponseDto>> {
+        val latestSeason = seasonService.getRawLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         return ServiceResponse.successResponse(
             participantDao.findBySeasonNumber(latestSeason.seasonNumber).map { ParticipantResponseDto(it) }.toSet()
@@ -49,7 +49,7 @@ class ParticipantService(
     }
 
     fun getSeasonSubmissions(seasonNumber: Int): ServiceResponse<Set<ParticipantResponseDto>> {
-        seasonService.getSeason(seasonNumber)
+        seasonService.getRawSeason(seasonNumber)
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
         return ServiceResponse.successResponse(
             participantDao.findBySeasonNumber(seasonNumber).map { ParticipantResponseDto(it) }.toSet()
@@ -57,7 +57,7 @@ class ParticipantService(
     }
 
     fun getLatestSeasonSubmissionCount(): ServiceResponse<ParticipantCountDto> {
-        val latestSeason = seasonService.getLatestSeason()
+        val latestSeason = seasonService.getRawLatestSeason()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
         val count = participantDao.findBySeasonNumber(latestSeason.seasonNumber).count()
 
@@ -65,7 +65,7 @@ class ParticipantService(
     }
 
     fun getSubmissionCount(seasonNumber: Int): ServiceResponse<ParticipantCountDto> {
-        seasonService.getSeason(seasonNumber)
+        seasonService.getRawSeason(seasonNumber)
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
         val count = participantDao.findBySeasonNumber(seasonNumber).count()
 
@@ -78,7 +78,7 @@ class ParticipantService(
 
     fun submitParticipant(participantSubmissionDto: ParticipantSubmissionDto): ServiceResponse<ParticipantResponseDto> {
         // TODO: Remove this for next season so we can manually trigger a new season
-        val latestSeason = seasonService.getLatestSeason() ?: seasonService.createNewSeason()
+        val latestSeason = seasonService.getRawLatestSeason() ?: seasonService.createNewSeason()
         if (!latestSeason.submissionActive) {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.SEASON_SUBMISSIONS_ARE_NOT_ACTIVE)
         }
