@@ -177,16 +177,17 @@ function Gallery(props: Props) {
     }
 
     function renderVoting(): JSX.Element | undefined {
-        if (votingOpen) {
-            return (
-                <div className="flex w-full content-center mb-7">
-                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-xl lg:text-2xl whitespace-pre-line">Voting is now Open:&nbsp;</h1>
-                    <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/vote">
-                        Vote Now →
-                    </Link>
-                </div>
-            );
-        }
+        return undefined;
+        // if (votingOpen) {
+        //     return (
+        //         <div className="flex w-full content-center mb-7">
+        //             <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-xl lg:text-2xl whitespace-pre-line">Voting is now Open:&nbsp;</h1>
+        //             <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/vote">
+        //                 Vote Now →
+        //             </Link>
+        //         </div>
+        //     );
+        // }
     }
 
     return (
