@@ -25,7 +25,7 @@ function Credits() {
 
                             <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">FastandLucid</h1>
-                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Artist and creator of the sexy Azuki Love Island Beanz.</p>
+                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Artist and creator of the beach Azuki Love Island Beanz.</p>
                                 <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/FastandLucid" target="_blank" rel="noreferrer">@FastandLucid.</a>
                             </div>
 
@@ -36,9 +36,10 @@ function Credits() {
                             </div>
 
                             <div className="mb-6">
-                                <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">IamAshChild</h1>
-                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">The inspiration behind this project.</p>
-                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/iamashchild" target="_blank" rel="noreferrer">@iamashchild.</a>
+                                <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">IamAshChild & Bamedi</h1>
+                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">The tweet that inspired it all: <a className="underline text-gray-500 hover:text-gray-800" href="https://twitter.com/iamashchild/status/1534694630633054208" target="_blank" rel="noreferrer">Here</a></p>
+                                <a className="mr-2 font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/iamashchild" target="_blank" rel="noreferrer">@iamashchild.</a>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/Bamedi_" target="_blank" rel="noreferrer">@Bamedi_.</a>
                             </div>
 
                             <div>
