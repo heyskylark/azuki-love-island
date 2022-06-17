@@ -1,10 +1,12 @@
 import { pbkdf2 } from "crypto";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getLatestSeasonParticipants } from "../clients/MainClient";
+import { getLatestSeasonParticipants, getSeasonsInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
+import Loading from "../components/Loading";
 import { useLatestSeason } from "../context/SeasonContext";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
@@ -17,6 +19,7 @@ function Gallery(props: Props) {
     const latestSeasonContext = useLatestSeason();
 
     const [loading, setLoading] = useState<boolean>(true);
+    const [votingOpen, setVotingOpen] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(true);
 
     const [participants, setParticipants] = useState<ParticipantResponse[]>([]);
@@ -33,7 +36,6 @@ function Gallery(props: Props) {
     useEffect(() => {
         async function getParticipants() {
             try {
-                console.log(props.filter)
                 const participantsResponse = await getLatestSeasonParticipants(props.filter);
                 const data = participantsResponse.data;
 
@@ -48,6 +50,18 @@ function Gallery(props: Props) {
             } finally {
                 setLoading(false);
             }
+
+            try {
+                const initialBracketResponse = await getSeasonsInitialBracket();
+                const initialBracketData = initialBracketResponse.data;
+
+                const voteStartDate = new Date(initialBracketData.voteStartDate).getTime();
+                const voteEndDate = new Date(initialBracketData.voteDeadline).getTime();
+                const now = new Date().getTime();
+                if (now >= voteStartDate && now <= voteEndDate) {
+                    setVotingOpen(true);
+                }
+            } catch (_) {}
         }
 
         getParticipants();
@@ -110,23 +124,27 @@ function Gallery(props: Props) {
     }
 
     function renderParticipants() {
-        let preview: JSX.Element[] = []
-        filteredParticipants.forEach(participant => {
-            preview.push(
-                <GalleryPreview
-                    key={participant.azukiId}
-                    azukiId={participant.azukiId}
-                    twitterHandle={participant.twitterHandle}
-                    color={participant.backgroundTrait}
-                    modalImageUrl={participant.imageUrl}
-                    bio={participant.bio}
-                    hobbies={participant.hobbies}
-                    openModal={openModal}
-                />
-            )
-        });
+        if (loading) {
+            <Loading />
+        } else {
+            let preview: JSX.Element[] = []
+            filteredParticipants.forEach(participant => {
+                preview.push(
+                    <GalleryPreview
+                        key={participant.azukiId}
+                        azukiId={participant.azukiId}
+                        twitterHandle={participant.twitterHandle}
+                        color={participant.backgroundTrait}
+                        modalImageUrl={participant.imageUrl}
+                        bio={participant.bio}
+                        hobbies={participant.hobbies}
+                        openModal={openModal}
+                    />
+                )
+            });
 
-        return preview;
+            return preview;
+        }
     }
 
     function getSeasonNumber(): string {
@@ -158,6 +176,19 @@ function Gallery(props: Props) {
 		}
     }
 
+    function renderVoting(): JSX.Element | undefined {
+        if (votingOpen) {
+            return (
+                <div className="flex w-full content-center mb-7">
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-xl lg:text-2xl whitespace-pre-line">Voting is now Open:&nbsp;</h1>
+                    <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/vote">
+                        Vote Now →
+                    </Link>
+                </div>
+            );
+        }
+    }
+
     return (
         <>
         <div className="container mx-auto">
@@ -168,7 +199,7 @@ function Gallery(props: Props) {
                         <h1 className="mb-6 uppercase font-black text-3xl lg:text-4xl whitespace-pre-line">Contestants&nbsp;<span className="opacity-10"> //</span></h1>
                     </div>
 
-                    <div className="flex w-7/12 mb-7">
+                    <div className="flex lg:w-7/12 mb-7">
 					    <div className="w-full md:w-8/12 -ml-2 px-2 sm:px-0 py-0">
                             {/* <button className="flex hover:opacity-50">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="w-5 h-5">
@@ -178,21 +209,21 @@ function Gallery(props: Props) {
                             <div className="flex p-1 space-x-1 duration-300 bg-gray-200 lg:rounded-xl rounded justify-end">
                                 <button
                                     id="allFilter"
-                                    className={`w-full lg:py-1.5 sm:py-1 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.ALL ? "bg-white" : ""}`}
+                                    className={`w-full py-[0.3rem] lg:py-1.5 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.ALL ? "bg-white" : ""}`}
                                     onClick={filterButtonEvent}
                                 >
                                     ALL
                                 </button>
                                 <button
                                     id="femaleFilter"
-                                    className={`w-full lg:py-1.5 sm:py-1 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.FEMALE ? "bg-white" : ""}`}
+                                    className={`w-full py-[0.3rem] lg:py-1.5 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.FEMALE ? "bg-white" : ""}`}
                                     onClick={filterButtonEvent}
                                 >
                                     GIRLZUKI
                                 </button>
                                 <button
                                     id="maleFilter"
-                                    className={`w-full lg:py-1.5 sm:py-1 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.MALE ? "bg-white" : ""}`}
+                                    className={`w-full py-[0.3rem] lg:py-1.5 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${filterState === GalleryFilterState.MALE ? "bg-white" : ""}`}
                                     onClick={filterButtonEvent}
                                 >
                                     BOYZUKI
@@ -200,6 +231,8 @@ function Gallery(props: Props) {
                             </div>
                         </div>
                     </div>
+
+                    {renderVoting()}
 
                     <div className="flex">
                         <div className="w-full">

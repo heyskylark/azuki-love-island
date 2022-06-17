@@ -6,6 +6,7 @@ import Credits from "./pages/Credits";
 import { Route, Routes } from "react-router-dom";
 import Gallery from "./pages/Gallery";
 import { ProvideLatestSeason } from "./context/SeasonContext";
+import Vote from "./pages/Vote";
 
 function App() {
   const params = new URLSearchParams("filter");
@@ -21,6 +22,7 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Gallery filter={params.get("filter")} />} />
+        <Route path="/vote" element={<Vote />} />
         <Route path="/gallery" element={<Gallery filter={params.get("filter")} />} />
         <Route path="/submission" element={<Submission />} />
         <Route path="/credits" element={<Credits />} />

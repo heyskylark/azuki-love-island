@@ -1,3 +1,5 @@
+import { getBackgroundColor, textColor } from "../util/ColorUtil"
+
 interface Props {
     azukiId: number
     twitterHandle: string
@@ -83,8 +85,8 @@ function GalleryCard(props: Props) {
             <div className="bg-white duration-300 bg-opacity-80 w-full h-full" />
         </div>
 
-        <div className="fixed left-1/2 top-1/2 transform z-50 lg:w-full w-11/12 max-w-6xl text-black" style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`}}>
-            <div className="shadow-me gap-x-10 duration-300 relative rounded-2xl overflow-hidden grid md:grid-cols-12 grid-cols-1 mx-auto" style={{background: `rgb(223, 223, 221) none repeat scroll 0% 0%`}}>
+        <div className={`fixed left-1/2 top-1/2 transform z-50 lg:w-full w-11/12 max-w-6xl ${textColor(props.color)}`} style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`}}>
+            <div className="shadow-me gap-x-10 duration-300 relative rounded-2xl overflow-hidden grid md:grid-cols-12 grid-cols-1 mx-auto" style={{background: `${getBackgroundColor(props.color)} none repeat scroll 0% 0%`}}>
                 <button className="absolute z-50 block top-4 right-4 lg:hidden" onClick={close}>
                     <svg className="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd">
                         <path d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z" />

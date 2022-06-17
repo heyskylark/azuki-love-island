@@ -114,7 +114,7 @@ function SubmissionForm(props: Props) {
                     className="w-full mb-4 p-3 border-2 border-gray-100 focus:outline-none"
                     placeholder="Twitter handle..."
                     value={props.twitterHandle}
-                    onChange={(e) => props.setTwitterHandle(e.target.value)}
+                    onChange={(e) => props.setTwitterHandle(e.target.value)} // TODO: Add twitter validation like TwitterHandleFields.tsx
                 >
                 </input>
             </label>

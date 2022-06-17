@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { getLatestSeason } from "../clients/MainClient";
-import Season from "../models/Season";
+import Season from "../models/api/Season";
 
 interface LatestSeasonContext {
     seasonContextLoading: boolean;

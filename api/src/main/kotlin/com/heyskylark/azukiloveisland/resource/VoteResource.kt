@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController
 class VotingResource(
     private val voteService: VoteService
 ) {
+    @GetMapping("/latest")
+    fun getLatestBracketForCurrentSeason(): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(voteService.getLatestVoteBracketForLatestSeason())
+    }
+
     @PutMapping
     fun voteOnLatestSeason(@RequestBody voteRequestDto: VoteRequestDto): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(voteService.vote(voteRequestDto))
