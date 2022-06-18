@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getLatestSeasonParticipants, getLatestVoteBracket, getSeasonsInitialBracket, voteOnGenderedBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
@@ -9,8 +9,11 @@ import VoteWindow from "../components/vote/VoteWindow";
 import BracketGroup, { BracketGroupCreator } from "../models/api/BracketGroup";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import VoteRequest from "../models/api/VoteRequest";
+import Countdown from 'react-countdown';
 
 function Vote() {
+    const countDownRef = createRef<Countdown>();
+
     const [voteState, setVoteState] = useState<string>("INIT");
     const [twitterHandleSubmited, setTwitterHandleSubmitted] = useState<boolean>(false);
     const [twitterHandle, setTwitterHandle] = useState<string>("");
@@ -32,6 +35,7 @@ function Vote() {
 
     const [voteClosed, setVoteClosed] = useState<boolean>(false);
     const [voteStartDate, setVoteStartDate] = useState<Date>(new Date());
+    const [voteEndDate, setVoteEndDate] = useState<number>(10);
 
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -55,6 +59,7 @@ function Vote() {
                 const voteEndDate = new Date(initialBracketData.voteDeadline);
 
                 setVoteStartDate(voteStartDate);
+                setVoteEndDate(voteEndDate.getTime());
 
                 if (now < voteStartDate.getTime() || now > voteEndDate.getTime()) {
                     setVoteClosed(true);
@@ -111,6 +116,10 @@ function Vote() {
 
         initData();
     }, [])
+
+    useEffect(() => {
+        countDownRef.current?.start();
+    }, [voteEndDate, countDownRef])
 
     useEffect(() => {
         if (currentBracketNumber === finalBracketNumber) {
@@ -412,6 +421,10 @@ function Vote() {
         return true;
     }
 
+    function renderCountdown() {
+        return  <Countdown date={1655622000000} />
+    }
+
     return (
         <>
         <div className="container mx-auto">
@@ -420,7 +433,8 @@ function Vote() {
                     <div className="w-full flex flex-wrap justify-center lg:text-center pt-28">
                         <div className="w-full lg:w-1/2">
                             <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Round: {currentBracketNumber} / {finalBracketNumber !== -1 ? finalBracketNumber : 0}</h1>
-                            <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Left For Round: {getRemainingBracketVotes()}</h1>
+                            <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Left For Round: {getRemainingBracketVotes()}</h1>
+                            <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Ends At: <Countdown ref={countDownRef} date={voteEndDate} /></h1>
 
                             {twitterHandleSubmited ? <button
                                 className="transition-opacity ease-in-out delay-50 disabled:opacity-70 uppercase mb-8 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70"
