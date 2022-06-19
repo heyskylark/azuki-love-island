@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getLatestSeasonParticipants, getSeasonsInitialBracket } from "../clients/MainClient";
+import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults, getSeasonsInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
 import Loading from "../components/Loading";
 import { useLatestSeason } from "../context/SeasonContext";
+import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
 
@@ -23,6 +24,7 @@ function Gallery(props: Props) {
 
     const [participants, setParticipants] = useState<ParticipantResponse[]>([]);
     const [filteredParticipants, setFilteredParticipants] = useState<ParticipantResponse[]>([]);
+    const [voteResults, setVoteResults] = useState<GenderedRoundWinners[]>([]);
 
     const [filterState, setFilterState] = useState<GalleryFilterState>(GalleryFilterState.ALL);
     const [azukiId, setAzukiId] = useState<number>(-1);
@@ -58,6 +60,9 @@ function Gallery(props: Props) {
                 if (now >= voteStartDate && now <= voteEndDate) {
                     setVotingOpen(true);
                 }
+
+                const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
+                setVoteResults(latestSeasonVoteResults.data);
             } catch (_) {} finally {
                 setLoading(false);
             }
@@ -192,6 +197,19 @@ function Gallery(props: Props) {
         }
     }
 
+    function renderResults(): JSX.Element | undefined {
+        if (!votingOpen && voteResults.length > 0) {
+            return (
+                <div className="flex w-full content-center mb-7">
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Results are Out:&nbsp;</h1>
+                    <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/results">
+                        Results →
+                    </Link>
+                </div> 
+            );
+        }
+    }
+
     return (
         <>
         <div className="container mx-auto">
@@ -230,6 +248,7 @@ function Gallery(props: Props) {
                         </div>
                     </div>
 
+                    {renderResults()}
                     {renderVoting()}
 
                     <div className="flex">
