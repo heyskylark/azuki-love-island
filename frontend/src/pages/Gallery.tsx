@@ -46,8 +46,6 @@ function Gallery(props: Props) {
                 setFilteredParticipants(sortedParticipants);
             } catch (err) {
                 toast.error("There was a problem loading the participants...")
-            } finally {
-                setLoading(false);
             }
 
             try {
@@ -60,7 +58,9 @@ function Gallery(props: Props) {
                 if (now >= voteStartDate && now <= voteEndDate) {
                     setVotingOpen(true);
                 }
-            } catch (_) {}
+            } catch (_) {} finally {
+                setLoading(false);
+            }
         }
 
         getParticipants();
@@ -124,7 +124,7 @@ function Gallery(props: Props) {
 
     function renderParticipants() {
         if (loading) {
-            <Loading />
+            return <Loading />
         } else {
             let preview: JSX.Element[] = []
             filteredParticipants.forEach(participant => {
@@ -142,7 +142,11 @@ function Gallery(props: Props) {
                 )
             });
 
-            return preview;
+            return (
+                <div className="grid lg:grid-cols-5 2xl:grid-cols-5 grid-cols-2 lg:gap-x-6 gap-x-4 lg:gap-y-2 gap-y-1 lg:col-span-3">
+                    {preview}
+                </div>
+            );
         }
     }
 
@@ -230,9 +234,7 @@ function Gallery(props: Props) {
 
                     <div className="flex">
                         <div className="w-full">
-                            <div className="grid lg:grid-cols-5 2xl:grid-cols-5 grid-cols-2 lg:gap-x-6 gap-x-4 lg:gap-y-2 gap-y-1 lg:col-span-3">
-                                {renderParticipants()}
-                            </div>
+                            {renderParticipants()}
                         </div>
                     </div>
                 </section>
