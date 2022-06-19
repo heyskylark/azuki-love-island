@@ -5,6 +5,11 @@ enum class VoteBracketErrorCodes(
     override val code: String,
     override val type: ErrorType
 ) : ErrorCode {
+    WINNER_CALC_ISSUE(
+        message = "There was an issue calculating the winners for the round.",
+        code = "winnerCalcIssue",
+        type = ErrorType.INTERNAL_SERVER_ERROR
+    ),
     TWITTER_HANDLE_USED(
         message = "The twitter handle given has already been used to vote.",
         code = "twitterHandleUsed",

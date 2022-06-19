@@ -1,12 +1,20 @@
 package com.heyskylark.azukiloveisland.service
 
 import com.heyskylark.azukiloveisland.dao.VoteBracketDao
+import com.heyskylark.azukiloveisland.dto.vote.GenderedRoundWinners
+import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteBracketResponseDto
+import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteCountResults
+import com.heyskylark.azukiloveisland.dto.vote.ParsedGenderedRoundWinners
+import com.heyskylark.azukiloveisland.dto.vote.VoteCountResults
 import com.heyskylark.azukiloveisland.dto.vote.VoteRequestDto
+import com.heyskylark.azukiloveisland.model.Participant
 import com.heyskylark.azukiloveisland.model.voting.BracketGroup
 import com.heyskylark.azukiloveisland.model.voting.GenderedInitialBracket
 import com.heyskylark.azukiloveisland.model.voting.GenderedVoteBracket
 import com.heyskylark.azukiloveisland.model.voting.InitialBracket
+import com.heyskylark.azukiloveisland.model.voting.ParsedWinningResultsBracketGroup
 import com.heyskylark.azukiloveisland.model.voting.VoteBracket
+import com.heyskylark.azukiloveisland.model.voting.WinningResultsBracketGroup
 import com.heyskylark.azukiloveisland.serialization.ErrorResponse
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.BracketErrorCodes
@@ -20,9 +28,18 @@ import org.springframework.stereotype.Component
 class VoteService(
     private val seasonService: SeasonService,
     private val bracketService: BracketService,
+    private val participantService: ParticipantService,
     private val voteBracketDao: VoteBracketDao
 ) : BaseService() {
-    fun getLatestVoteBracketForLatestSeason(): ServiceResponse<VoteBracket> {
+    companion object {
+        private const val SUN_NOON = 1655665200000
+        private const val MON_NOON = 1655751600000
+        private const val TUES_NOON = 1655838000000
+        private const val WED_NOON = 1655924400000
+        private const val THURS_NOON = 1656010800000
+    }
+
+    fun getLatestVoteBracketForLatestSeason(): ServiceResponse<GenderedVoteBracketResponseDto> {
         val ip = HttpRequestUtil.getClientIpAddressIfServletRequestExist()
 
         val latestSeason = seasonService.getRawLatestSeason()
@@ -33,7 +50,324 @@ class VoteService(
                 it.bracketNumber
             } ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.NO_VOTE_BRACKET_FOUND)
 
-        return ServiceResponse.successResponse(latestVoteBracket)
+        return ServiceResponse.successResponse(GenderedVoteBracketResponseDto(latestVoteBracket as GenderedVoteBracket))
+    }
+
+    fun calculateParsedRoundVotesForLastSeason(roundNumber: Int): ServiceResponse<ParsedGenderedRoundWinners> {
+        val latestSeason = seasonService.getRawLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+        val participantMap = seasonParticipants.associateBy { it.id }
+
+        // TODO: Later validate if season isn't over yet and block request
+
+        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+            seasonNumber = latestSeason.seasonNumber,
+            bracketNumber = roundNumber,
+            finishedVoting = true
+        )
+
+        return try {
+            val unparsed = calculateWinners(
+                votes = votes,
+                participants = seasonParticipants,
+                roundNumber = roundNumber
+            )
+
+            val parsed = ParsedGenderedRoundWinners(
+                maleWinners = unparsed.maleWinners.mapNotNull {
+                    val sub1 = participantMap[it.submissionId1]
+                    val sub2 = participantMap[it.submissionId2]
+
+                    if (sub1 != null && sub2 != null) {
+                        ParsedWinningResultsBracketGroup(
+                            submission1 = sub1,
+                            submission2 = sub2,
+                            sub1VoteCount = it.sub1VoteCount,
+                            sub2VoteCount = it.sub2VoteCount,
+                            sortOrder = it.sortOrder
+                        )
+                    } else null
+                }.toList().sortedBy { it.sortOrder },
+                femaleWinners = unparsed.femaleWinners.mapNotNull {
+                    val sub1 = participantMap[it.submissionId1]
+                    val sub2 = participantMap[it.submissionId2]
+
+                    if (sub1 != null && sub2 != null) {
+                        ParsedWinningResultsBracketGroup(
+                            submission1 = sub1,
+                            submission2 = sub2,
+                            sub1VoteCount = it.sub1VoteCount,
+                            sub2VoteCount = it.sub2VoteCount,
+                            sortOrder = it.sortOrder
+                        )
+                    } else null
+                }.toList().sortedBy { it.sortOrder },
+                roundNumber = roundNumber
+            )
+
+            ServiceResponse.successResponse(parsed)
+        } catch (e: Exception) {
+            LOG.error("There was a problem calculating the round members", e)
+            ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+        }
+    }
+
+    fun calculateTotalVotesForLatestSeason(): ServiceResponse<List<GenderedRoundWinners>> {
+        val initialBracketResponse = bracketService.getLatestSeasonBracket()
+        val initialBracket = if (initialBracketResponse.isSuccess()) {
+            initialBracketResponse.getSuccessValue()
+                ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+        } else {
+            val errorResponse = initialBracketResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
+
+        val numOfRounds = if (Instant.now() < Instant.ofEpochMilli(SUN_NOON)) {
+            return ServiceResponse.successResponse(emptyList())
+        } else if (Instant.now() >= Instant.ofEpochMilli(SUN_NOON) && Instant.now() < Instant.ofEpochMilli(MON_NOON)) {
+            1
+        } else if (Instant.now() >= Instant.ofEpochMilli(MON_NOON) && Instant.now() < Instant.ofEpochMilli(TUES_NOON)) {
+            2
+        } else if (Instant.now() >= Instant.ofEpochMilli(TUES_NOON) && Instant.now() < Instant.ofEpochMilli(WED_NOON)) {
+            3
+        } else if (Instant.now() >= Instant.ofEpochMilli(WED_NOON) && Instant.now() < Instant.ofEpochMilli(THURS_NOON)) {
+            4
+        } else {
+            initialBracket.numOfBrackets
+        }
+
+        val rounds = mutableListOf<GenderedRoundWinners>()
+        for(roundNumber in 1..numOfRounds) {
+            val resultsResponse = calculateRoundVotesForLatestSeason(roundNumber)
+            if (resultsResponse.isSuccess()) {
+                val results = resultsResponse.getSuccessValue()
+                    ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+
+                rounds.add(results)
+            } else {
+                val errorResponse = resultsResponse as ErrorResponse
+                return ServiceResponse.errorResponse(errorResponse.errorCode)
+            }
+        }
+
+        return ServiceResponse.successResponse(rounds.sortedBy { it.roundNumber })
+    }
+
+    fun calculateRoundVotesForLatestSeason(roundNumber: Int): ServiceResponse<GenderedRoundWinners> {
+        val latestSeason = seasonService.getRawLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+
+        // TODO: Later validate if season isn't over yet and block request
+
+        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+            seasonNumber = latestSeason.seasonNumber,
+            bracketNumber = roundNumber,
+            finishedVoting = true
+        )
+
+        return try {
+            ServiceResponse.successResponse(
+                calculateWinners(
+                    votes = votes,
+                    participants = seasonParticipants,
+                    roundNumber = roundNumber
+                )
+            )
+        } catch (e: Exception) {
+            LOG.error("There was a problem calculating the round members", e)
+            ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+        }
+    }
+
+    private fun calculateWinners(
+        votes: List<VoteBracket>,
+        participants: Set<Participant>,
+        roundNumber: Int
+    ): GenderedRoundWinners {
+        val participantMap = participants.associateBy { it.id }
+
+        // Map<SortOrder, Map<ParticipantId, VoteCount>>
+        val sub1MaleVoteMap = mutableMapOf<Int, MutableMap<String, Int>>()
+        val sub2MaleVoteMap = mutableMapOf<Int, MutableMap<String, Int>>()
+        val sub1FemaleVoteMap = mutableMapOf<Int, MutableMap<String, Int>>()
+        val sub2FemaleVoteMap = mutableMapOf<Int, MutableMap<String, Int>>()
+
+        votes.forEach { voteBracket ->
+            when (voteBracket) {
+                is GenderedVoteBracket -> {
+                    voteBracket.maleBracketGroups.forEach {  group ->
+                        parseBracketGroup(
+                            group = group,
+                            sub1VoteMap = sub1MaleVoteMap,
+                            sub2VoteMap = sub2MaleVoteMap
+                        )
+                    }
+
+                    voteBracket.femaleBracketGroups.forEach { group ->
+                        parseBracketGroup(
+                            group = group,
+                            sub1VoteMap = sub1FemaleVoteMap,
+                            sub2VoteMap = sub2FemaleVoteMap
+                        )
+                    }
+                }
+            }
+        }
+
+        val maleRoundWinners = aggregateWinnersIntoBracketGroups(sub1MaleVoteMap, sub2MaleVoteMap, participantMap)
+        val femaleRoundWinner = aggregateWinnersIntoBracketGroups(sub1FemaleVoteMap, sub2FemaleVoteMap, participantMap)
+
+        return GenderedRoundWinners(
+            maleWinners = maleRoundWinners.sortedBy { it.sortOrder },
+            femaleWinners = femaleRoundWinner.sortedBy { it.sortOrder },
+            roundNumber = roundNumber
+        )
+    }
+
+    fun calculateLatestSeasonVoteCountForRound(roundNumber: Int): ServiceResponse<GenderedVoteCountResults> {
+        val latestSeason = seasonService.getRawLatestSeason()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+
+        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+            seasonNumber = latestSeason.seasonNumber,
+            bracketNumber = roundNumber,
+            finishedVoting = true
+        )
+
+        return ServiceResponse.successResponse(parseAllVotesForRound(votes, participants = seasonParticipants))
+    }
+
+    private fun parseAllVotesForRound(
+        votes: List<VoteBracket>,
+        participants: Set<Participant>
+    ): GenderedVoteCountResults {
+        val participantMap = participants.associateBy { it.id }
+
+        val maleVoteCountMap = mutableMapOf<String, Int>()
+        val femaleVoteCountMap = mutableMapOf<String, Int>()
+
+        votes.forEach { voteBracket ->
+            when (voteBracket) {
+                is GenderedVoteBracket -> {
+                    voteBracket.maleBracketGroups.forEach { group ->
+                        parseBracketGroupForVote(group, maleVoteCountMap)
+                    }
+
+                    voteBracket.femaleBracketGroups.forEach { group ->
+                        parseBracketGroupForVote(group, femaleVoteCountMap)
+                    }
+                }
+            }
+        }
+
+        val maleVoteCountResults = maleVoteCountMap.mapNotNull { (participantId, voteCount) ->
+            participantMap[participantId]?.let {
+                VoteCountResults(
+                    participant = it,
+                    voteCount = voteCount
+                )
+            }
+        }
+
+        val femaleVoteResults = femaleVoteCountMap.mapNotNull { (participantId, voteCount) ->
+            participantMap[participantId]?.let {
+                VoteCountResults(
+                    participant = it,
+                    voteCount = voteCount
+                )
+            }
+        }
+
+        return GenderedVoteCountResults(
+            maleVoteCount = maleVoteCountResults.sortedByDescending { it.voteCount },
+            femaleVoteCount = femaleVoteResults.sortedByDescending { it.voteCount }
+        )
+    }
+
+    private fun aggregateWinnersIntoBracketGroups(
+        sub1VoteMap: MutableMap<Int, MutableMap<String, Int>>,
+        sub2VoteMap: MutableMap<Int, MutableMap<String, Int>>,
+        participantMap: Map<String, Participant>
+    ): List<WinningResultsBracketGroup> {
+        val sub1Winners = parseWinnerFromAggregatedVotes(sub1VoteMap, participantMap)
+        val sub2Winners = parseWinnerFromAggregatedVotes(sub2VoteMap, participantMap)
+
+        return sub1Winners.map { (sortOrder, winner) ->
+            val sub2Winner = sub2Winners[sortOrder]
+
+            WinningResultsBracketGroup(
+                submissionId1 = winner.first,
+                sub1VoteCount = winner.second,
+                submissionId2 = sub2Winner?.first,
+                sub2VoteCount = sub2Winner?.second ?: 0,
+                sortOrder = sortOrder
+            )
+        }
+    }
+
+    private fun parseWinnerFromAggregatedVotes(
+        submissionVoteMap: MutableMap<Int, MutableMap<String, Int>>,
+        participantMap: Map<String, Participant>
+    ): Map<Int, Pair<String, Int>> {
+        return submissionVoteMap.map { (groupNumber, participantAndVote) ->
+            var winner: Pair<String, Int>? = null
+
+            participantAndVote.forEach { (participantId, voteCount) ->
+                winner?.let {
+                    if (it.second == voteCount) {
+                        val prevParticipant = participantMap[it.first]
+                        val currParticipant = participantMap[participantId]
+
+                        if (prevParticipant != null && currParticipant != null) {
+                            if (currParticipant.azukiId > prevParticipant.azukiId) {
+                                winner = Pair(participantId, voteCount)
+                            }
+                        } else {
+                            LOG.error("One of the participants did not exist: $prevParticipant | $currParticipant")
+                        }
+                    } else if (it.second < voteCount) {
+                        winner = Pair(participantId, voteCount)
+                    }
+                } ?: run {
+                    winner = Pair(participantId, voteCount)
+                }
+            }
+
+            winner?.let { groupNumber to it } ?: throw RuntimeException("A winner was not chosen...")
+        }.toMap()
+    }
+
+    private fun parseBracketGroupForVote(
+        group: BracketGroup,
+        voteCountMap: MutableMap<String, Int>
+    ) {
+        voteCountMap[group.submissionId1] = voteCountMap.getOrDefault(group.submissionId1, 0) + 1
+        group.submissionId2?.let {
+            voteCountMap[it] = voteCountMap.getOrDefault(it, 0) + 1
+        }
+    }
+
+    private fun parseBracketGroup(
+        group: BracketGroup,
+        sub1VoteMap: MutableMap<Int, MutableMap<String, Int>>,
+        sub2VoteMap: MutableMap<Int, MutableMap<String, Int>>
+    ) {
+        val sub1sortGroup = sub1VoteMap.getOrDefault(group.sortOrder, mutableMapOf())
+        sub1sortGroup[group.submissionId1] = sub1sortGroup.getOrDefault(group.submissionId1, 0) + 1
+        sub1VoteMap[group.sortOrder] = sub1sortGroup
+
+        val submission2 = group.submissionId2
+        if (submission2 !== null) {
+            val sub2sortGroup = sub2VoteMap.getOrDefault(group.sortOrder, mutableMapOf())
+            sub2sortGroup[group.submissionId2] = sub2sortGroup.getOrDefault(group.submissionId2, 0) + 1
+            sub2VoteMap[group.sortOrder] = sub2sortGroup
+        }
     }
 
     fun vote(voteRequestDto: VoteRequestDto): ServiceResponse<VoteBracket> {

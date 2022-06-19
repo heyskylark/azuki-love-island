@@ -6,8 +6,13 @@ import Season from "../models/api/Season";
 import GenderedVoteBracket from "../models/api/GenderedVoteBracket";
 import GenderedInitialBracket from "../models/api/GenderedInitialBracket";
 import VoteRequest from "../models/api/VoteRequest";
+import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 
 const BASE_URL = process.env.REACT_APP_BASE_API_URL;
+
+export async function getLatestSeasonsTotalVoteResults(): Promise<AxiosResponse<GenderedRoundWinners[]>> {
+    return axios.get(`${BASE_URL}/vote/totals/latest`);
+}
 
 export async function getSeasonsInitialBracket(): Promise<AxiosResponse<GenderedInitialBracket>> {
     return axios.get(`${BASE_URL}/brackets/latest`);

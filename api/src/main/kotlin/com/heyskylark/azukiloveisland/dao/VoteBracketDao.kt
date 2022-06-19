@@ -10,5 +10,11 @@ interface VoteBracketDao : CrudRepository<VoteBracket, String> {
 
     fun findByIpAndSeasonNumber(ip: String, seasonNumber: Int): List<VoteBracket>
 
+    fun findBySeasonNumberAndBracketNumberAndFinishedVoting(
+        seasonNumber: Int,
+        bracketNumber: Int,
+        finishedVoting: Boolean
+    ): List<VoteBracket>
+
     fun findBySeasonNumberAndFinishedVoting(seasonNumber: Int, finishedVoting: Boolean): Set<VoteBracket>
 }

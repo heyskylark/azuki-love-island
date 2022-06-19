@@ -5,8 +5,13 @@ enum class ParticipantErrorCodes(
     override val code: String,
     override val type: ErrorType
 ) : ErrorCode {
+    SEASON_CONTESTANTS_NOT_FOUND(
+        message = "Cannot find contestants for the season.",
+        code = "seasonContestantsNotFound",
+        type = ErrorType.BAD_REQUEST
+    ),
     TWITTER_HANDLE_MISSING(
-        message = "Twitter handle cannot be blank or ermpty.",
+        message = "Twitter handle cannot be blank or empty.",
         code = "twitterHandleMissing",
         type = ErrorType.BAD_REQUEST
     ),
