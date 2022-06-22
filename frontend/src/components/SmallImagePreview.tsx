@@ -29,7 +29,7 @@ function SmallImagePreview(props: Props) {
 
     function renderVs() {
         if (props.vs) {
-            return <img className="absolute w-1/3 top-[70px] left-[170px] z-50" src="/images/vs.png" alt='' />;
+            return <img className="absolute w-1/3 top-[30%] left-[83%] z-50" src="/images/vs.png" alt='' />;
         }
     }
 
