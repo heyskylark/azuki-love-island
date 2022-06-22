@@ -29,7 +29,7 @@ function SmallImagePreview(props: Props) {
 
     function renderVs() {
         if (props.vs) {
-            return <img className="absolute w-1/3 top-[30%] left-[83%] z-50" src="/images/vs.png" alt='' />;
+            return <img className="absolute w-1/3 top-[30%] left-[83%] z-[37]" src="/images/vs.png" alt='' />;
         }
     }
 
@@ -37,8 +37,8 @@ function SmallImagePreview(props: Props) {
         <div className={`${props.className} group relative text-sm lg:-20`}>
             {renderVs()}
             <div className="w-full relative rounded-xl square aspect-w-1 aspect-h-1 overflow-hidden bg-gray-100 shadow-me" style={{background: `rgb(161, 158, 153) none repeat scroll 0% 0%`}}>
-                <div className="w-full h-full bg-white opacity-0 absolute z-49" />
-                <div className="animate-flash-once w-full h-full bg-white opacity-0 absolute z-49" />
+                <div className="w-full h-full bg-white opacity-0 absolute z-[36]" />
+                <div className="animate-flash-once w-full h-full bg-white opacity-0 absolute z-[36]" />
                 <img className="w-full h-full object-center object-cover absolute" src={getPreviewUrl()} alt={`Azuki #${props.azukiId}`} />
             </div>
 
