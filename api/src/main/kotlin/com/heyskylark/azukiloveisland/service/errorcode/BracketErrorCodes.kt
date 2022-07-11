@@ -5,6 +5,11 @@ enum class BracketErrorCodes(
     override val code: String,
     override val type: ErrorType
 ) : ErrorCode {
+    INVALID_VOTE_GAP_WITH_END_TIME(
+        message = "End time should be more than the last date when all rounds unlock, plus a vote gap for the final round to have room for voting.",
+        code = "invalidVoteGapWithEndTime",
+        type = ErrorType.BAD_REQUEST
+    ),
     NO_BRACKET_FOUND(
         message = "No bracket could be found.",
         code = "noBracketFound",

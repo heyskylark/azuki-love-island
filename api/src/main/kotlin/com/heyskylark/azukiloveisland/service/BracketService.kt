@@ -74,6 +74,7 @@ class BracketService(
                 seasonNumber = latestSeason.seasonNumber,
                 voteStartDate = Instant.ofEpochMilli(bracketCreationRequestDto.voteStartDateMilli),
                 voteDeadline = Instant.ofEpochMilli(bracketCreationRequestDto.voteDeadlineMilli),
+                voteGapTimeMilliseconds = bracketCreationRequestDto.voteGapTimeMilliseconds,
                 maleBracketGroups = maleBracketGroups,
                 femaleBracketGroups = femaleBracketGroups
             )
@@ -90,13 +91,9 @@ class BracketService(
         type: BracketType,
         bracketCreationRequestDto: BracketCreationRequestDto
     ): ServiceResponse<GenderedInitialBracket>? {
-        LOG.info("MILLI START: ${bracketCreationRequestDto.voteStartDateMilli}")
-        LOG.info("MILLI END: ${bracketCreationRequestDto.voteDeadlineMilli}")
         val voteStartDate = Instant.ofEpochMilli(bracketCreationRequestDto.voteStartDateMilli)
         val voteDeadline = Instant.ofEpochMilli(bracketCreationRequestDto.voteDeadlineMilli)
 
-        LOG.info("START: $voteStartDate")
-        LOG.info("END: $voteDeadline")
         if (voteStartDate >= voteDeadline) {
             return ServiceResponse.errorResponse(BracketErrorCodes.INVALID_BRACKET_VOTE_DATES)
         }
@@ -104,6 +101,13 @@ class BracketService(
         if (voteDeadline <= Instant.now()) {
             return ServiceResponse.errorResponse(BracketErrorCodes.INVALID_BRACKET_VOTE_DEADLINE)
         }
+
+        validateVoteGapTime(
+            contestants = contestants,
+            startDate = voteStartDate,
+            endDate = voteDeadline,
+            voteGapTimeMilli = bracketCreationRequestDto.voteGapTimeMilliseconds
+        )?.let { return it }
 
         initialBracketDao.findBySeasonNumber(seasonNumber)
             ?.let { return ServiceResponse.errorResponse(BracketErrorCodes.BRACKET_ALREADY_EXISTS_FOR_SEASON) }
@@ -133,6 +137,42 @@ class BracketService(
         }
 
         return null
+    }
+
+    private fun validateVoteGapTime(
+        contestants: Set<Participant>,
+        startDate: Instant,
+        endDate: Instant,
+        voteGapTimeMilli: Long?
+    ): ServiceResponse<GenderedInitialBracket>? {
+        voteGapTimeMilli?.let { voteGapMilli ->
+            val numOfRounds = getNumberOfRounds(contestants.size / 2)
+            val lastRoundStartDatePlusVoteGapBuffer = startDate.plusMillis(voteGapMilli * numOfRounds)
+
+            if (lastRoundStartDatePlusVoteGapBuffer > endDate) {
+                return ServiceResponse.errorResponse(BracketErrorCodes.INVALID_VOTE_GAP_WITH_END_TIME)
+            }
+        }
+
+        return null
+    }
+
+    private fun getNumberOfRounds(contestants: Int): Int {
+        var groupCount = contestants / 2 // Number of contestants grouped into 2
+        var numOfBrackets = 1
+        var loops = 0
+
+        while (groupCount > 1) {
+            groupCount /= 2
+
+            if (loops > 10) {
+                throw RuntimeException("Somehow got caught in a loop, brackets will never get this big...")
+            }
+            loops++
+            numOfBrackets++
+        }
+
+        return numOfBrackets
     }
 
     data class BracketPrint(

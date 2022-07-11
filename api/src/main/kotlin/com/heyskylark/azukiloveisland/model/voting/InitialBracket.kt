@@ -58,7 +58,7 @@ data class GenderedInitialBracket(
             groupCount /= 2
 
             if (loops > 10) {
-                throw RuntimeException("Somehow get caught in a loop, brackets will never get this big...")
+                throw RuntimeException("Somehow got caught in a loop, brackets will never get this big...")
             }
             loops++
             numOfBrackets++
