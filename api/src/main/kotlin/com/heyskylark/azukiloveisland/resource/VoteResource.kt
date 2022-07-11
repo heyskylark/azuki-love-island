@@ -41,10 +41,10 @@ class VoteResource(
 //        return ResponseBuilder.buildResponse(voteService.calculateParsedRoundVotesForLastSeason(roundNumber))
 //    }
 //
-//    @GetMapping("/totals/latest/{roundNumber}/count")
-//    fun getRoundVoteCountForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
-//        return ResponseBuilder.buildResponse(voteService.calculateLatestSeasonVoteCountForRound(roundNumber))
-//    }
+    @GetMapping("/totals/latest/{roundNumber}/count")
+    fun getRoundVoteCountForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(voteService.calculateLatestSeasonVoteCountForRound(roundNumber))
+    }
 
     @PostMapping
     fun voteOnLatestSeason(@RequestBody voteRequestDto: VoteRequestDto): ResponseEntity<String> {

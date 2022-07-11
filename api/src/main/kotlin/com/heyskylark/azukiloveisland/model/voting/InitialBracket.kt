@@ -13,12 +13,14 @@ interface InitialBracket {
     val type: BracketType
     val voteStartDate: Instant
     val voteDeadline: Instant
+    val voteGapTimeMilliseconds: Long?
     val combinedGroups: Set<BracketGroup>
     val numOfBrackets: Int
     val createdAt: Instant
     val updatedAt: Instant
 
     fun numberOfBrackets(): Int
+    fun roundStartDate(roundNum: Int): Instant
 }
 
 @Document(collection = "InitialBrackets")
@@ -29,6 +31,7 @@ data class GenderedInitialBracket(
     override val seasonNumber: Int,
     override val voteStartDate: Instant,
     override val voteDeadline: Instant,
+    override val voteGapTimeMilliseconds: Long? = null,
     val maleBracketGroups: Set<BracketGroup>,
     val femaleBracketGroups: Set<BracketGroup>,
     override val createdAt: Instant = Instant.now(),
@@ -62,5 +65,18 @@ data class GenderedInitialBracket(
         }
 
         return numOfBrackets
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override fun roundStartDate(roundNum: Int): Instant {
+        return voteGapTimeMilliseconds?.let { voteGapMilli ->
+            if (roundNum in 1..numOfBrackets) {
+                voteStartDate.plusMillis((voteGapMilli * roundNum) - voteGapMilli)
+            } else throw IllegalArgumentException(
+                "Round number given [$roundNum] exceeds the max number of rounds of: $numOfBrackets"
+            )
+        } ?: run {
+            voteStartDate
+        }
     }
 }

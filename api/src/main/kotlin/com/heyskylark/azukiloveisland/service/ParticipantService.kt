@@ -12,6 +12,7 @@ import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.ParticipantErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.Web3ErrorCodes
+import com.heyskylark.azukiloveisland.util.isValidTwitterHandle
 import org.springframework.stereotype.Component
 
 @Component("participantService")
@@ -126,7 +127,7 @@ class ParticipantService(
     ): ServiceResponse<ParticipantResponseDto>? {
         // TODO: Add validation to reject submissions after certain date
 
-        if (participantSubmissionDto.twitterHandle.isBlank()) {
+        if (!participantSubmissionDto.twitterHandle.isValidTwitterHandle()) {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_MISSING)
         }
 

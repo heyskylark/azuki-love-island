@@ -63,6 +63,16 @@ function SubmissionForm(props: Props) {
             });
     }
 
+    function twitterHandleOnChange(e: React.ChangeEvent<HTMLInputElement>): void {
+        e.preventDefault();
+
+        const handle = e.target.value
+
+        if (handle.length === 0 || new RegExp(/^[A-Za-z0-9_]{1,15}$/).test(handle)) {
+            props.setTwitterHandle(handle);
+        }
+    }
+
     function azukiIdInput(e: React.ChangeEvent<HTMLInputElement>): void {
         e.preventDefault();
 
@@ -114,7 +124,7 @@ function SubmissionForm(props: Props) {
                     className="w-full mb-4 p-3 border-2 border-gray-100 focus:outline-none"
                     placeholder="Twitter handle..."
                     value={props.twitterHandle}
-                    onChange={(e) => props.setTwitterHandle(e.target.value)} // TODO: Add twitter validation like TwitterHandleFields.tsx
+                    onChange={(e) => twitterHandleOnChange(e)} // TODO: Add twitter validation like TwitterHandleFields.tsx
                 >
                 </input>
             </label>

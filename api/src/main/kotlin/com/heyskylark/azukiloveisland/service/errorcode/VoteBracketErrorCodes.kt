@@ -25,6 +25,11 @@ enum class VoteBracketErrorCodes(
         code = "votingHasNotStarted",
         type = ErrorType.BAD_REQUEST
     ),
+    VOTING_HAS_NOT_STARTED_FOR_ROUND(
+        message = "Voting has not started for this round yet.",
+        code = "votingHasNotStartedForRound",
+        type = ErrorType.BAD_REQUEST
+    ),
     VOTING_HAS_ENDED(
         message = "Voting has ended for this season.",
         code = "votingHasEnded",
