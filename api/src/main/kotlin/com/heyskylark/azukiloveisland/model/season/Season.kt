@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Season(
     @Id
     val seasonNumber: Int,
-    val submissionActive: Boolean = true,
+    val submissionActive: Boolean = true
 )

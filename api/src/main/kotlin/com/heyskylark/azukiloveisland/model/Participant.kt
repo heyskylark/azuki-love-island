@@ -29,6 +29,7 @@ data class Participant(
     @Indexed
     val twitterHandle: String,
     val seasonNumber: Int,
+    val quote: String? = null,
     val bio: String? = null,
     val hobbies: Set<String>? = null,
     val submitted: Boolean = false,

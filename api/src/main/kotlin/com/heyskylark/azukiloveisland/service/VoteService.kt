@@ -4,6 +4,7 @@ import com.heyskylark.azukiloveisland.dao.VoteBracketDao
 import com.heyskylark.azukiloveisland.dto.vote.GenderedRoundWinners
 import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteBracketResponseDto
 import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteCountResults
+import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteRoundsResponse
 import com.heyskylark.azukiloveisland.dto.vote.ParsedGenderedRoundWinners
 import com.heyskylark.azukiloveisland.dto.vote.VoteCountResults
 import com.heyskylark.azukiloveisland.dto.vote.VoteRequestDto
@@ -18,56 +19,100 @@ import com.heyskylark.azukiloveisland.model.voting.WinningResultsBracketGroup
 import com.heyskylark.azukiloveisland.serialization.ErrorResponse
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.BracketErrorCodes
-import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.VoteBracketErrorCodes
 import com.heyskylark.azukiloveisland.util.HttpRequestUtil
 import com.heyskylark.azukiloveisland.util.isValidTwitterHandle
-import java.time.Instant
+import kotlin.math.min
 import org.springframework.stereotype.Component
 
 @Component("voteService")
 class VoteService(
-    private val seasonService: SeasonService,
     private val bracketService: BracketService,
     private val participantService: ParticipantService,
-    private val voteBracketDao: VoteBracketDao
+    private val voteBracketDao: VoteBracketDao,
+    private val httpRequestUtil: HttpRequestUtil,
+    private val timeService: TimeService
 ) : BaseService() {
-    companion object {
-        private const val SUN_NOON = 1655665200000
-        private const val MON_NOON = 1655751600000
-        private const val TUES_NOON = 1655838000000
-        private const val WED_NOON = 1655924400000
-        private const val THURS_NOON = 1656010800000
-    }
-
     fun getLatestVoteBracketForLatestSeason(): ServiceResponse<GenderedVoteBracketResponseDto> {
-        val ip = HttpRequestUtil.getClientIpAddressIfServletRequestExist()
+        val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
 
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+        val initialBracketResponse = bracketService.getLatestSeasonBracket()
+        val initialBracket = if (initialBracketResponse.isSuccess()) {
+            initialBracketResponse.getSuccessValue()
+                ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+        } else {
+            val errorResponse = initialBracketResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
 
-        val latestVoteBracket = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeason.seasonNumber)
+        val latestSeasonNumber = initialBracket.seasonNumber
+
+        val lastClosedRound = fetchNumberOfRounds(initialBracket)
+        if (lastClosedRound == 0) {
+            return ServiceResponse.errorResponse(VoteBracketErrorCodes.NO_VOTE_BRACKET_FOUND)
+        }
+
+        // Get users last vote
+        val usersLatestVoteBracket = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeasonNumber)
             .maxByOrNull {
                 it.bracketNumber
             } ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.NO_VOTE_BRACKET_FOUND)
 
-        return ServiceResponse.successResponse(GenderedVoteBracketResponseDto(latestVoteBracket as GenderedVoteBracket))
+        // Get last rounds winners
+        val resultsResponse = calculateRoundVotesForLatestSeason(
+            initialBracket = initialBracket,
+            roundNumber = lastClosedRound,
+            isRoundByRoundVoting = initialBracket.voteGapTimeMilliseconds != null
+        )
+
+        val lastRoundsWinners = if (resultsResponse.isSuccess()) {
+            resultsResponse.getSuccessValue()
+                ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+        } else {
+            val errorResponse = resultsResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
+
+        val responseVoteBracket = GenderedVoteBracketResponseDto(
+            twitterHandle = usersLatestVoteBracket.twitterHandle,
+            seasonNumber = usersLatestVoteBracket.seasonNumber,
+            bracketNumber = lastClosedRound,
+            maleBracketGroups = lastRoundsWinners.maleWinners.map { BracketGroup(it) }.toSet(),
+            femaleBracketGroups = lastRoundsWinners.femaleWinners.map { BracketGroup(it) }.toSet(),
+            finishedVoting = usersLatestVoteBracket.finishedVoting
+        )
+
+        return ServiceResponse.successResponse(responseVoteBracket)
     }
 
     fun calculateParsedRoundVotesForLastSeason(roundNumber: Int): ServiceResponse<ParsedGenderedRoundWinners> {
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+        val initialBracketResponse = bracketService.getLatestSeasonBracket()
+        val initialBracket = if (initialBracketResponse.isSuccess()) {
+            initialBracketResponse.getSuccessValue()
+                ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+        } else {
+            val errorResponse = initialBracketResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
 
-        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+        val latestSeasonNumber = initialBracket.seasonNumber
+
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeasonNumber)
         val participantMap = seasonParticipants.associateBy { it.id }
 
         // TODO: Later validate if season isn't over yet and block request
-
-        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
-            seasonNumber = latestSeason.seasonNumber,
-            bracketNumber = roundNumber,
-            finishedVoting = true
-        )
+        val votes = if (initialBracket.voteGapTimeMilliseconds != null) {
+            voteBracketDao.findBySeasonNumberAndBracketNumber(
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = roundNumber
+            )
+        } else {
+            voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = roundNumber,
+                finishedVoting = true
+            )
+        }
 
         return try {
             val unparsed = calculateWinners(
@@ -115,7 +160,7 @@ class VoteService(
         }
     }
 
-    fun calculateTotalVotesForLatestSeason(): ServiceResponse<List<GenderedRoundWinners>> {
+    fun calculateTotalVotesForLatestSeason(): ServiceResponse<GenderedVoteRoundsResponse> {
         val initialBracketResponse = bracketService.getLatestSeasonBracket()
         val initialBracket = if (initialBracketResponse.isSuccess()) {
             initialBracketResponse.getSuccessValue()
@@ -125,23 +170,20 @@ class VoteService(
             return ServiceResponse.errorResponse(errorResponse.errorCode)
         }
 
-        val numOfRounds = if (Instant.now() < Instant.ofEpochMilli(SUN_NOON)) {
-            return ServiceResponse.successResponse(emptyList())
-        } else if (Instant.now() >= Instant.ofEpochMilli(SUN_NOON) && Instant.now() < Instant.ofEpochMilli(MON_NOON)) {
-            1
-        } else if (Instant.now() >= Instant.ofEpochMilli(MON_NOON) && Instant.now() < Instant.ofEpochMilli(TUES_NOON)) {
-            2
-        } else if (Instant.now() >= Instant.ofEpochMilli(TUES_NOON) && Instant.now() < Instant.ofEpochMilli(WED_NOON)) {
-            3
-        } else if (Instant.now() >= Instant.ofEpochMilli(WED_NOON) && Instant.now() < Instant.ofEpochMilli(THURS_NOON)) {
-            4
-        } else {
-            initialBracket.numOfBrackets
+        val numOfRounds = fetchNumberOfRounds(initialBracket)
+        if (numOfRounds == 0) {
+            return ServiceResponse.successResponse(
+                GenderedVoteRoundsResponse(seasonNumber = initialBracket.seasonNumber)
+            )
         }
 
         val rounds = mutableListOf<GenderedRoundWinners>()
         for(roundNumber in 1..numOfRounds) {
-            val resultsResponse = calculateRoundVotesForLatestSeason(roundNumber)
+            val resultsResponse = calculateRoundVotesForLatestSeason(
+                initialBracket = initialBracket,
+                roundNumber = roundNumber,
+                isRoundByRoundVoting = initialBracket.voteGapTimeMilliseconds != null
+            )
             if (resultsResponse.isSuccess()) {
                 val results = resultsResponse.getSuccessValue()
                     ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
@@ -153,22 +195,55 @@ class VoteService(
             }
         }
 
-        return ServiceResponse.successResponse(rounds.sortedBy { it.roundNumber })
+        return ServiceResponse.successResponse(
+            GenderedVoteRoundsResponse(
+                seasonNumber = initialBracket.seasonNumber,
+                rounds = rounds.sortedBy { it.roundNumber }
+            )
+        )
     }
 
-    fun calculateRoundVotesForLatestSeason(roundNumber: Int): ServiceResponse<GenderedRoundWinners> {
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+    private fun fetchNumberOfRounds(initialBracket: InitialBracket): Int {
+        val now = timeService.getNow()
+        val voteGapTime = initialBracket.voteGapTimeMilliseconds
 
-        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+        // If voting has ended or old school (full bracket fill where voteGapTime doesn't exist), return all rounds
+        if (voteGapTime == null || now >= initialBracket.voteDeadline) {
+            return initialBracket.numOfBrackets
+        }
+
+        val firstRoundLock = initialBracket.voteStartDate.plusMillis(voteGapTime)
+        return if (now > firstRoundLock) {
+            val startNowDifference = now.toEpochMilli() - initialBracket.voteStartDate.toEpochMilli()
+            val maxRounds = initialBracket.numOfBrackets
+
+            min((startNowDifference / voteGapTime).toInt(), maxRounds)
+        } else 0
+    }
+
+    private fun calculateRoundVotesForLatestSeason(
+        initialBracket: InitialBracket,
+        roundNumber: Int,
+        isRoundByRoundVoting: Boolean
+    ): ServiceResponse<GenderedRoundWinners> {
+        val bracketSeasonNumber = initialBracket.seasonNumber
+
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(bracketSeasonNumber)
 
         // TODO: Later validate if season isn't over yet and block request
 
-        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
-            seasonNumber = latestSeason.seasonNumber,
-            bracketNumber = roundNumber,
-            finishedVoting = true
-        )
+        val votes = if (isRoundByRoundVoting) {
+            voteBracketDao.findBySeasonNumberAndBracketNumber(
+                seasonNumber = bracketSeasonNumber,
+                bracketNumber = roundNumber
+            )
+        } else {
+            voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+                seasonNumber = bracketSeasonNumber,
+                bracketNumber = roundNumber,
+                finishedVoting = true
+            )
+        }
 
         return try {
             ServiceResponse.successResponse(
@@ -230,21 +305,36 @@ class VoteService(
     }
 
     fun calculateLatestSeasonVoteCountForRound(roundNumber: Int): ServiceResponse<GenderedVoteCountResults> {
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+        val initialBracketResponse = bracketService.getLatestSeasonBracket()
+        val initialBracket = if (initialBracketResponse.isSuccess()) {
+            initialBracketResponse.getSuccessValue()
+                ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+        } else {
+            val errorResponse = initialBracketResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
 
-        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeason.seasonNumber)
+        val latestSeasonNumber = initialBracket.seasonNumber
 
-        val votes = voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
-            seasonNumber = latestSeason.seasonNumber,
-            bracketNumber = roundNumber,
-            finishedVoting = true
-        )
+        val seasonParticipants = participantService.getNoneDtoSeasonsContestants(latestSeasonNumber)
 
-        return ServiceResponse.successResponse(parseAllVotesForRound(votes, participants = seasonParticipants))
+        val votes = if (initialBracket.voteGapTimeMilliseconds != null) {
+            voteBracketDao.findBySeasonNumberAndBracketNumber(
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = roundNumber
+            )
+        } else {
+            voteBracketDao.findBySeasonNumberAndBracketNumberAndFinishedVoting(
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = roundNumber,
+                finishedVoting = true
+            )
+        }
+
+        return ServiceResponse.successResponse(parseAllVoteCountsForRound(votes, participants = seasonParticipants))
     }
 
-    private fun parseAllVotesForRound(
+    private fun parseAllVoteCountsForRound(
         votes: List<VoteBracket>,
         participants: Set<Participant>
     ): GenderedVoteCountResults {
@@ -372,13 +462,7 @@ class VoteService(
     }
 
     fun vote(voteRequestDto: VoteRequestDto): ServiceResponse<VoteBracket> {
-        val ip = HttpRequestUtil.getClientIpAddressIfServletRequestExist()
-
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
-
-        val previousBracket = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeason.seasonNumber)
-            .maxByOrNull { it.bracketNumber }
+        val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
 
         val initialBracketResponse = bracketService.getLatestSeasonBracket()
         val initialBracket = if (initialBracketResponse.isSuccess()) {
@@ -389,18 +473,44 @@ class VoteService(
             return ServiceResponse.errorResponse(errorResponse.errorCode)
         }
 
+        val latestSeasonNumber = initialBracket.seasonNumber
+
+        // We need their previous bracket (to see if they voted before)
+        //  and we need the last round that closed to see if the vote is valid
+        val previousUsersVote = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeasonNumber)
+            .maxByOrNull { it.bracketNumber }
+
+        val lastClosedRound = fetchNumberOfRounds(initialBracket)
+
+        val lastRoundsWinners = if (lastClosedRound > 0) {
+            val resultsResponse = calculateRoundVotesForLatestSeason(
+                initialBracket = initialBracket,
+                roundNumber = lastClosedRound,
+                isRoundByRoundVoting = initialBracket.voteGapTimeMilliseconds != null
+            )
+
+           if (resultsResponse.isSuccess()) {
+                resultsResponse.getSuccessValue()
+                    ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+            } else {
+                val errorResponse = resultsResponse as ErrorResponse
+                return ServiceResponse.errorResponse(errorResponse.errorCode)
+            }
+        } else null
+
         return validateVote(
             ip = ip,
-            latestSeasonNumber = latestSeason.seasonNumber,
+            latestSeasonNumber = latestSeasonNumber,
             voteRequestDto = voteRequestDto,
             initialBracket = initialBracket,
-            previousBracket = previousBracket
+            previousRound = lastRoundsWinners,
+            previousUsersVote = previousUsersVote
         ) ?: run {
             val voteBracket = GenderedVoteBracket(
                 ip = ip,
                 twitterHandle = voteRequestDto.twitterHandle,
-                seasonNumber = latestSeason.seasonNumber,
-                bracketNumber = (previousBracket?.bracketNumber ?: 0) + 1,
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = lastClosedRound + 1,
                 maleBracketGroups = voteRequestDto.maleBracketGroups,
                 femaleBracketGroups = voteRequestDto.femaleBracketGroups
             )
@@ -409,7 +519,7 @@ class VoteService(
 
             // TODO: (initialBracket.numberOfBrackets() - 1) if want to end right before last bracket for Bobu vote
             if (voteBracket.bracketNumber == initialBracket.numberOfBrackets()) {
-                updateVotesToFinishedVoting(ip, latestSeason.seasonNumber)
+                updateVotesToFinishedVoting(ip, latestSeasonNumber)
             }
 
             // Update all votes finishedVoting flag after final bracket
@@ -434,43 +544,49 @@ class VoteService(
         latestSeasonNumber: Int,
         voteRequestDto: VoteRequestDto,
         initialBracket: InitialBracket,
-        previousBracket: VoteBracket?
+        previousRound: GenderedRoundWinners?,
+        previousUsersVote: VoteBracket?
     ): ServiceResponse<VoteBracket>? {
         validateVotingDates(
             initialBracket = initialBracket,
-            votingRound = (previousBracket?.bracketNumber ?: 0) + 1
+            votingRound = (previousRound?.roundNumber ?: 0) + 1
         )?.let { return it }
 
-        validateIfUserCanVoteInSeason(ip, latestSeasonNumber)?.let { return it }
+        validateIfUserFinishedVotingForTheSeason(ip, latestSeasonNumber)?.let { return it }
 
-        validateTwitterHandle(voteRequestDto, previousBracket)?.let { return it }
+        validateTwitterHandle(voteRequestDto, previousUsersVote)?.let { return it }
 
-        validateNumberOfGroups(voteRequestDto, initialBracket, previousBracket)?.let { return it }
+        validateNumberOfGroups(
+            voteRequestDto = voteRequestDto,
+            initialBracket = initialBracket,
+            previousRoundNumber = previousRound?.roundNumber ?: 0,
+            previousBracket = previousRound
+        )?.let { return it }
 
-        validateIfPastFinalRound(initialBracket, previousBracket)?.let { return it }
+        validateIfPastFinalRound(initialBracket, previousRoundNumber = previousRound?.roundNumber ?: 0)?.let {
+            return it
+        }
 
         // check if submissions are valid combinations from the previous bracket groups
         // TODO: Later on we need to support different voting types outside of gendered
-        val previousBracketNum = previousBracket?.bracketNumber ?: 0
+        val previousBracketNum = previousRound?.roundNumber ?: 0
         val lastVotableBracket = initialBracket.numberOfBrackets()
-        val maleBracketGroups = (previousBracket as? GenderedVoteBracket)?.maleBracketGroups
+        val maleBracketGroups = previousRound?.maleWinners?.map { BracketGroup(it) }?.toSet()
             ?: run {
                 (initialBracket as GenderedInitialBracket).maleBracketGroups
             }
         validateVotedGroups(
-            previousVoteId = previousBracket?.id ?: initialBracket.id,
             currentGroup = voteRequestDto.maleBracketGroups,
             previousGroup = maleBracketGroups,
             currentVoteBracketNum = previousBracketNum + 1,
             lastVotableBracketNum = lastVotableBracket
         )?.let { return it }
 
-        val femaleBracketGroups = (previousBracket as? GenderedVoteBracket)?.femaleBracketGroups
+        val femaleBracketGroups = previousRound?.femaleWinners?.map { BracketGroup(it) }?.toSet()
             ?: run {
                 (initialBracket as GenderedInitialBracket).femaleBracketGroups
             }
         validateVotedGroups(
-            previousVoteId = previousBracket?.id ?: initialBracket.id,
             currentGroup = voteRequestDto.femaleBracketGroups,
             previousGroup = femaleBracketGroups,
             currentVoteBracketNum = previousBracketNum + 1,
@@ -482,13 +598,12 @@ class VoteService(
 
     private fun validateIfPastFinalRound(
         initialBracket: InitialBracket,
-        previousBracket: VoteBracket?
+        previousRoundNumber: Int
     ): ServiceResponse<VoteBracket>? {
         // Reject votes that pass the final bracket (for this round final bracket might be second to last)
-        val previousBracketNum = previousBracket?.bracketNumber ?: 0
         val lastVotableBracket = initialBracket.numberOfBrackets()
         // TODO: If we don't want the final vote (for Bobu) then change to ">="
-        if ((previousBracketNum + 1) > lastVotableBracket) {
+        if ((previousRoundNumber + 1) > lastVotableBracket) {
             return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_VOTE_BRACKET)
         }
 
@@ -498,13 +613,14 @@ class VoteService(
     private fun validateNumberOfGroups(
         voteRequestDto: VoteRequestDto,
         initialBracket: InitialBracket,
-        previousBracket: VoteBracket?
+        previousRoundNumber: Int,
+        previousBracket: GenderedRoundWinners?
     ): ServiceResponse<VoteBracket>? {
         // Checks if num of groups are half of the previous round (each round cuts number of groups in half)
         val previousCombinedBracketGroupSize = (previousBracket?.combinedGroup ?: initialBracket.combinedGroups).size
         val currentCombinedBracketGroupSize = (voteRequestDto.maleBracketGroups + voteRequestDto.femaleBracketGroups).size
-        val isFinalBracket = ((previousBracket?.bracketNumber ?: 0) + 1) == initialBracket.numberOfBrackets()
-        val invalidFinalBracket = ((previousBracket?.bracketNumber ?: 0) + 1) == initialBracket.numberOfBrackets() &&
+        val isFinalBracket = (previousRoundNumber + 1) == initialBracket.numberOfBrackets()
+        val invalidFinalBracket = (previousRoundNumber + 1) == initialBracket.numberOfBrackets() &&
                 previousCombinedBracketGroupSize == 2 &&
                 currentCombinedBracketGroupSize != 2
 
@@ -549,19 +665,19 @@ class VoteService(
         votingRound: Int
     ): ServiceResponse<VoteBracket>? {
         // Check if voting has not started for the season
-        if (initialBracket.voteStartDate > Instant.now()) {
+        if (initialBracket.voteStartDate > timeService.getNow()) {
             return ServiceResponse.errorResponse(VoteBracketErrorCodes.VOTING_HAS_NOT_STARTED)
         }
 
         // Check if voting has ended for the season
-        if (Instant.now() > initialBracket.voteDeadline) {
+        if (timeService.getNow() > initialBracket.voteDeadline) {
             return ServiceResponse.errorResponse(VoteBracketErrorCodes.VOTING_HAS_ENDED)
         }
 
         // If vote gap exists, validate if user can vote on current round
         initialBracket.voteGapTimeMilliseconds?.let {
             val votingRoundStartDate = initialBracket.roundStartDate(votingRound)
-            if (Instant.now() < votingRoundStartDate) {
+            if (timeService.getNow() < votingRoundStartDate) {
                 return ServiceResponse.errorResponse(VoteBracketErrorCodes.VOTING_HAS_NOT_STARTED_FOR_ROUND)
             }
         }
@@ -572,7 +688,10 @@ class VoteService(
     /**
      * Validates if user already finished voting for the season, baring them from voting again.
      */
-    private fun validateIfUserCanVoteInSeason(ip: String, seasonNumber: Int): ServiceResponse<VoteBracket>? {
+    private fun validateIfUserFinishedVotingForTheSeason(
+        ip: String,
+        seasonNumber: Int
+    ): ServiceResponse<VoteBracket>? {
         val previousVotes = voteBracketDao.findByIpAndSeasonNumber(ip, seasonNumber)
 
         if (previousVotes.firstOrNull()?.finishedVoting == true) {
@@ -583,7 +702,6 @@ class VoteService(
     }
 
     private fun validateVotedGroups(
-        previousVoteId: String,
         currentGroup: Set<BracketGroup>,
         previousGroup: Set<BracketGroup>,
         currentVoteBracketNum: Int,
@@ -600,7 +718,7 @@ class VoteService(
         if (previousGroupPairs.size == 1 && currentVoteBracketNum == lastVotableBracketNum) {
             val firstContestantId = currentGroup.first().submissionId1
             if (!previousGroupPairs[previousGroupIndex].contains(firstContestantId)) {
-                LOG.error("FirstContestantId $firstContestantId is not valid. Previous vote: $previousVoteId")
+                LOG.error("FirstContestantId $firstContestantId is not valid. Previous vote: $previousGroup")
                 return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_GROUP_ORDER)
             }
         } else {
@@ -609,12 +727,12 @@ class VoteService(
                 val secondContestantId = bracketGroup.submissionId2
 
                 if (!previousGroupPairs[previousGroupIndex].contains(firstContestantId)) {
-                    LOG.error("FirstContestantId $firstContestantId is not valid. Previous vote: $previousVoteId")
+                    LOG.error("FirstContestantId $firstContestantId is not valid. Previous vote: $previousGroup")
                     return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_GROUP_ORDER)
                 }
 
                 if (!previousGroupPairs[previousGroupIndex + 1].contains(secondContestantId)) {
-                    LOG.error("SecondContestantId $secondContestantId is not valid. Previous vote: $previousVoteId")
+                    LOG.error("SecondContestantId $secondContestantId is not valid. Previous vote: $previousGroup")
                     return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_GROUP_ORDER)
                 }
 

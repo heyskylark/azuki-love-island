@@ -1,9 +1,11 @@
 package com.heyskylark.azukiloveisland.service
 
+import com.heyskylark.azukiloveisland.dao.InitialBracketDao
 import com.heyskylark.azukiloveisland.dao.ParticipantDao
 import com.heyskylark.azukiloveisland.dto.ParticipantSubmissionDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantCountDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantResponseDto
+import com.heyskylark.azukiloveisland.dto.participant.SeasonParticipantsResponseDto
 import com.heyskylark.azukiloveisland.model.azuki.AzukiInfo
 import com.heyskylark.azukiloveisland.model.Participant
 import com.heyskylark.azukiloveisland.model.season.Season
@@ -20,20 +22,50 @@ class ParticipantService(
     private val azukiWeb3Service: AzukiWeb3Service,
     private val seasonService: SeasonService,
     private val participantDao: ParticipantDao,
+    private val initialBracketDao: InitialBracketDao
 ) : BaseService() {
     companion object {
         private const val MAX_AZUKI_ID = 9999
+        private const val MAX_QUOTE_LENGTH = 100
         private const val MAX_BIO_LENGTH = 200
         private const val MAX_HOBBIES = 5
     }
 
-    fun getLatestSeasonContestants(): ServiceResponse<Set<ParticipantResponseDto>> {
-        val latestSeason = seasonService.getRawLatestSeason()
+    fun getLatestSeasonContestants(): ServiceResponse<SeasonParticipantsResponseDto> {
+        val latestInitialBracket = initialBracketDao.findFirstByOrderBySeasonNumberDesc()
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        val participantIds = latestInitialBracket.combinedGroups.map {
+            it.submissionId2?.let { sub2 ->
+                listOf(it.submissionId1, sub2)
+            } ?: listOf(it.submissionId1)
+        }.flatten().toSet()
+
+        val participants = participantDao.findAllById(participantIds)
+            .map { ParticipantResponseDto(it) }
+            .toSet()
+
         return ServiceResponse.successResponse(
-            participantDao.findBySeasonNumberAndSubmitted(latestSeason.seasonNumber, true)
-                .map { ParticipantResponseDto(it) }
-                .toSet()
+            SeasonParticipantsResponseDto(
+                seasonNumber = latestInitialBracket.seasonNumber,
+                participants = participants
+            )
+        )
+    }
+
+    fun getSeasonContestants(seasonNumber: Int): ServiceResponse<SeasonParticipantsResponseDto> {
+        seasonService.getRawSeason(seasonNumber)
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
+
+        val participants = participantDao.findBySeasonNumberAndSubmitted(seasonNumber, submitted = true).map {
+            ParticipantResponseDto(it)
+        }.toSet()
+
+        return ServiceResponse.successResponse(
+            SeasonParticipantsResponseDto(
+                seasonNumber = seasonNumber,
+                participants = participants
+            )
         )
     }
 
@@ -49,11 +81,18 @@ class ParticipantService(
         )
     }
 
-    fun getSeasonSubmissions(seasonNumber: Int): ServiceResponse<Set<ParticipantResponseDto>> {
+    fun getSeasonSubmissions(
+        seasonNumber: Int): ServiceResponse<SeasonParticipantsResponseDto> {
         seasonService.getRawSeason(seasonNumber)
             ?: return ServiceResponse.errorResponse(SeasonErrorCodes.SEASON_DOES_NOT_EXIST)
+
+        val participants = participantDao.findBySeasonNumber(seasonNumber).map { ParticipantResponseDto(it) }.toSet()
+
         return ServiceResponse.successResponse(
-            participantDao.findBySeasonNumber(seasonNumber).map { ParticipantResponseDto(it) }.toSet()
+            SeasonParticipantsResponseDto(
+                seasonNumber = seasonNumber,
+                participants = participants
+            )
         )
     }
 
@@ -78,9 +117,8 @@ class ParticipantService(
     }
 
     fun submitParticipant(participantSubmissionDto: ParticipantSubmissionDto): ServiceResponse<ParticipantResponseDto> {
-        // TODO: Remove this for next season so we can manually trigger a new season
-        val latestSeason = seasonService.getRawLatestSeason() ?: seasonService.createNewSeason()
-        if (!latestSeason.submissionActive) {
+        val latestSeason = seasonService.getRawLatestSeason()
+        if (latestSeason == null || !latestSeason.submissionActive) {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.SEASON_SUBMISSIONS_ARE_NOT_ACTIVE)
         }
 
@@ -107,12 +145,14 @@ class ParticipantService(
                 azukiId = participantSubmissionDto.azukiId,
                 ownerAddress = azukiInfo.ownerAddress,
                 imageUrl = azukiInfo.azukiImageUrl,
+                quote = participantSubmissionDto.quote,
                 bio = participantSubmissionDto.bio,
                 hobbies = parsedHobbies,
                 backgroundTrait = azukiInfo.backgroundTrait,
                 twitterHandle = participantSubmissionDto.twitterHandle,
                 seasonNumber = latestSeason.seasonNumber
             )
+
             participantDao.save(participant)
 
             ServiceResponse.successResponse(ParticipantResponseDto(participant))
@@ -126,10 +166,14 @@ class ParticipantService(
         parsedHobbies: Set<String>?
     ): ServiceResponse<ParticipantResponseDto>? {
         // TODO: Add validation to reject submissions after certain date
+        //  ...although manually closing submissions is more flexible
 
         if (!participantSubmissionDto.twitterHandle.isValidTwitterHandle()) {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_MISSING)
         }
+
+        participantSubmissionDto.quote.takeIf { it.count() > MAX_QUOTE_LENGTH }
+            ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.BIO_TOO_LONG_ERROR) }
 
         participantSubmissionDto.bio?.takeIf { it.count() > MAX_BIO_LENGTH }
             ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.BIO_TOO_LONG_ERROR) }

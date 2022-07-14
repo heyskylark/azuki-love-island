@@ -21,9 +21,16 @@ class BracketService(
     private val initialBracketDao: InitialBracketDao
 ) : BaseService() {
     fun getLatestSeasonBracket(): ServiceResponse<out InitialBracket> {
-        val latestSeason = seasonService.getRawLatestSeason()
-            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
-        val latestInitBracket = initialBracketDao.findBySeasonNumber(latestSeason.seasonNumber)
+        val latestInitBracket = initialBracketDao.findFirstByOrderBySeasonNumberDesc()
+            ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+
+        return ServiceResponse.successResponse(latestInitBracket)
+    }
+
+    fun getLatestSeasonBracketWithVotingStarted(): ServiceResponse<out InitialBracket> {
+        val latestInitBracket = initialBracketDao.findFirstByVoteStartDateGreaterThanEqualOrderBySeasonNumberDesc(
+            voteStartDate = Instant.now()
+        ) ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
 
         return ServiceResponse.successResponse(latestInitBracket)
     }
@@ -180,7 +187,7 @@ class BracketService(
     )
 
     fun printLatestSeasonBracket(): ServiceResponse<BracketPrint> {
-        val contestants = (participantService.getLatestSeasonContestants().getSuccessValue() ?: emptySet())
+        val contestants = (participantService.getLatestSeasonContestants().getSuccessValue()?.participants ?: emptySet())
             .associateBy { participant ->
                 participant.id
             }

@@ -21,32 +21,42 @@ import org.springframework.web.bind.annotation.RestController
 class ParticipantResource(
     private val participantService: ParticipantService
 ) {
-    @GetMapping("seasons/latest/count")
-    fun getLatestSeasonParticipantCount(): ResponseEntity<String> {
+    /* Contestants */
+    @GetMapping("seasons/latest")
+    fun getLatestSeasonContestants(
+        @RequestParam("filter", required = false) filter: String?
+    ): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(participantService.getLatestSeasonContestants())
+    }
+
+    @GetMapping("seasons/{seasonNumber}")
+    fun getSeasonContestants(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(
+            participantService.getSeasonContestants(seasonNumber)
+        )
+    }
+
+    /* Submissions */
+    @GetMapping("seasons/{seasonNumber}/submissions")
+    fun getSeasonSubmissions(
+        @PathVariable("seasonNumber") seasonNumber: Int,
+        @RequestParam("submitted", required = false) submitted: Boolean?
+    ): ResponseEntity<String> {
+        return ResponseEntity.notFound().build()
+        // return ResponseBuilder.buildResponse(participantService.getSeasonSubmissions(seasonNumber))
+    }
+
+    @GetMapping("seasons/latest/submissions/count")
+    fun getLatestSeasonSubmissionCount(): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getLatestSeasonSubmissionCount())
     }
 
-    @GetMapping("seasons/latest")
-    fun getLatestSeasonParticipants(
-        @RequestParam("filter", required = false) filter: String?
-    ): ResponseEntity<String> {
-        return if (filter == "ALL") {
-            ResponseBuilder.buildResponse(participantService.getLatestSeasonSubmissions())
-        } else {
-            ResponseBuilder.buildResponse(participantService.getLatestSeasonContestants())
-        }
-    }
-
-    @GetMapping("seasons/{seasonNumber}/count")
+    @GetMapping("seasons/{seasonNumber}/submissions/count")
     fun getParticipantCount(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getSubmissionCount(seasonNumber))
     }
 
-    @GetMapping("seasons/{seasonNumber}")
-    fun getSeasonParticipants(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(participantService.getSeasonSubmissions(seasonNumber))
-    }
-
+    /* Participants */
     @GetMapping("/{participantId}")
     fun getParticipant(@PathVariable("participantId") participantId: String): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getParticipant(participantId))

@@ -40,6 +40,11 @@ enum class ParticipantErrorCodes(
         code = "twitterHandleExists",
         type = ErrorType.BAD_REQUEST
     ),
+    QUOTE_TOO_LONG_ERROR(
+        message = "Quote cannot be longer than 100 characters.",
+        code = "quoteTooLongError",
+        type = ErrorType.BAD_REQUEST
+    ),
     BIO_TOO_LONG_ERROR(
         message = "Bio must not be longer than 200 characters.",
         code = "bioTooLongError",

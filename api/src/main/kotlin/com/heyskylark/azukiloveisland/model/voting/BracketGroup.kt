@@ -7,7 +7,13 @@ data class BracketGroup(
     val submissionId1: String,
     val submissionId2: String?,
     val sortOrder: Int
-)
+) {
+    constructor(winningResults: WinningResultsBracketGroup) : this(
+        submissionId1 = winningResults.submissionId1,
+        submissionId2 = winningResults.submissionId2,
+        sortOrder = winningResults.sortOrder
+    )
+}
 
 data class ParsedWinningResultsBracketGroup(
     val submission1: Participant,

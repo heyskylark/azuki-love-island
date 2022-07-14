@@ -25,10 +25,6 @@ class SeasonService(
         return seasonsDao.findFirstByOrderBySeasonNumberDesc()
     }
 
-    fun saveSeason(season: Season) {
-        seasonsDao.save(season)
-    }
-
     fun createNewSeason(): Season {
         val latestSeason = getRawLatestSeason()
         latestSeason?.let { deactivateSeasonSubmissions(it) }
