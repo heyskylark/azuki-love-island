@@ -10,12 +10,12 @@ class BracketGroupFactory {
         ): Set<BracketGroup> {
             val bracketGroups: MutableSet<BracketGroup> = mutableSetOf()
 
-            for(roundNumber in startingId..numberOfGroups) {
+            for(roundNumber in startingId..(startingId + numberOfGroups)) {
                 bracketGroups.add(
                     BracketGroup(
-                        submissionId1 = "test-submission-${startingId}A",
-                        submissionId2 = "test-submission-${startingId}B",
-                        sortOrder = startingId
+                        submissionId1 = "test-submission-${roundNumber}A",
+                        submissionId2 = "test-submission-${roundNumber}B",
+                        sortOrder = roundNumber
                     )
                 )
             }
@@ -46,6 +46,16 @@ class BracketGroupFactory {
             }
 
             return newBracketGroup
+        }
+
+        fun reduceBracketGroup(bracketGroups: Set<BracketGroup>, reduceCount: Int): Set<BracketGroup> {
+            var currBracketGroups = bracketGroups
+
+            for(round in 1..reduceCount) {
+                currBracketGroups = cutBracketGroupsInHalf(currBracketGroups)
+            }
+
+            return currBracketGroups
         }
     }
 }

@@ -169,11 +169,11 @@ class ParticipantService(
         //  ...although manually closing submissions is more flexible
 
         if (!participantSubmissionDto.twitterHandle.isValidTwitterHandle()) {
-            return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_MISSING)
+            return ServiceResponse.errorResponse(ParticipantErrorCodes.INVALID_TWITTER_HANDLE)
         }
 
-        participantSubmissionDto.quote.takeIf { it.count() > MAX_QUOTE_LENGTH }
-            ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.BIO_TOO_LONG_ERROR) }
+        participantSubmissionDto.quote.takeIf { it.isBlank() || it.count() > MAX_QUOTE_LENGTH }
+            ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.INVALID_QUOTE_ERROR) }
 
         participantSubmissionDto.bio?.takeIf { it.count() > MAX_BIO_LENGTH }
             ?.let { return ServiceResponse.errorResponse(ParticipantErrorCodes.BIO_TOO_LONG_ERROR) }

@@ -10,9 +10,9 @@ enum class ParticipantErrorCodes(
         code = "seasonContestantsNotFound",
         type = ErrorType.BAD_REQUEST
     ),
-    TWITTER_HANDLE_MISSING(
-        message = "Twitter handle cannot be blank or empty.",
-        code = "twitterHandleMissing",
+    INVALID_TWITTER_HANDLE(
+        message = "Twitter handle is invalid.",
+        code = "invalidTwitterHandle",
         type = ErrorType.BAD_REQUEST
     ),
     SEASON_SUBMISSIONS_ARE_NOT_ACTIVE(
@@ -40,9 +40,9 @@ enum class ParticipantErrorCodes(
         code = "twitterHandleExists",
         type = ErrorType.BAD_REQUEST
     ),
-    QUOTE_TOO_LONG_ERROR(
-        message = "Quote cannot be longer than 100 characters.",
-        code = "quoteTooLongError",
+    INVALID_QUOTE_ERROR(
+        message = "Quote must be present and cannot be longer than 100 characters.",
+        code = "invalidQuoteError",
         type = ErrorType.BAD_REQUEST
     ),
     BIO_TOO_LONG_ERROR(

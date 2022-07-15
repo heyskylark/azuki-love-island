@@ -79,7 +79,9 @@ class VoteService(
             bracketNumber = lastClosedRound,
             maleBracketGroups = lastRoundsWinners.maleWinners.map { BracketGroup(it) }.toSet(),
             femaleBracketGroups = lastRoundsWinners.femaleWinners.map { BracketGroup(it) }.toSet(),
-            finishedVoting = usersLatestVoteBracket.finishedVoting
+            finishedVoting = usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets ||
+                    usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1), // User voted on final round or on current open round
+            finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1) // Last closed round is round before the final round or is completely finished
         )
 
         return ServiceResponse.successResponse(responseVoteBracket)

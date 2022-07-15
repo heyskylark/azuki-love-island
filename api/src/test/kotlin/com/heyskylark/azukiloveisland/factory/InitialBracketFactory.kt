@@ -23,11 +23,11 @@ class InitialBracketFactory {
                 voteGapTimeMilliseconds = ONE_DAY_MILLI,
                 maleBracketGroups = createBracketGroups(
                     startingId = 1,
-                    numberOfGroups = 4
+                    numberOfGroups = 3
                 ),
                 femaleBracketGroups = createBracketGroups(
                     startingId = 5,
-                    numberOfGroups = 4
+                    numberOfGroups = 3
                 )
             )
         }
