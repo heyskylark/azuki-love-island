@@ -68,6 +68,8 @@ function Gallery() {
                 })
         }
 
+        document.title = "Gallery / Azuki Love Island"
+
         getParticipants();
     }, []);
 

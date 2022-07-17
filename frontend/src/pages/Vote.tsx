@@ -118,6 +118,8 @@ function Vote() {
             }
         }
 
+        document.title = "Vote / Azuki Love Island"
+
         initData();
     }, [])
 

@@ -1,3 +1,4 @@
+import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { getLatestSeasonsTotalVoteResults, getSeasonParticipants } from "../clients/MainClient";
@@ -32,14 +33,19 @@ function Results() {
 
                 setVoteResults(rounds);
             } catch (err) {
-                //@ts-ignore
-                const data = err.response.data;
+                if (err instanceof AxiosError && err.response?.data) {
+                    const data = err.response?.data;
 
-                toast.error(data.message);
+                    toast.error(data.message);
+                } else {
+                    console.log("There was a problem loading results.")
+                }
             } finally {
                 setLoading(false);
             }
         }
+
+        document.title = "Results / Azuki Love Island"
 
         getInitData();
     }, [])

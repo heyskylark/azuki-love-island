@@ -1,6 +1,11 @@
+import { useEffect } from "react";
 import Footer from "../components/Footer";
 
 function Credits() {
+    useEffect(() => {
+        document.title = "Credits / Azuki Love Island"
+    }, [])
+
     return (
         <>
         <div className='container mx-auto'>

@@ -33,6 +33,8 @@ function Submission() {
             }
         }
         
+        document.title = "Azuki Love Island";
+
         fetchInitData();
     }, []);
 
