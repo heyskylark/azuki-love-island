@@ -150,7 +150,8 @@ class ParticipantService(
                 hobbies = parsedHobbies,
                 backgroundTrait = azukiInfo.backgroundTrait,
                 twitterHandle = participantSubmissionDto.twitterHandle,
-                seasonNumber = latestSeason.seasonNumber
+                seasonNumber = latestSeason.seasonNumber,
+                image = participantSubmissionDto.image
             )
 
             participantDao.save(participant)

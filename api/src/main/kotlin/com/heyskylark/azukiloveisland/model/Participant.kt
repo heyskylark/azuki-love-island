@@ -35,6 +35,13 @@ data class Participant(
     val submitted: Boolean = false,
     val validated: Boolean = false,
     val gender: Gender = Gender.UNDETERMINED,
+    val image: ParticipantArt? = null,
     val createdAt: Instant = Instant.now(),
     val updatedAt: Instant = Instant.now()
+)
+
+data class ParticipantArt(
+    val publicId: String,
+    val secureUrl: URL,
+    val format: String
 )

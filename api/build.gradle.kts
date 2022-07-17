@@ -21,6 +21,8 @@ dependencies {
 	implementation("com.squareup.okhttp3:okhttp:4.9.0")
 	implementation ("org.web3j:core:5.0.0")
 
+	implementation("com.cloudinary:cloudinary-http44:1.32.2")
+
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
 	implementation("commons-io:commons-io:2.11.0")
