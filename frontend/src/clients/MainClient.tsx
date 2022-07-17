@@ -1,16 +1,19 @@
 import axios, { AxiosResponse } from "axios";
 import Count from "../models/api/Count";
 import ParticipantRequest from "../models/api/ParticipantRequest";
-import ParticipantResponse from "../models/api/ParticipantResponse";
+import ParticipantResponse, { SeasonParticipantsResponse } from "../models/api/ParticipantResponse";
 import Season from "../models/api/Season";
 import GenderedVoteBracket from "../models/api/GenderedVoteBracket";
 import GenderedInitialBracket from "../models/api/GenderedInitialBracket";
 import VoteRequest from "../models/api/VoteRequest";
-import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
+import { GenderedVoteRoundsResponse } from "../models/api/GenderedRoundWinners";
+import { CloudinarySignatureRequest, CloudinarySignatureResponse } from "../models/api/CloudinaryRequest";
+import CloudinaryUploadResponse from "../models/api/CloudinaryUploadResponse";
 
 const BASE_URL = process.env.REACT_APP_BASE_API_URL;
+const CLOUDINARY_UPLOAD_URL = process.env.REACT_APP_CLOUDINARY_UPLOAD_URL;
 
-export async function getLatestSeasonsTotalVoteResults(): Promise<AxiosResponse<GenderedRoundWinners[]>> {
+export async function getLatestSeasonsTotalVoteResults(): Promise<AxiosResponse<GenderedVoteRoundsResponse>> {
     return axios.get(`${BASE_URL}/vote/totals/latest`);
 }
 
@@ -30,21 +33,28 @@ export async function getLatestSeason(): Promise<AxiosResponse<Season>> {
     return axios.get(`${BASE_URL}/seasons/latest`);
 }
 
-export async function getLatestSeasonParticipantCount(): Promise<AxiosResponse<Count>> {
-    return axios.get(`${BASE_URL}/participants/seasons/latest/count`);
+export async function getLatestSeasonSubmissionsCount(): Promise<AxiosResponse<Count>> {
+    return axios.get(`${BASE_URL}/participants/seasons/latest/submissions/count`);
 }
 
 export async function submitParticipant(body: ParticipantRequest): Promise<AxiosResponse<ParticipantResponse>> {
     return axios.post(`${BASE_URL}/participants`, body);
 }
 
-export async function getLatestSeasonParticipants(filter: string | null): Promise<AxiosResponse<ParticipantResponse[]>> {
-    let url: string = ""
-    if (filter) {
-        url = `${BASE_URL}/participants/seasons/latest?filter=${filter}`
-    } else {
-        url = `${BASE_URL}/participants/seasons/latest`
-    }
+export async function getSeasonParticipants(seasonNumber: number, submitted: boolean = false): Promise<AxiosResponse<SeasonParticipantsResponse>> {
+    return axios.get(`${BASE_URL}/participants/seasons/${seasonNumber}`)
+}
 
-    return axios.get(url);
+export async function getLatestSeasonParticipants(): Promise<AxiosResponse<SeasonParticipantsResponse>> {
+    return axios.get(`${BASE_URL}/participants/seasons/latest`);
+}
+
+export async function fetchCloudinarySignature(body: CloudinarySignatureRequest): Promise<AxiosResponse<CloudinarySignatureResponse>> {
+    return axios.post(`${BASE_URL}/images/signature`, body);
+}
+
+export async function uploadImageToCloudinary(body: FormData, transformations: string = ""): Promise<AxiosResponse<CloudinaryUploadResponse>> {
+    const url = transformations.length > 0 ? `${CLOUDINARY_UPLOAD_URL}?transformation=${transformations}` : `${CLOUDINARY_UPLOAD_URL}`;
+
+    return axios.post(url, body);
 }

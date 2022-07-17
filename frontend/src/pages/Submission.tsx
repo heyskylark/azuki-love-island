@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { getLatestSeasonParticipantCount } from "../clients/MainClient";
+import { getLatestSeasonSubmissionsCount } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import SubmissionForm from "../components/SubmissionForm";
 import { useLatestSeason } from "../context/SeasonContext";
 
 function Submission() {
-    const MAX_PARTICIPANT_NUM_LENGTH = 4
+    const MAX_PARTICIPANT_NUM_LENGTH = 4;
 
     const latestSeasonContext = useLatestSeason();
 
@@ -14,6 +14,7 @@ function Submission() {
     const [azukiId, setAzukiId] = useState<string>("");
     const [twitterHandle, setTwitterHandle] = useState<string>("");
     const [bio, setBio] = useState<string>("");
+    const [quote, setQuote] = useState<string>("");
     const [hobbies, setHobbies] = useState<string>("");
 
     const [loadingSubmission, setLoadingSubmission] = useState<boolean>(false);
@@ -23,7 +24,7 @@ function Submission() {
             setLoading(true);
             
             try {
-                const countResponse = await getLatestSeasonParticipantCount();
+                const countResponse = await getLatestSeasonSubmissionsCount();
                 setParticipantCount(countResponse.data.count);
             } catch (err) {
                 // TODO: do we put up a toast?
@@ -34,6 +35,12 @@ function Submission() {
         
         fetchInitData();
     }, []);
+
+    function getSeasonNumber(): string {
+        const seasonNumber = latestSeasonContext?.latestSeason?.seasonNumber
+
+        return seasonNumber ? `${seasonNumber}` : "";
+    }
 
     function getParticipantCount(count: number): string {
         if (count > -1) {
@@ -63,7 +70,7 @@ function Submission() {
                         {renderClosed()}
                         <div className="flex">
                             <div className="lg:w-1/2 lg:pr-4 lg:pb-0">
-                                <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Azuki Love Island</h1>
+                                <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Azuki Love Island {getSeasonNumber()}</h1>
                                 <h1 className="mb-6 uppercase font-black text-3xl lg:text-4xl whitespace-pre-line">
                                     Submissions: {getParticipantCount(participantCount)}<span className="opacity-10"> //</span>
                                 </h1>
@@ -81,13 +88,17 @@ function Submission() {
                                 <SubmissionForm
                                     azukiId={azukiId}
                                     twitterHandle={twitterHandle}
+                                    quote={quote}
                                     bio={bio}
                                     hobbies={hobbies}
+                                    participantCount={participantCount}
                                     loadingSubmission={loadingSubmission}
                                     setAzukiId={setAzukiId}
                                     setTwitterHandle={setTwitterHandle}
+                                    setQuote={setQuote}
                                     setBio={setBio}
                                     setHobbies={setHobbies}
+                                    setParticipantCount={setParticipantCount}
                                     setLoadingSubmission={setLoadingSubmission}
                                 />
                             </div>

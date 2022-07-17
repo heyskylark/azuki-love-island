@@ -6,4 +6,10 @@ function Loading() {
     )
 }
 
+export function SmallLoading() {
+    return (
+        <div className="lds-ring-sm"><div></div><div></div><div></div><div></div></div>
+    )
+}
+
 export default Loading;

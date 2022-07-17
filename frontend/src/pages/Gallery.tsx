@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults, getSeasonsInitialBracket } from "../clients/MainClient";
+import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults, getSeasonsInitialBracket as getLatestInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
 import Loading from "../components/Loading";
-import { useLatestSeason } from "../context/SeasonContext";
 import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
@@ -16,12 +15,12 @@ interface Props {
 }
 
 function Gallery(props: Props) {
-    const latestSeasonContext = useLatestSeason();
-
     const [loading, setLoading] = useState<boolean>(true);
     const [votingOpen, setVotingOpen] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(true);
 
+    const [maxSeason, setMaxSeason] = useState<number>(-1);
+    const [gallerySeason, setGallerySeason] = useState<number>(-1);
     const [participants, setParticipants] = useState<ParticipantResponse[]>([]);
     const [filteredParticipants, setFilteredParticipants] = useState<ParticipantResponse[]>([]);
     const [voteResults, setVoteResults] = useState<GenderedRoundWinners[]>([]);
@@ -35,37 +34,42 @@ function Gallery(props: Props) {
     const [hobbies, setHobbies] = useState<string[]>([]);
 
     useEffect(() => {
-        async function getParticipants() {
-            try {
-                const participantsResponse = await getLatestSeasonParticipants(props.filter);
-                const data = participantsResponse.data;
+        function getParticipants() {
+            getLatestSeasonParticipants()
+                .then((participantsResponse) => participantsResponse.data)
+                .then((data) => {
+                    const participants = data.participants
+                    const sortedParticipants = participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                        return p1.azukiId - p2.azukiId
+                    });
+    
+                    setMaxSeason(data.seasonNumber);
+                    setGallerySeason(data.seasonNumber);
 
-                const sortedParticipants = data.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                    return p1.azukiId - p2.azukiId
-                });
+                    setParticipants(sortedParticipants);
+                    setFilteredParticipants(sortedParticipants);
+                })
+                .catch((err) => {
+                    toast.error("There was a problem loading the participants...");
+                })
+                .finally(() => {
+                    setLoading(false);
+                })
 
-                setParticipants(sortedParticipants);
-                setFilteredParticipants(sortedParticipants);
-            } catch (err) {
-                toast.error("There was a problem loading the participants...")
-            }
+            // TODO: Re-think this, banners about voting and results should only show up for the latest gallery. Fetch initialBracket and voteResults based on maxSeason
+            getLatestInitialBracket()
+                .then((initialBracketResponse) => initialBracketResponse.data)
+                .then(async (initialBracketData) => {
+                    const voteStartDate = new Date(initialBracketData.voteStartDate).getTime();
+                    const voteEndDate = new Date(initialBracketData.voteDeadline).getTime();
+                    const now = new Date().getTime();
+                    if (now >= voteStartDate && now <= voteEndDate) {
+                        setVotingOpen(true);
+                    }
 
-            try {
-                const initialBracketResponse = await getSeasonsInitialBracket();
-                const initialBracketData = initialBracketResponse.data;
-
-                const voteStartDate = new Date(initialBracketData.voteStartDate).getTime();
-                const voteEndDate = new Date(initialBracketData.voteDeadline).getTime();
-                const now = new Date().getTime();
-                if (now >= voteStartDate && now <= voteEndDate) {
-                    setVotingOpen(true);
-                }
-
-                const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
-                setVoteResults(latestSeasonVoteResults.data);
-            } catch (_) {} finally {
-                setLoading(false);
-            }
+                    const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
+                    setVoteResults(latestSeasonVoteResults.data.rounds);
+                })
         }
 
         getParticipants();
@@ -156,9 +160,11 @@ function Gallery(props: Props) {
     }
 
     function getSeasonNumber(): string {
-        const seasonNumber = latestSeasonContext?.latestSeason?.seasonNumber
-
-        return seasonNumber ? `${seasonNumber}` : "";
+        if (gallerySeason > 0) {
+            return `${gallerySeason}`
+        } else {
+            return ""   
+        }
     }
 
     function filterButtonEvent(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
@@ -185,10 +191,11 @@ function Gallery(props: Props) {
     }
 
     function renderVoting(): JSX.Element | undefined {
+        // TODO: Render this banner when only latest season voting exists and is open
         if (votingOpen) {
             return (
                 <div className="flex w-full content-center mb-7">
-                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Voting is now Open:&nbsp;</h1>
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {maxSeason} Voting is now Open:&nbsp;</h1>
                     <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/vote">
                         Vote Now →
                     </Link>
@@ -198,10 +205,11 @@ function Gallery(props: Props) {
     }
 
     function renderResults(): JSX.Element | undefined {
+        // TODO: Render this banner when only latest season results exists
         if (!votingOpen && voteResults.length > 0) {
             return (
                 <div className="flex w-full content-center mb-7">
-                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Results are Out:&nbsp;</h1>
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {maxSeason} Results are Out:&nbsp;</h1>
                     <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/results">
                         Results →
                     </Link>

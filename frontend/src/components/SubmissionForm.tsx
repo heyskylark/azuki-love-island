@@ -1,24 +1,42 @@
+import React from "react"
 import { toast } from "react-toastify"
 import { submitParticipant } from "../clients/MainClient"
 import { useLatestSeason } from "../context/SeasonContext"
+import useImageUploader from "../hooks/useImageUpload";
+import { SmallLoading } from "./Loading";
 
 interface Props { 
-    azukiId: string,
-    twitterHandle: string,
-    bio: string
-    hobbies: string
-    loadingSubmission: boolean
-    setAzukiId: React.Dispatch<React.SetStateAction<string>>
-    setTwitterHandle: React.Dispatch<React.SetStateAction<string>>
-    setBio: React.Dispatch<React.SetStateAction<string>>
-    setHobbies: React.Dispatch<React.SetStateAction<string>>
-    setLoadingSubmission: React.Dispatch<React.SetStateAction<boolean>>
+    azukiId: string;
+    twitterHandle: string;
+    quote: string;
+    bio: string;
+    hobbies: string;
+    participantCount: number;
+    loadingSubmission: boolean;
+    setParticipantCount: React.Dispatch<React.SetStateAction<number>>;
+    setAzukiId: React.Dispatch<React.SetStateAction<string>>;
+    setTwitterHandle: React.Dispatch<React.SetStateAction<string>>;
+    setQuote: React.Dispatch<React.SetStateAction<string>>;
+    setBio: React.Dispatch<React.SetStateAction<string>>;
+    setHobbies: React.Dispatch<React.SetStateAction<string>>;
+    setLoadingSubmission: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function SubmissionForm(props: Props) {
-    const AZUKI_MAX_ID = 10000
+    const AZUKI_MAX_ID = 10000;
+    const MAX_QUOTE_LENGTH = 100;
+    const DEFAULT_TRANSFORMS = "c_limit,w_2000";
 
     const latestSeasonContext = useLatestSeason();
+    const {
+        fileName,
+        publicId,
+        format,
+        secureUrl,
+        uploading,
+        uploadImage,
+        clearImage
+    } = useImageUploader();
 
     function submitParticipantEvent(e: React.FormEvent<HTMLFormElement> | undefined): void {
         e?.preventDefault();
@@ -33,11 +51,22 @@ function SubmissionForm(props: Props) {
             hobbies = props.hobbies;
         }
 
+        let image;
+        if (publicId) {
+            image = {
+                publicId: publicId,
+                secureUrl: secureUrl,
+                format: format
+            }
+        }
+
         const participationRequest = {
             azukiId: props.azukiId,
             twitterHandle: props.twitterHandle,
+            quote: props.quote,
             bio: bio,
-            hobbies: hobbies
+            hobbies: hobbies,
+            image: image
         }
 
         props.setLoadingSubmission(true);
@@ -48,9 +77,12 @@ function SubmissionForm(props: Props) {
 
                 props.setAzukiId("");
                 props.setTwitterHandle("");
+                props.setQuote("");
                 props.setBio("");
                 props.setHobbies("");
+                clearImage();
 
+                props.setParticipantCount(props.participantCount + 1);
                 toast.success(toastMessage);
             })
             .catch(err => {
@@ -89,6 +121,16 @@ function SubmissionForm(props: Props) {
         }
     }
 
+    function quoteInput(e: React.ChangeEvent<HTMLInputElement>): void {
+        e.preventDefault();
+
+        const quote = e.target.value;
+
+        if (quote.length === 0 || quote.length <= MAX_QUOTE_LENGTH) {
+            props.setQuote(quote);
+        }
+    }
+
     function bioInput(e: React.ChangeEvent<HTMLTextAreaElement>): void {
         e.preventDefault();
         
@@ -100,9 +142,15 @@ function SubmissionForm(props: Props) {
     }
 
     function submissionsDisabled(): boolean {
-        const submissionsActive = latestSeasonContext?.latestSeason?.submissionActive
+        // Quote exists, twitter handle exists, azuki id exists, image is not uploading
+        const quoteBlank = props.quote.length === 0;
+        const twitterHandleBlank = props.twitterHandle.length === 0;
+        const azukiIdBlank = props.azukiId.length === 0;
 
-        return !submissionsActive || props.loadingSubmission
+        const submissionsActive = latestSeasonContext?.latestSeason?.submissionActive;
+        const invalidFormState = quoteBlank || twitterHandleBlank || azukiIdBlank || uploading;
+
+        return !submissionsActive || props.loadingSubmission || invalidFormState
     }
 
     return (
@@ -124,7 +172,16 @@ function SubmissionForm(props: Props) {
                     className="w-full mb-4 p-3 border-2 border-gray-100 focus:outline-none"
                     placeholder="Twitter handle..."
                     value={props.twitterHandle}
-                    onChange={(e) => twitterHandleOnChange(e)} // TODO: Add twitter validation like TwitterHandleFields.tsx
+                    onChange={(e) => twitterHandleOnChange(e)}
+                >
+                </input>
+            </label>
+            <label>
+                <input
+                    className="w-full mb-4 p-3 border-2 border-gray-100 focus:outline-none"
+                    placeholder="Quote (100 characters)..."
+                    value={props.quote}
+                    onChange={(e) => quoteInput(e)}
                 >
                 </input>
             </label>
@@ -145,6 +202,22 @@ function SubmissionForm(props: Props) {
                     onChange={(e) => props.setHobbies(e.target.value)}
                 >
                 </input>
+            </label>
+
+            <label>
+                <p className="mb-2 underline font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">{"Fan Art: Express Yourself! (Max 10 MB)"}</p>
+
+                <div className="flex">
+                    <input
+                        className="mb-6 p-3 pl-0 focus:outline-none font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4"
+                        type="file"
+                        name={fileName}
+                        accept="image/*"
+                        disabled={!latestSeasonContext?.latestSeason?.submissionActive}
+                        onChange={(e) => uploadImage(e.target.files, DEFAULT_TRANSFORMS)}
+                    />
+                    { uploading ? <SmallLoading /> : <></> }
+                </div>
             </label>
 
             <button

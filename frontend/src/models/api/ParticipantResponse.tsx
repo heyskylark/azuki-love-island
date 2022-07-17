@@ -1,3 +1,8 @@
+export interface SeasonParticipantsResponse {
+    seasonNumber: number;
+    participants: ParticipantResponse[]
+}
+
 interface ParticipantResponse {
     id: string;
     azukiId: number;

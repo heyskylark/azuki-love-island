@@ -14,6 +14,8 @@ import Countdown from 'react-countdown';
 function Vote() {
     const countDownRef = createRef<Countdown>();
 
+    const [seasonNumber, setSeasonNumber] = useState<string>("");
+
     const [voteState, setVoteState] = useState<string>("INIT");
     const [twitterHandleSubmited, setTwitterHandleSubmitted] = useState<boolean>(false);
     const [twitterHandle, setTwitterHandle] = useState<string>("");
@@ -42,11 +44,12 @@ function Vote() {
     useEffect(() => {
         async function initData() {
             try {
-                const participantsResponse = await getLatestSeasonParticipants(null);
+                const participantsResponse = await getLatestSeasonParticipants();
                 const data = participantsResponse.data;
+                const participants = data.participants;
 
                 const tempMap = new Map()
-                data.forEach(participant => {
+                participants.forEach(participant => {
                     tempMap.set(participant.id, participant);
                 });
                 setParticipants(tempMap);
@@ -60,6 +63,7 @@ function Vote() {
 
                 setVoteStartDate(voteStartDate);
                 setVoteEndDate(voteEndDate.getTime());
+                setSeasonNumber(`${initialBracketData.seasonNumber}`);
 
                 if (now < voteStartDate.getTime() || now > voteEndDate.getTime()) {
                     setVoteClosed(true);
@@ -122,12 +126,12 @@ function Vote() {
     }, [voteEndDate, countDownRef])
 
     useEffect(() => {
-        if (currentBracketNumber === finalBracketNumber) {
+        if (currentBracketNumber === finalBracketNumber || voteClosed) {
             setVoteState("DONE");
         } else if (twitterHandle.length !== 0 && twitterHandleSubmited) {
             setVoteState("FEMALE");
         }
-    }, [currentBracketNumber, finalBracketNumber, twitterHandle, twitterHandleSubmited])
+    }, [currentBracketNumber, finalBracketNumber, twitterHandle, twitterHandleSubmited, voteClosed])
 
     // We need to generate the next bracket group by iterating through the groups for male and female
 
@@ -304,7 +308,7 @@ function Vote() {
 
         if (voteClosed) {
             const now = new Date().getTime();
-            const text = now < voteStartDate.getTime() ? "Voting has not begun" : "Voting has ended"
+            const text = now < voteStartDate.getTime() ? `Voting has not begun for Season ${seasonNumber}` : `Voting has ended for Season ${seasonNumber}`
 
             return <VoteFinished text={text} />;
         } else if (voteState === "DONE") {
@@ -419,10 +423,6 @@ function Vote() {
         }
 
         return true;
-    }
-
-    function renderCountdown() {
-        return  <Countdown date={1655622000000} />
     }
 
     return (

@@ -1,3 +1,8 @@
+export interface GenderedVoteRoundsResponse {
+    seasonNumber: number;
+    rounds: GenderedRoundWinners[]
+}
+
 interface GenderedRoundWinners {
     maleWinners: WinningResultsBracketGroup[];
     femaleWinners: WinningResultsBracketGroup[];

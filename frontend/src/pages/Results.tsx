@@ -1,30 +1,36 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults } from "../clients/MainClient";
+import { getLatestSeasonsTotalVoteResults, getSeasonParticipants } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
 import RoundResults from "../components/vote/RoundResults";
-import { useLatestSeason } from "../context/SeasonContext";
 import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import ResultsFilterState from "../models/ResultsFilterState";
 
 function Results() {
-    const latestSeasonContext = useLatestSeason();
-
     const [loading, setLoading] = useState<boolean>(true);
     const [filterState, setFilterState] = useState<ResultsFilterState>(ResultsFilterState.FEMALE);
+    const [maxSeason, setMaxSeason] = useState<number>(-1);
+    const [resultsSeason, setResultsSeason] = useState<number>(-1);
     const [participants, setParticipants] = useState<Map<String, ParticipantResponse>>(new Map());
     const [voteResults, setVoteResults] = useState<GenderedRoundWinners[]>([]);
 
     useEffect(() => {
         async function getInitData(): Promise<void> {
             try {
-                const participantsResponse = await getLatestSeasonParticipants(null);
-                setParticipants(new Map(participantsResponse.data.map(p => [p.id, p])));
-
                 const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
-                setVoteResults(latestSeasonVoteResults.data);
+                const currMaxSeason = latestSeasonVoteResults.data.seasonNumber;
+                const rounds = latestSeasonVoteResults.data.rounds;
+
+                const participantsResponse = await getSeasonParticipants(currMaxSeason, true);
+                const participants = participantsResponse.data.participants
+                setParticipants(new Map(participants.map(p => [p.id, p])));
+
+                setMaxSeason(currMaxSeason)
+                setResultsSeason(currMaxSeason);
+
+                setVoteResults(rounds);
             } catch (err) {
                 //@ts-ignore
                 const data = err.response.data;
@@ -58,8 +64,11 @@ function Results() {
     }
 
     function getSeasonNumber(): string {
-        const latestSeasonNum = latestSeasonContext?.latestSeason?.seasonNumber;
-        return latestSeasonNum ? `${latestSeasonNum}` : "";
+        if (resultsSeason > 0) {
+            return `${resultsSeason}`;
+        } else {
+            return "";
+        }
     }
 
     function renderResults() {
