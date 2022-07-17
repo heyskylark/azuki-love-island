@@ -6,8 +6,14 @@ function usePageTracking() {
     const location = useLocation();
 
     useEffect(() => {
-        ReactGA.initialize("G-WWKDPEG3HD");
-        ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+        const measurmentId = process.env.REACT_APP_G_ANALYTICS_MEASUREMENT_ID;
+
+        if (measurmentId) {
+            ReactGA.initialize(measurmentId);
+            ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+        } else {
+            console.log("G Measurment ID not found")
+        }
     }, [location]);
 }
 
