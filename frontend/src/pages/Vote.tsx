@@ -310,7 +310,7 @@ function Vote() {
 
         if (voteClosed) {
             const now = new Date().getTime();
-            const text = now < voteStartDate.getTime() ? `Voting has not begun for Season ${seasonNumber}` : `Voting has ended for Season ${seasonNumber}`
+            const text = now < voteStartDate.getTime() ? `Season ${seasonNumber} voting has not begun` : `Season ${seasonNumber} voting has ended`
 
             return <VoteFinished text={text} />;
         } else if (voteState === "DONE") {
