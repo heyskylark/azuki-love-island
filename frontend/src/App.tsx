@@ -8,9 +8,10 @@ import Gallery from "./pages/Gallery";
 import { ProvideLatestSeason } from "./context/SeasonContext";
 import Vote from "./pages/Vote";
 import Results from "./pages/Results";
+import usePageTracking from "./hooks/usePageTracking";
 
 function App() {
-  const params = new URLSearchParams("filter");
+  usePageTracking();
 
   return (
     <ProvideLatestSeason>
