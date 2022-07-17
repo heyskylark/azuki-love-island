@@ -16,7 +16,7 @@ class CloudinaryService(
     companion object {
         private const val ONE_KB = 1000
         private const val ONE_MB = ONE_KB * 1000
-        private const val MAX_FILE_SIZE_BYTES = ONE_MB * 5
+        private const val MAX_FILE_SIZE_BYTES = ONE_MB * 10
     }
     fun generateCloudinarySignature(
         fileSize: Long,
