@@ -10,11 +10,7 @@ import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
 
-interface Props {
-    filter: string | null;
-}
-
-function Gallery(props: Props) {
+function Gallery() {
     const [loading, setLoading] = useState<boolean>(true);
     const [votingOpen, setVotingOpen] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(true);

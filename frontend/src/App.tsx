@@ -26,7 +26,7 @@ function App() {
         <Route path="/" element={<Submission />} />
         <Route path="/vote" element={<Vote />} />
         <Route path="/results" element={<Results />} />
-        <Route path="/gallery" element={<Gallery filter={params.get("filter")} />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/submission" element={<Submission />} />
         <Route path="/credits" element={<Credits />} />
       </Routes>
