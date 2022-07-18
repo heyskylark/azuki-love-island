@@ -49,7 +49,6 @@ function useVote(): UseVoteResponse {
                     voteDispatch({ type: "register", handle: latestVoteRound.twitterHandle });
                 }
 
-                console.log(latestVoteRound);
                 voteDispatch({ type: "set-curr-round", currentRoundNumber: latestVoteRound.roundNumber });
                 voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
                 voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
