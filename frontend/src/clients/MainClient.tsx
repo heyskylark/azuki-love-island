@@ -41,7 +41,7 @@ export async function submitParticipant(body: ParticipantRequest): Promise<Axios
     return axios.post(`${BASE_URL}/participants`, body);
 }
 
-export async function getSeasonParticipants(seasonNumber: number, submitted: boolean = false): Promise<AxiosResponse<SeasonParticipantsResponse>> {
+export async function getSeasonParticipants(seasonNumber: number): Promise<AxiosResponse<SeasonParticipantsResponse>> {
     return axios.get(`${BASE_URL}/participants/seasons/${seasonNumber}`)
 }
 

@@ -2,11 +2,12 @@ import BracketGroup from "./BracketGroup";
 
 interface GenderedVoteBracket {
     seasonNumber: number;
-    bracketNumber: number;
-    twitterHandle: string;
+    roundNumber: number;
     maleBracketGroups: BracketGroup[];
     femaleBracketGroups: BracketGroup[];
+    hasVoted: boolean;
     finishedVoting: boolean;
+    twitterHandle?: string;
 }
 
 export default GenderedVoteBracket;

@@ -99,7 +99,7 @@ class VoteServiceTest {
 
         assertThat(successValue).isNotNull
         assertThat(successValue!!.seasonNumber).isEqualTo(1)
-        assertThat(successValue.bracketNumber).isEqualTo(1)
+        assertThat(successValue.roundNumber).isEqualTo(1)
         assertThat(successValue.twitterHandle).isEqualTo(DEFAULT_TWITTER_HANDLE)
         assertThat(successValue.finishedVoting).isFalse
         assertThat(successValue.finalRound).isFalse
@@ -161,7 +161,7 @@ class VoteServiceTest {
 
         assertThat(successValue).isNotNull
         assertThat(successValue!!.seasonNumber).isEqualTo(1)
-        assertThat(successValue.bracketNumber).isEqualTo(1)
+        assertThat(successValue.roundNumber).isEqualTo(1)
         assertThat(successValue.twitterHandle).isEqualTo(DEFAULT_TWITTER_HANDLE)
         assertThat(successValue.finishedVoting).isTrue
         assertThat(successValue.finalRound).isFalse
@@ -223,7 +223,7 @@ class VoteServiceTest {
 
         assertThat(successValue).isNotNull
         assertThat(successValue!!.seasonNumber).isEqualTo(1)
-        assertThat(successValue.bracketNumber).isEqualTo(2)
+        assertThat(successValue.roundNumber).isEqualTo(2)
         assertThat(successValue.twitterHandle).isEqualTo(DEFAULT_TWITTER_HANDLE)
         assertThat(successValue.finishedVoting).isFalse
         assertThat(successValue.finalRound).isTrue

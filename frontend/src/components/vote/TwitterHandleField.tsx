@@ -1,15 +1,17 @@
+import { useState } from "react";
+
 interface Props {
-    twitterHandle: string,
-    setTwitterHandle: React.Dispatch<React.SetStateAction<string>>
-    setTwitterHandleSubmitted:  React.Dispatch<React.SetStateAction<boolean>>
+    registerTwitterHandle: (handle: string) => void
 }
 
 function TwitterHandleField(props: Props) {
+    const [twitterHandle, setTwitterHandle] = useState<string>("");
+
     function startVote(e: React.FormEvent<HTMLFormElement> | undefined): void {
         e?.preventDefault();
         
         if (!twitterHandleInvalid()) {
-            props.setTwitterHandleSubmitted(true);
+            props.registerTwitterHandle(twitterHandle);
         }
     }
 
@@ -19,16 +21,16 @@ function TwitterHandleField(props: Props) {
         const handle = e.target.value
 
         if (handle.length === 0 || new RegExp(/^[A-Za-z0-9_]{1,15}$/).test(handle)) {
-            props.setTwitterHandle(handle);
+            setTwitterHandle(handle);
         }
     }
 
     function twitterHandleInvalid(): boolean {
-        if (props.twitterHandle.length === 0) {
+        if (twitterHandle.length === 0) {
             return true;
         }
 
-        return !new RegExp(/^[A-Za-z0-9_]{1,15}$/).test(props.twitterHandle);
+        return !new RegExp(/^[A-Za-z0-9_]{1,15}$/).test(twitterHandle);
     }
 
     return (
@@ -47,7 +49,7 @@ function TwitterHandleField(props: Props) {
                         <input
                             className="w-full mb-4 p-3 border-2 border-gray-100 focus:outline-none"
                             placeholder="@twitterHandle"
-                            value={props.twitterHandle}
+                            value={twitterHandle}
                             onChange={twitterHandleOnChange}
                         >
                         </input>

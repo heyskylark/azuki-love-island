@@ -24,7 +24,7 @@ function Results() {
                 const currMaxSeason = latestSeasonVoteResults.data.seasonNumber;
                 const rounds = latestSeasonVoteResults.data.rounds;
 
-                const participantsResponse = await getSeasonParticipants(currMaxSeason, true);
+                const participantsResponse = await getSeasonParticipants(currMaxSeason);
                 const participants = participantsResponse.data.participants
                 setParticipants(new Map(participants.map(p => [p.id, p])));
 

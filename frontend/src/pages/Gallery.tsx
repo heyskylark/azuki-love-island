@@ -1,3 +1,4 @@
+import ReactGA from "react-ga4";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -91,13 +92,23 @@ function Gallery() {
         }
     }, [participants, filterState]);
 
+    function viewProfileEvent(azukiId: number) {
+        ReactGA.event({
+            category: "engagement",
+            action: "view_gallery_bio",
+            value: azukiId,
+        });
+    }
+
     function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, bio: string | undefined, hobbies: string[] | undefined) {
         setAzukiId(azukId);
         setTwitterHandle(twitterHandle);
         setColor(color);
         setImageUrl(imageUrl);
         setBio(bio ? bio : "");
-        setHobbies(hobbies ? hobbies : [])
+        setHobbies(hobbies ? hobbies : []);
+
+        viewProfileEvent(azukId);
 
         setModalClosed(false);
     }
