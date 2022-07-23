@@ -13,7 +13,6 @@ import ResultsFilterState from "../models/ResultsFilterState";
 function Results() {
     const [loading, setLoading] = useState<boolean>(true);
     const [filterState, setFilterState] = useState<ResultsFilterState>(ResultsFilterState.FEMALE);
-    const [maxSeason, setMaxSeason] = useState<number>(-1);
     const [resultsSeason, setResultsSeason] = useState<number>(-1);
     const [participants, setParticipants] = useState<Map<String, ParticipantResponse>>(new Map());
     const [voteResults, setVoteResults] = useState<GenderedRoundWinners[]>([]);
@@ -34,7 +33,6 @@ function Results() {
                 const participants = participantsResponse.data.participants
                 setParticipants(new Map(participants.map(p => [p.id, p])));
 
-                setMaxSeason(currMaxSeason)
                 setResultsSeason(currMaxSeason);
 
                 setVoteResults(rounds);
@@ -109,13 +107,13 @@ function Results() {
         if (loading) {
             return <Loading />
         } else if (voteResults.length === 0 && nextResultsDate !== -1) {
-            const date = new Date(nextResultsDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit" });
+            const date = new Date(nextResultsDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
             
             return (
                 <div className="mt-32 text-center">
                     <h1 className="mb-6 uppercase font-black text-2xl lg:text-4xl whitespace-pre-line">
                         <span className="inline-block">First Results Coming:&nbsp;</span>
-                        <span className="inline-block">{date}</span>
+                        <span className="inline-block">{date} PST</span>
                     </h1>
                 </div>
             );

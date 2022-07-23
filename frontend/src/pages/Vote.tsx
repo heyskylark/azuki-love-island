@@ -46,16 +46,38 @@ function Vote() {
         countDownRef.current?.start();
     }, [deadline, countDownRef])
 
+    function renderVoteHeader(): JSX.Element {
+        let header: JSX.Element
+        if (state === VoteStateEnum.VOTING_NOT_STARTED) {
+            const date = new Date(startDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+            header = (
+                <>
+                <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Voting Starts:</h1>
+                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">{date} PST</h1>
+                </>
+            )
+        } else {
+            header = (
+                <>
+                <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Round: {currentRoundNumber} / {finalRoundNumber}</h1>
+                <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Left For Round: {remainingVotes}</h1>
+                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Ends At: <Countdown ref={countDownRef} date={deadline} /></h1>
+                </>
+            )
+        }
+
+        return header
+    }
+
     function renderVoteSection(): JSX.Element {
         if (state === VoteStateEnum.LOADING) {
             return <Loading />;
         }
 
         if (state === VoteStateEnum.VOTING_ENDED) {
-            const now = new Date().getTime();
-            const text = now < startDate.getTime() ? `Season ${seasonNumber} voting has not begun` : `Season ${seasonNumber} voting has ended`
-
-            return <VoteFinished text={text} />;
+            return <VoteFinished text={`Season ${seasonNumber} voting has ended`} />;
+        } else if (state === VoteStateEnum.VOTING_NOT_STARTED) {
+            return <VoteFinished text={""} />;
         } else if (state === VoteStateEnum.FINISHED_VOTING) {
             return <VoteFinished text="Thanks For Voting!" />;
         } else if (state === VoteStateEnum.REGISTER) {
@@ -83,29 +105,39 @@ function Vote() {
         return <Loading />;
     }
 
+    function renderVotePageContent(): JSX.Element {
+        if (state === VoteStateEnum.LOADING) {
+            return <Loading />
+        } else {
+            return (
+                <>
+                <div className="w-full flex flex-wrap justify-center lg:text-center pt-28">
+                    <div className="w-full lg:w-1/2">
+                        {renderVoteHeader()}
+
+                        {state !== VoteStateEnum.REGISTER ? <button
+                            className="transition-opacity ease-in-out delay-50 disabled:opacity-70 uppercase mb-8 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70"
+                            type="submit"
+                            onClick={() => undo()}
+                            disabled={undoDisabled}
+                        >
+                            Undo
+                        </button> : <></>}
+                    </div>
+                </div>
+
+                {renderVoteSection()}
+                </>
+            )
+        }
+    }
+
     return (
         <>
         <div className="container mx-auto">
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
                 <section className="pb-24">
-                    <div className="w-full flex flex-wrap justify-center lg:text-center pt-28">
-                        <div className="w-full lg:w-1/2">
-                            <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Round: {currentRoundNumber} / {finalRoundNumber}</h1>
-                            <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Left For Round: {remainingVotes}</h1>
-                            <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Ends At: <Countdown ref={countDownRef} date={deadline} /></h1>
-
-                            {state !== VoteStateEnum.REGISTER ? <button
-                                className="transition-opacity ease-in-out delay-50 disabled:opacity-70 uppercase mb-8 w-full p-3 rounded-md text-white bg-azukired whitespace-nowrap hover:opacity-70"
-                                type="submit"
-                                onClick={() => undo()}
-                                disabled={undoDisabled}
-                            >
-                                Undo
-                            </button> : <></>}
-                        </div>
-                    </div>
-
-                    {renderVoteSection()}
+                    {renderVotePageContent()}
                 </section>
             </div>
         </div>
