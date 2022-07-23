@@ -16,6 +16,13 @@ interface ParticipantResponse {
     hobbies: string[] | undefined;
     submitted: boolean;
     validated: boolean;
+    image?: ParticipantArt
+}
+
+export interface ParticipantArt {
+    publicId: string;
+    secureUrl: string;
+    format: string
 }
 
 export default ParticipantResponse;

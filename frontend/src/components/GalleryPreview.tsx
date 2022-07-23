@@ -1,20 +1,21 @@
 import serialToImageNameJson from "../models/image/ImageToUUIDMapping"
 
 interface Props {
-    azukiId: number
-    twitterHandle: string
-    modalImageUrl: string
-    color: string
-    bio: string | undefined
-    hobbies: string[] | undefined
-    openModal: (azukId: number, twitterHandle: string, color: string, imageUrl: string, bio: string | undefined, hobbies: string[] | undefined) => void
+    azukiId: number;
+    twitterHandle: string;
+    modalImageUrl: string;
+    color: string;
+    bio?: string;
+    hobbies?: string[];
+    artUrl?: string;
+    openModal: (azukId: number, twitterHandle: string, color: string, imageUrl: string, bio?: string, hobbies?: string[], artUrl?: string) => void;
 }
 
 function GalleryPreview(props: Props) {
     function open(e: { preventDefault: () => void }) {
         e.preventDefault();
 
-        props.openModal(props.azukiId, props.twitterHandle, props.color, props.modalImageUrl, props.bio, props.hobbies);
+        props.openModal(props.azukiId, props.twitterHandle, props.color, props.modalImageUrl, props.bio, props.hobbies, props.artUrl);
     }
 
     function getPreviewUrl(): string {

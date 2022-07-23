@@ -1,12 +1,15 @@
 import { getBackgroundColor, textColor } from "../util/ColorUtil"
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { Carousel } from "react-responsive-carousel";
 
 interface Props {
     azukiId: number
     twitterHandle: string
     imageUrl: string
     color: string
-    bio: string | undefined
-    hobbies: string[] | undefined
+    bio?: string
+    hobbies?: string[]
+    artUrl?: string
     closeModal: () => void
 }
 
@@ -64,7 +67,7 @@ function GalleryCard(props: Props) {
                     <p className="underline text-3xs opacity-50 font-mono uppercase">Bio:</p>
                     <p className="text-3xs opacity-50 font-mono uppercase">{props.bio}</p>
                 </div>
-            )
+            );
         }
     }
 
@@ -75,8 +78,39 @@ function GalleryCard(props: Props) {
                     <p className="underline text-3xs opacity-50 font-mono uppercase">Hobbies:</p>
                     <p className="text-3xs opacity-50 font-mono uppercase">{parseHobbies()}</p>
                 </div>
+            );
+        }
+    }
+
+    function renderArt() {
+        console.log(props.artUrl)
+        if (props.artUrl) {
+            return (
+                <div className="md:mt-auto md:mb-4 w-[50%] py-2">
+                    <img className="rounded object-cover w-[150px] h-[150px] opacity-70 hover:opacity-100 transition-opacity ease-in-out delay-50" src={props.artUrl} alt="" />
+                </div>
+            );
+        }
+    }
+
+    function images() {
+        const images = [
+            (
+                <div>
+                    <img className="lg:w-full overlay-item mx-auto square" src={props.imageUrl} alt='' />
+                </div>
+            )
+        ]
+
+        if (props.artUrl) {
+            images.push(
+                <div>
+                    <img className="lg:w-full overlay-item mx-auto square" src={props.artUrl} alt='' />
+                </div>
             )
         }
+
+        return images
     }
 
     return (
@@ -94,12 +128,14 @@ function GalleryCard(props: Props) {
                 </button>
 
                 <div className="col-span-6 square grid grid-cols-1 relative">
-                    <img className="lg:w-full overlay-item mx-auto square" src={props.imageUrl} alt='' />
+                    <Carousel showStatus={false} showThumbs={false} emulateTouch={true}>
+                        {images()}
+                    </Carousel>
                 </div>
 
-                <div className="h-full relative col-span-6 md:pr-10 md:pl-0 px-6 md:py-0 py-6 flex-col w-full flex justify-center">
+                <div className="h-full relative col-span-6 md:pr-10 md:pl-0 px-6 md:py-0 pt-4 pb-6 flex-col w-full flex justify-center">
                     <div className="border-opacity-10 flex flex space-between items-end border-opacity-10 w-full border-bb border-black">
-                        <div className="mt-8 w-full">
+                        <div className="mt-4 md:mt-8 w-full">
                             <div className="overflow-hidden text-left pl-4 pt-3 bg-black bg-opacity-10 pb-2 rounded w-full border-opacity-0 border-white">
                                 <div className="flex items-center h-full translate-x-0">
                                     <div className="cursor-default w-6 h-6 grid grid-cols-1 group z-50">

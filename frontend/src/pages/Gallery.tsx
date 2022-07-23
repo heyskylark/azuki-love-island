@@ -8,7 +8,7 @@ import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
 import Loading from "../components/Loading";
 import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
-import ParticipantResponse from "../models/api/ParticipantResponse";
+import ParticipantResponse, { ParticipantArt } from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
 
 function Gallery() {
@@ -29,6 +29,7 @@ function Gallery() {
     const [imageUrl, setImageUrl] = useState<string>("");
     const [bio, setBio] = useState<string>("");
     const [hobbies, setHobbies] = useState<string[]>([]);
+    const [artUrl, setArtUrl] = useState<string>("");
 
     const { seasonNum } = useParams();
 
@@ -125,13 +126,14 @@ function Gallery() {
         });
     }
 
-    function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, bio: string | undefined, hobbies: string[] | undefined) {
+    function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, bio?: string, hobbies?: string[], artUrl?: string) {
         setAzukiId(azukId);
         setTwitterHandle(twitterHandle);
         setColor(color);
         setImageUrl(imageUrl);
         setBio(bio ? bio : "");
         setHobbies(hobbies ? hobbies : []);
+        setArtUrl(artUrl ? artUrl : "");
 
         viewProfileEvent(azukId);
 
@@ -145,6 +147,7 @@ function Gallery() {
         setImageUrl("");
         setBio("");
         setHobbies([])
+        setArtUrl("")
 
         setModalClosed(true);
     }
@@ -160,6 +163,7 @@ function Gallery() {
                     bio={bio}
                     hobbies={hobbies}
                     closeModal={closeModal}
+                    artUrl={artUrl}
                 />
             );
         }
@@ -180,6 +184,7 @@ function Gallery() {
                         modalImageUrl={participant.imageUrl}
                         bio={participant.bio}
                         hobbies={participant.hobbies}
+                        artUrl={participant.image?.secureUrl}
                         openModal={openModal}
                     />
                 )
