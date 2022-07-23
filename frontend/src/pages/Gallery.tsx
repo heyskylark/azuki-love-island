@@ -16,7 +16,7 @@ function Gallery() {
     const [votingOpen, setVotingOpen] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(true);
 
-    const [maxSeason, setMaxSeason] = useState<number>(-1);
+    const [currentVotingSeason, setCurrentVotingSeason] = useState<number>(-1);
     const [gallerySeason, setGallerySeason] = useState<number>(-1);
     const [participants, setParticipants] = useState<ParticipantResponse[]>([]);
     const [filteredParticipants, setFilteredParticipants] = useState<ParticipantResponse[]>([]);
@@ -43,7 +43,6 @@ function Gallery() {
                             return p1.azukiId - p2.azukiId
                         });
         
-                        setMaxSeason(data.seasonNumber);
                         setGallerySeason(data.seasonNumber);
 
                         setParticipants(sortedParticipants);
@@ -64,7 +63,6 @@ function Gallery() {
                             return p1.azukiId - p2.azukiId
                         });
         
-                        setMaxSeason(data.seasonNumber);
                         setGallerySeason(data.seasonNumber);
 
                         setParticipants(sortedParticipants);
@@ -88,6 +86,8 @@ function Gallery() {
                     if (now >= voteStartDate && now <= voteEndDate) {
                         setVotingOpen(true);
                     }
+
+                    setCurrentVotingSeason(initialBracketData.seasonNumber);
 
                     const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
                     setVoteResults(latestSeasonVoteResults.data.rounds);
@@ -229,7 +229,7 @@ function Gallery() {
         if (votingOpen) {
             return (
                 <div className="flex w-full content-center mb-7">
-                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {maxSeason} Voting is now Open:&nbsp;</h1>
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {currentVotingSeason} Voting is now Open:&nbsp;</h1>
                     <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/vote">
                         Vote Now →
                     </Link>
@@ -243,7 +243,7 @@ function Gallery() {
         if (!votingOpen && voteResults.length > 0) {
             return (
                 <div className="flex w-full content-center mb-7">
-                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {maxSeason} Results are Out:&nbsp;</h1>
+                    <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Season {currentVotingSeason} Results are Out:&nbsp;</h1>
                     <Link className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200" to="/results">
                         Results →
                     </Link>
