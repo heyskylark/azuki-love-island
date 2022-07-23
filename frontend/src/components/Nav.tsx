@@ -15,7 +15,7 @@ function Nav() {
     return (
         <>
         <div className="container mx-auto">
-            <div className="container fixed w-full top-0 lg:px-8 px-5 lg:pt-8 pt-5 z-50">
+            <div className="container fixed w-full top-0 lg:px-8 px-5 lg:pt-8 pt-5 z-[50]">
                 <div className="flex h-full border-b border-white items-center justify-center max-w-11xl mx-auto border-opacity-0">
                     <div className="flex-grow">
                         <div className="flex">
@@ -43,7 +43,7 @@ function Nav() {
                         </ul>
                     </div>
 
-                    <div className="lg:hidden z-50">
+                    <div className="lg:hidden z-[50]">
                         <div className="single-small">
                             <button onClick={toggleMobileMenu} className="hamburger single-small single-small--magnetic">
                                 <div className="inner transition ease-in-out duration-500">
@@ -57,7 +57,7 @@ function Nav() {
                 </div>
             </div>
 
-            <div className={`lg:hidden w-screen items-start h-screen flex flex-col fixed px-6 pt-20 bg-white bg-opacity-70 backdrop-blur-lg z-40 pointer will-change-opacity overflow-scroll ${!mobileMenu ? "hidden" : ""}`}>
+            <div className={`lg:hidden w-screen items-start h-screen flex flex-col fixed px-6 pt-20 bg-white bg-opacity-70 backdrop-blur-lg z-[50] pointer will-change-opacity overflow-scroll ${!mobileMenu ? "hidden" : ""}`}>
                 <ul className="text-2xl w-full uppercase font-bold">
                     <li className="border-b border-black border-opacity-10">
                         <Link className="py-3 w-full items-center block relative flex text-black" to="/results" onClick={turnOffMobileMenu}>
