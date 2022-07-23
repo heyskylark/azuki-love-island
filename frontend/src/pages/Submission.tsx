@@ -56,7 +56,7 @@ function Submission() {
     function renderClosed() {
         if (latestSeasonContext !== null && latestSeasonContext?.latestSeason !== null && !latestSeasonContext.latestSeason.submissionActive) {
             return (
-                <div className="lg:w-1/2 pr-20 absolute z-[49]">
+                <div className="lg:w-1/2 pr-20 absolute z-[48]">
                     <img src="images/closed.png" alt="" />
                 </div>
             );
@@ -104,7 +104,7 @@ function Submission() {
                                     setLoadingSubmission={setLoadingSubmission}
                                 />
                             </div>
-                            <div className="lg:w-1/2 hidden lg:block z-[48]">
+                            <div className="lg:w-1/2 hidden lg:block z-[47]">
                                 <img className="fixed bottom-0 right-0 w-1/2" src="images/sexy-beanz-2.png" alt="Love Island Beanz" />
                             </div>
                         </div>

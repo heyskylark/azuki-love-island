@@ -57,7 +57,7 @@ function Nav() {
                 </div>
             </div>
 
-            <div className={`lg:hidden w-screen items-start h-screen flex flex-col fixed px-6 pt-20 bg-white bg-opacity-70 backdrop-blur-lg z-[50] pointer will-change-opacity overflow-scroll ${!mobileMenu ? "hidden" : ""}`}>
+            <div className={`lg:hidden w-screen items-start h-screen flex flex-col fixed px-6 pt-20 bg-white bg-opacity-70 backdrop-blur-lg z-[49] pointer will-change-opacity overflow-scroll ${!mobileMenu ? "hidden" : ""}`}>
                 <ul className="text-2xl w-full uppercase font-bold">
                     <li className="border-b border-black border-opacity-10">
                         <Link className="py-3 w-full items-center block relative flex text-black" to="/results" onClick={turnOffMobileMenu}>
