@@ -17,6 +17,7 @@ interface Props {
 
 function GalleryCard(props: Props) {
     const [artView, setArtView] = useState<boolean>(false);
+    const [selected, setSelected] = useState<number>(0);
 
     function close(e: { preventDefault: () => void }) {
         e.preventDefault();
@@ -26,6 +27,11 @@ function GalleryCard(props: Props) {
 
     function toggleArtView(e: { preventDefault: () => void }) {
         e.preventDefault();
+
+        if (artView) {
+            setSelected(1);
+        }
+
         setArtView(!artView);
     }
 
@@ -148,6 +154,7 @@ function GalleryCard(props: Props) {
                     showStatus={false}
                     showThumbs={false}
                     emulateTouch={true}
+                    selectedItem={selected}
                 >
                     {images()}
                 </Carousel>
