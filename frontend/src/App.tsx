@@ -27,6 +27,7 @@ function App() {
         <Route path="/vote" element={<Vote />} />
         <Route path="/results" element={<Results />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/gallery/:seasonNum" element={<Gallery />} />
         <Route path="/submission" element={<Submission />} />
         <Route path="/credits" element={<Credits />} />
       </Routes>

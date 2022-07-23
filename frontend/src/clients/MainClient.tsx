@@ -45,6 +45,10 @@ export async function getSeasonParticipants(seasonNumber: number): Promise<Axios
     return axios.get(`${BASE_URL}/participants/seasons/${seasonNumber}`)
 }
 
+export async function getSeasonSubmissions(seasonNumber: number): Promise<AxiosResponse<SeasonParticipantsResponse>> {
+    return axios.get(`${BASE_URL}/participants/seasons/${seasonNumber}/submissions`);
+}
+
 export async function getLatestSeasonParticipants(): Promise<AxiosResponse<SeasonParticipantsResponse>> {
     return axios.get(`${BASE_URL}/participants/seasons/latest`);
 }

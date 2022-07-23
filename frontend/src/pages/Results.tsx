@@ -1,10 +1,11 @@
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { getLatestSeasonsTotalVoteResults, getSeasonParticipants } from "../clients/MainClient";
+import { getLatestSeasonsTotalVoteResults, getSeasonParticipants, getSeasonsInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
 import RoundResults from "../components/vote/RoundResults";
+import GenderedInitialBracket from "../models/api/GenderedInitialBracket";
 import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
 import ParticipantResponse from "../models/api/ParticipantResponse";
 import ResultsFilterState from "../models/ResultsFilterState";
@@ -16,10 +17,15 @@ function Results() {
     const [resultsSeason, setResultsSeason] = useState<number>(-1);
     const [participants, setParticipants] = useState<Map<String, ParticipantResponse>>(new Map());
     const [voteResults, setVoteResults] = useState<GenderedRoundWinners[]>([]);
+    const [nextResultsDate, setNextResultsDate] = useState<number>(-1);
 
     useEffect(() => {
         async function getInitData(): Promise<void> {
             try {
+                const initBracketResponse = await getSeasonsInitialBracket();
+                const initBrakcet = initBracketResponse.data;
+                setNextResultsDate(calculateNextVoteResults(initBrakcet))
+
                 const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
                 const currMaxSeason = latestSeasonVoteResults.data.seasonNumber;
                 const rounds = latestSeasonVoteResults.data.rounds;
@@ -49,6 +55,28 @@ function Results() {
 
         getInitData();
     }, [])
+
+    function calculateNextVoteResults(initBracket: GenderedInitialBracket): number {
+        const now = Date.now();
+        const startDateMilli = initBracket.voteStartDate;
+        const deadilineMilli = initBracket.voteDeadline;
+        const voteGapsMilli = initBracket.voteGapTimeMilliseconds;
+
+        if (!voteGapsMilli || now >= deadilineMilli) {
+            return -1;   
+        }
+
+        const firstRoundLock = startDateMilli + voteGapsMilli;
+        if (now > firstRoundLock) {
+            const startDelta = now - startDateMilli;
+            const maxRounds = initBracket.numOfBrackets;
+            const lastLockedRound = Math.min(Math.floor(startDelta / voteGapsMilli), maxRounds);
+
+            return startDateMilli + (voteGapsMilli * (lastLockedRound + 1));
+        } else {
+            return firstRoundLock;
+        }
+    }
 
     function filterButtonEvent(e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         e.preventDefault();
@@ -80,8 +108,8 @@ function Results() {
     function renderResults() {
         if (loading) {
             return <Loading />
-        } else if (voteResults.length === 0) {
-            const date = new Date(1655665200000).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit" });
+        } else if (voteResults.length === 0 && nextResultsDate !== -1) {
+            const date = new Date(nextResultsDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit", second:"2-digit" });
             
             return (
                 <div className="mt-32 text-center">

@@ -1,8 +1,8 @@
 import ReactGA from "react-ga4";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults, getSeasonsInitialBracket as getLatestInitialBracket } from "../clients/MainClient";
+import { getLatestSeasonParticipants, getLatestSeasonsTotalVoteResults, getSeasonsInitialBracket as getLatestInitialBracket, getSeasonSubmissions } from "../clients/MainClient";
 import Footer from "../components/Footer";
 import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
@@ -30,28 +30,53 @@ function Gallery() {
     const [bio, setBio] = useState<string>("");
     const [hobbies, setHobbies] = useState<string[]>([]);
 
+    const { seasonNum } = useParams();
+
     useEffect(() => {
         function getParticipants() {
-            getLatestSeasonParticipants()
-                .then((participantsResponse) => participantsResponse.data)
-                .then((data) => {
-                    const participants = data.participants
-                    const sortedParticipants = participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
-                        return p1.azukiId - p2.azukiId
-                    });
-    
-                    setMaxSeason(data.seasonNumber);
-                    setGallerySeason(data.seasonNumber);
+            if (seasonNum) {
+                getSeasonSubmissions(parseInt(seasonNum))
+                    .then((participantsResponse) => participantsResponse.data)
+                    .then((data) => {
+                        const participants = data.participants
+                        const sortedParticipants = participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                            return p1.azukiId - p2.azukiId
+                        });
+        
+                        setMaxSeason(data.seasonNumber);
+                        setGallerySeason(data.seasonNumber);
 
-                    setParticipants(sortedParticipants);
-                    setFilteredParticipants(sortedParticipants);
-                })
-                .catch((err) => {
-                    toast.error("There was a problem loading the participants...");
-                })
-                .finally(() => {
-                    setLoading(false);
-                })
+                        setParticipants(sortedParticipants);
+                        setFilteredParticipants(sortedParticipants);
+                    })
+                    .catch((err) => {
+                        toast.error("There was a problem loading the participants...");
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    })
+            } else {
+                getLatestSeasonParticipants()
+                    .then((participantsResponse) => participantsResponse.data)
+                    .then((data) => {
+                        const participants = data.participants
+                        const sortedParticipants = participants.sort((p1: ParticipantResponse, p2: ParticipantResponse) => {
+                            return p1.azukiId - p2.azukiId
+                        });
+        
+                        setMaxSeason(data.seasonNumber);
+                        setGallerySeason(data.seasonNumber);
+
+                        setParticipants(sortedParticipants);
+                        setFilteredParticipants(sortedParticipants);
+                    })
+                    .catch((err) => {
+                        toast.error("There was a problem loading the participants...");
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    })
+            }
 
             // TODO: Re-think this, banners about voting and results should only show up for the latest gallery. Fetch initialBracket and voteResults based on maxSeason
             getLatestInitialBracket()
