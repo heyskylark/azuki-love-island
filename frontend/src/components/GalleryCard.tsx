@@ -96,7 +96,7 @@ function GalleryCard(props: Props) {
     function images() {
         const images = [
             (
-                <div>
+                <div className="select-none">
                     <img className="lg:w-full overlay-item mx-auto square" src={props.imageUrl} alt='' />
                 </div>
             )
@@ -104,7 +104,7 @@ function GalleryCard(props: Props) {
 
         if (props.artUrl) {
             images.push(
-                <div>
+                <div className="select-none">
                     <img className="lg:w-full overlay-item mx-auto square" src={props.artUrl} alt='' />
                 </div>
             )
