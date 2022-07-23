@@ -163,7 +163,7 @@ function Gallery() {
                     bio={bio}
                     hobbies={hobbies}
                     closeModal={closeModal}
-                    artUrl={artUrl}
+                    artUrl={artUrl.length > 0 ? artUrl : undefined}
                 />
             );
         }
