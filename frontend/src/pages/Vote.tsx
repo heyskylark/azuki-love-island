@@ -29,10 +29,10 @@ function Vote() {
         currentRoundNumber,
         finalRoundNumber,
         startDate,
-        deadline,
         remainingVotes,
         undoDisabled,
         currentVoteGroup,
+        nextRoundDate,
         undo,
         vote,
         registerTwitterHandle
@@ -43,8 +43,10 @@ function Vote() {
     }, [])
 
     useEffect(() => {
-        countDownRef.current?.start();
-    }, [deadline, countDownRef])
+        if (nextRoundDate()) {
+            countDownRef.current?.start();
+        }
+    }, [nextRoundDate, countDownRef])
 
     function renderVoteHeader(): JSX.Element {
         let header: JSX.Element
@@ -57,11 +59,12 @@ function Vote() {
                 </>
             )
         } else {
+            const nextRound = nextRoundDate() ? nextRoundDate() : new Date();
             header = (
                 <>
                 <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Round: {currentRoundNumber} / {finalRoundNumber}</h1>
                 <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Left For Round: {remainingVotes}</h1>
-                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Votes Ends At: <Countdown ref={countDownRef} date={deadline} /></h1>
+                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Round Ends At: <Countdown ref={countDownRef} date={nextRound} /></h1>
                 </>
             )
         }
@@ -79,7 +82,14 @@ function Vote() {
         } else if (state === VoteStateEnum.VOTING_NOT_STARTED) {
             return <VoteFinished text={""} />;
         } else if (state === VoteStateEnum.FINISHED_VOTING) {
-            return <VoteFinished text="Thanks For Voting!" />;
+            const nextRound = nextRoundDate();
+
+            if (nextRound) {
+                const dateString = nextRound.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+                return <VoteFinished text={`Next Round Starts:\n${dateString} PST`} />;
+            } else {
+                return <VoteFinished text="Thanks For Voting!" />;
+            }
         } else if (state === VoteStateEnum.REGISTER) {
             return <TwitterHandleField
                 registerTwitterHandle={registerTwitterHandle}

@@ -1,6 +1,7 @@
 package com.heyskylark.azukiloveisland.dto.participant
 
 import com.heyskylark.azukiloveisland.model.Participant
+import com.heyskylark.azukiloveisland.model.ParticipantArt
 import com.heyskylark.azukiloveisland.model.azuki.BackgroundTrait
 import com.heyskylark.azukiloveisland.model.azuki.Gender
 import java.net.URL
@@ -21,6 +22,7 @@ data class ParticipantResponseDto(
     val quote: String?,
     val bio: String? = null,
     val hobbies: Set<String>? = null,
+    val image: ParticipantArt? = null,
     val submitted: Boolean = false,
     val validated: Boolean = false,
 ) {
@@ -33,8 +35,9 @@ data class ParticipantResponseDto(
         seasonNumber = participant.seasonNumber,
         gender = participant.gender,
         quote = participant.quote,
-        bio = if (true || participant.validated) participant.bio else null,
-        hobbies = if (true || participant.validated) participant.hobbies else null,
+        bio = participant.bio,
+        hobbies = participant.hobbies,
+        image = participant.image,
         submitted = participant.submitted,
         validated = participant.validated
     )

@@ -15,6 +15,7 @@ const initialVoteState: VoteState = {
     roundVotingFinished: false,
     startDate: new Date(),
     deadline: new Date(),
+    voteGapTimeMilli: -1,
     currentRoundNumber: 0,
     finalRoundNumber: 0,
     maleVoteIndex: 0,
@@ -32,12 +33,21 @@ function useVote(): UseVoteResponse {
     const [voteState, voteDispatch] = useReducer(voteReducer, initialVoteState);
 
     useEffect(() => {
+        console.log(`FEMALE INDEX: ${voteState.femaleVoteIndex}, MALE INDEX: ${voteState.maleVoteIndex}`)
+        console.log(`VOTE STATE: ${VoteStateEnum[voteState.state]}`)
+        console.log(`GROUP SORT ORDER: ${getCurrentVoteGroup()?.sortOrder}`)
+        console.log(`NEW ROUND GROUP: { sub1: ${voteState.newRoundGroup.submissionId1}, sub2: ${voteState.newRoundGroup.submissionId2} }`)
+        console.log("FEMALE VOTE SUBS: ", voteState.femaleVoteSubmission)
+        console.log()
+    }, [voteState.femaleVoteIndex, voteState.maleVoteIndex, voteState.state, getCurrentVoteGroup, voteState.newRoundGroup, voteState.femaleVoteSubmission])
+
+    useEffect(() => {
         async function initData() {
             try {
                 const initialRoundResponse = await getSeasonsInitialBracket();
                 const initialRound = initialRoundResponse.data;
 
-                voteDispatch({ type: "set-dates", deadline: new Date(initialRound.voteDeadline), startDate: new Date(initialRound.voteStartDate) });
+                voteDispatch({ type: "set-dates", deadline: new Date(initialRound.voteDeadline), startDate: new Date(initialRound.voteStartDate), voteGapTimeMilli: initialRound.voteGapTimeMilliseconds ? initialRound.voteGapTimeMilliseconds : -1 });
                 voteDispatch({ type: "set-season-number", seasonNumber: initialRound.seasonNumber });
                 voteDispatch({ type: "set-final-round", finalRoundNumber: initialRound.numOfBrackets });
 
@@ -49,7 +59,7 @@ function useVote(): UseVoteResponse {
                     voteDispatch({ type: "register", handle: latestVoteRound.twitterHandle });
                 }
 
-                voteDispatch({ type: "set-curr-round", currentRoundNumber: latestVoteRound.roundNumber });
+                voteDispatch({ type: "set-curr-round", currentRoundNumber: latestVoteRound.roundNumber + 1 });
                 voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
                 voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
 
@@ -101,6 +111,13 @@ function useVote(): UseVoteResponse {
         voteDispatch({ type: "set-participants", participants: tempMap });
     }
 
+    function getNextRoundDate(): Date | undefined {
+        if ((voteState.currentRoundNumber) < voteState.finalRoundNumber && voteState.voteGapTimeMilli > -1) {
+            const nextRoundMilli = voteState.startDate.getTime() + (voteState.voteGapTimeMilli * (voteState.currentRoundNumber))
+            return new Date(nextRoundMilli);
+        }
+    }
+
     function getCurrentVoteGroup(): DenormalizedBracketGroup | undefined {
         let bracketGroup;
         if (voteState.state === VoteStateEnum.VOTING_FEMALE) {
@@ -134,11 +151,13 @@ function useVote(): UseVoteResponse {
         }
 
         if (state === VoteStateEnum.VOTING_FEMALE || state === VoteStateEnum.VOTING_MALE) {
-            if ((voteState.currentRoundNumber + 1 === voteState.finalRoundNumber) && voteState.femaleVoteSubmission.length === 1) {
+            // This for the final round where the vote is only done for one female and one male
+            console.log(`Current round: ${voteState.currentRoundNumber}, final round: ${voteState.finalRoundNumber}`)
+            if ((voteState.currentRoundNumber === voteState.finalRoundNumber) && voteState.initFemaleRoundGroups.length === 1) {
                 if (state === VoteStateEnum.VOTING_FEMALE) {
                     const group = {
                         submissionId1: participantId,
-                        sortOrder: voteState.initFemaleRoundGroups.length
+                        sortOrder: voteState.femaleVoteSubmission.length
                     }
 
                     voteDispatch({ type: "vote-female", voteGroup: group });
@@ -147,7 +166,7 @@ function useVote(): UseVoteResponse {
                 } else {
                     const group = {
                         submissionId1: participantId,
-                        sortOrder: voteState.initFemaleRoundGroups.length
+                        sortOrder: voteState.maleVoteSubmission.length
                     }
 
                     voteDispatch({ type: "update-round-group", roundGroup: {} });
@@ -166,9 +185,7 @@ function useVote(): UseVoteResponse {
                 }
             } else if (!newRoundGroup.submissionId2) {
                 if (state === VoteStateEnum.VOTING_FEMALE) {
-                    voteDispatch({ type: "increment-female-index" });
-
-                    if (voteState.femaleVoteIndex + 1 === voteState.femaleVoteSubmission.length) {
+                    if (voteState.femaleVoteIndex + 1 === voteState.initFemaleRoundGroups.length) {
                         const group: BracketGroup = {
                             submissionId1: newRoundGroup.submissionId1,
                             submissionId2: participantId,
@@ -179,16 +196,17 @@ function useVote(): UseVoteResponse {
                         voteDispatch({ type: "update-round-group", roundGroup: {} });
                         voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_MALE });
                     } else {
+                        voteDispatch({ type: "increment-female-index" });
                         voteDispatch({ type: "update-round-group", roundGroup: { ...voteState.newRoundGroup, submissionId2: participantId } });
                     }
                 } else if (state === VoteStateEnum.VOTING_MALE) {
                     voteDispatch({ type: "increment-male-index" });
 
-                    if (voteState.femaleVoteIndex + 1 === voteState.femaleVoteSubmission.length) {
+                    if (voteState.maleVoteIndex + 1 === voteState.initMaleRoundGroups.length) {
                         const group: BracketGroup = {
                             submissionId1: newRoundGroup.submissionId1,
                             submissionId2: participantId,
-                            sortOrder: voteState.femaleVoteSubmission.length
+                            sortOrder: voteState.maleVoteSubmission.length
                         }
 
                         sendVoteRequest([...voteState.maleVoteSubmission, group]);
@@ -205,16 +223,14 @@ function useVote(): UseVoteResponse {
                     }
 
                     voteDispatch({ type: "vote-female", voteGroup: group });
-                    voteDispatch({ type: "increment-female-index" });
                 } else {
                     const group: BracketGroup = {
                         submissionId1: newRoundGroup.submissionId1,
                         submissionId2: newRoundGroup.submissionId2,
-                        sortOrder: voteState.femaleVoteSubmission.length
+                        sortOrder: voteState.maleVoteSubmission.length
                     }
 
                     voteDispatch({ type: "vote-male", voteGroup: group });
-                    voteDispatch({ type: "increment-male-index" });
                 }
 
                 voteDispatch({ type: "update-round-group", roundGroup: { submissionId1: participantId } });
@@ -307,7 +323,7 @@ function useVote(): UseVoteResponse {
         const newGroup = voteState.newRoundGroup;
 
         if (state === VoteStateEnum.VOTING_FEMALE) {
-            return newGroup.submissionId1 === null && voteState.femaleVoteSubmission.length === 0;
+            return newGroup.submissionId1 === undefined && voteState.femaleVoteSubmission.length === 0;
         } else if (state === VoteStateEnum.VOTING_MALE) {
             return false;
         }
@@ -320,10 +336,10 @@ function useVote(): UseVoteResponse {
     }
 
     function getRemainingVotes(): number {
-        if (voteState.state === VoteStateEnum.VOTING_ENDED) {
+        if (voteState.state === VoteStateEnum.FINISHED_VOTING || voteState.state === VoteStateEnum.VOTING_ENDED) {
             return 0;
         } else {
-            return (voteState.initFemaleRoundGroups.length - voteState.femaleVoteIndex) -
+            return (voteState.initFemaleRoundGroups.length - voteState.femaleVoteIndex) +
                 (voteState.initMaleRoundGroups.length - voteState.maleVoteIndex);
         }
     }
@@ -338,6 +354,7 @@ function useVote(): UseVoteResponse {
         remainingVotes: getRemainingVotes(),
         undoDisabled: undoDisabled(),
         currentVoteGroup: getCurrentVoteGroup(),
+        nextRoundDate: getNextRoundDate,
         undo: undo,
         vote: vote,
         registerTwitterHandle: registerTwitterHandle
@@ -350,7 +367,7 @@ function voteReducer(state: VoteState, action: VoteAction): VoteState {
             return { ...state, state: action.state }
         }
         case "set-dates": {
-            return { ...state, startDate: action.startDate, deadline: action.deadline }
+            return { ...state, startDate: action.startDate, deadline: action.deadline, voteGapTimeMilli: action.voteGapTimeMilli }
         }
         case "set-season-number": {
             return { ...state, seasonNumber: action.seasonNumber }

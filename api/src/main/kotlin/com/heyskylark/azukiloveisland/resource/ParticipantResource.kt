@@ -23,13 +23,11 @@ class ParticipantResource(
 ) {
     /* Contestants */
     @GetMapping("seasons/latest")
-    fun getLatestSeasonContestants(
-        @RequestParam("filter", required = false) filter: String?
-    ): ResponseEntity<String> {
+    fun getLatestSeasonContestants(): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getLatestSeasonContestants())
     }
 
-    @GetMapping("seasons/{seasonNumber}")
+    @GetMapping("/seasons/{seasonNumber}")
     fun getSeasonContestants(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(
             participantService.getSeasonContestants(seasonNumber)
@@ -37,21 +35,20 @@ class ParticipantResource(
     }
 
     /* Submissions */
-    @GetMapping("seasons/{seasonNumber}/submissions")
+    @GetMapping("/seasons/{seasonNumber}/submissions")
     fun getSeasonSubmissions(
         @PathVariable("seasonNumber") seasonNumber: Int,
         @RequestParam("submitted", required = false) submitted: Boolean?
     ): ResponseEntity<String> {
-        return ResponseEntity.notFound().build()
-        // return ResponseBuilder.buildResponse(participantService.getSeasonSubmissions(seasonNumber))
+         return ResponseBuilder.buildResponse(participantService.getSeasonSubmissions(seasonNumber))
     }
 
-    @GetMapping("seasons/latest/submissions/count")
+    @GetMapping("/seasons/latest/submissions/count")
     fun getLatestSeasonSubmissionCount(): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getLatestSeasonSubmissionCount())
     }
 
-    @GetMapping("seasons/{seasonNumber}/submissions/count")
+    @GetMapping("/seasons/{seasonNumber}/submissions/count")
     fun getParticipantCount(@PathVariable("seasonNumber") seasonNumber: Int): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(participantService.getSubmissionCount(seasonNumber))
     }

@@ -19,6 +19,7 @@ export interface UseVoteResponse {
     currentVoteGroup?: DenormalizedBracketGroup;
     undo: () => void;
     vote: (participantId: string) => void;
+    nextRoundDate: () => Date | undefined,
     registerTwitterHandle: (handle: string) => void;
 }
 
@@ -39,6 +40,7 @@ export interface VoteState {
     roundVotingFinished: boolean;
     startDate: Date;
     deadline: Date;
+    voteGapTimeMilli: number;
     currentRoundNumber: number;
     finalRoundNumber: number;
 
@@ -58,7 +60,7 @@ export interface VoteState {
 
 export type VoteAction =
     | { type: "set-mode", state: VoteStateEnum }
-    | { type: "set-dates", deadline: Date, startDate: Date }
+    | { type: "set-dates", deadline: Date, startDate: Date, voteGapTimeMilli: number }
     | { type: "set-season-number", seasonNumber: number }
     | { type: "set-final-round", finalRoundNumber: number }
     | { type: "set-curr-round", currentRoundNumber: number }
