@@ -117,7 +117,6 @@ function Vote() {
     }
 
     function renderVotePageContent(): JSX.Element {
-        console.log(VoteStateEnum[state]);
         if (state === VoteStateEnum.LOADING) {
             return <Loading />
         } else {
