@@ -43,6 +43,7 @@ function Vote() {
     }, [])
 
     useEffect(() => {
+        // TODO: Need to add a trigger to refresh vote states once timer runs out
         if (nextRoundDate()) {
             countDownRef.current?.start();
         }
