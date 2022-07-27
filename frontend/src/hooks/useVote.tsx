@@ -33,15 +33,6 @@ function useVote(): UseVoteResponse {
     const [voteState, voteDispatch] = useReducer(voteReducer, initialVoteState);
 
     useEffect(() => {
-        console.log(`FEMALE INDEX: ${voteState.femaleVoteIndex}, MALE INDEX: ${voteState.maleVoteIndex}`)
-        console.log(`VOTE STATE: ${VoteStateEnum[voteState.state]}`)
-        console.log(`GROUP SORT ORDER: ${getCurrentVoteGroup()?.sortOrder}`)
-        console.log(`NEW ROUND GROUP: { sub1: ${voteState.newRoundGroup.submissionId1}, sub2: ${voteState.newRoundGroup.submissionId2} }`)
-        console.log("FEMALE VOTE SUBS: ", voteState.femaleVoteSubmission)
-        console.log()
-    }, [voteState.femaleVoteIndex, voteState.maleVoteIndex, voteState.state, getCurrentVoteGroup, voteState.newRoundGroup, voteState.femaleVoteSubmission])
-
-    useEffect(() => {
         async function initData() {
             try {
                 const initialRoundResponse = await getSeasonsInitialBracket();
