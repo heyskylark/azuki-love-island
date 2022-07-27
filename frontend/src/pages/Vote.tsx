@@ -56,7 +56,7 @@ function Vote() {
             header = (
                 <>
                 <h1 className="uppercase font-black text-xl lg:text-4xl whitespace-pre-line">Voting Starts:</h1>
-                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">{date} PST</h1>
+                <h1 className="mb-6 uppercase font-black text-xl lg:text-4xl whitespace-pre-line">{date}</h1>
                 </>
             )
         } else {
@@ -87,7 +87,7 @@ function Vote() {
 
             if (nextRound) {
                 const dateString = nextRound.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
-                return <VoteFinished text={`Next Round Starts:\n${dateString} PST`} />;
+                return <VoteFinished text={`Next Round Starts:\n${dateString}`} />;
             } else {
                 return <VoteFinished text="Thanks For Voting!" />;
             }
