@@ -2,7 +2,7 @@ import { getBackgroundColor, textColor } from "../util/ColorUtil"
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "../carousel-override.css"
 import { Carousel } from "react-responsive-carousel";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 interface Props {
     azukiId: number
@@ -17,17 +17,8 @@ interface Props {
 }
 
 function GalleryCard(props: Props) {
-    const cardRef = useRef<HTMLDivElement>(null);
-    const [height, setHeight] = useState<number>(0);
     const [artView, setArtView] = useState<boolean>(false);
     const [selected, setSelected] = useState<number>(0);
-
-    useEffect(() => {
-        if (cardRef && cardRef.current) {
-            const refHeight = cardRef.current.clientHeight;
-            setHeight(refHeight);
-        }
-    }, [cardRef])
 
     function close(e: { preventDefault: () => void }) {
         e.preventDefault();
@@ -236,7 +227,6 @@ function GalleryCard(props: Props) {
         </div>
 
         <div
-            ref={cardRef}
             className={`md:px-6 fixed left-1/2 top-1/2 transform z-50 max-w-6xl ${textColor(props.color)} ${artView ? "h-auto w-full md:w-auto p-6 md:py-6" : "md:w-full sm:min-w-[70%]"}`}
             style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`, maxHeight: getMaxHeight()}}
         >
