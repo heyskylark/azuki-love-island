@@ -216,6 +216,10 @@ function GalleryCard(props: Props) {
         }
     }
 
+    function getMaxHeight(): number {
+        return window.innerHeight;
+    }
+
     return (
         <>
         <div className="fixed top-0 left-0 bg-opacity-90 w-screen h-screen z-50" onClick={close}>
@@ -223,8 +227,8 @@ function GalleryCard(props: Props) {
         </div>
 
         <div
-            className={`max-h-screen fixed left-1/2 top-1/2 transform z-50 max-w-6xl ${textColor(props.color)} ${artView ? "h-auto w-full md:w-auto p-6 md:py-6" : "lg:w-full w-11/12"}`}
-            style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`}}
+            className={`fixed left-1/2 top-1/2 transform z-50 max-w-6xl ${textColor(props.color)} ${artView ? "h-auto w-full md:w-auto p-6 md:py-6" : "md:w-full w-11/12"}`}
+            style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`, maxHeight: getMaxHeight()}}
         >
             <div className={`shadow-me gap-x-10 duration-300 relative rounded-2xl overflow-hidden ${artView ? "h-full" : "grid md:grid-cols-12 grid-cols-1"} mx-auto`} style={{background: `${getBackgroundColor(props.color)} none repeat scroll 0% 0%`}}>
                 <button className="absolute z-50 block top-4 right-4 lg:hidden" onClick={close}>
