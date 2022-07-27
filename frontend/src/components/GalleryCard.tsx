@@ -223,7 +223,7 @@ function GalleryCard(props: Props) {
         </div>
 
         <div
-            className={`fixed left-1/2 top-1/2 transform z-50 max-w-6xl ${textColor(props.color)} ${artView ? "h-auto w-full md:h-full md:w-auto p-6 md:py-6" : "lg:w-full w-11/12"}`}
+            className={`fixed left-1/2 top-1/2 transform z-50 max-w-6xl ${textColor(props.color)} ${artView ? "h-auto w-full md:w-auto p-6 md:py-6" : "lg:w-full w-11/12"}`}
             style={{opacity: 1, transform: `translate3d(-50%, -50%, 0px)`}}
         >
             <div className={`shadow-me gap-x-10 duration-300 relative rounded-2xl overflow-hidden ${artView ? "h-full" : "grid md:grid-cols-12 grid-cols-1"} mx-auto`} style={{background: `${getBackgroundColor(props.color)} none repeat scroll 0% 0%`}}>
