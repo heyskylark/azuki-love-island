@@ -113,7 +113,7 @@ function Results() {
                 <div className="mt-32 text-center">
                     <h1 className="mb-6 uppercase font-black text-2xl lg:text-4xl whitespace-pre-line">
                         <span className="inline-block">First Results Coming:&nbsp;</span>
-                        <span className="inline-block">{date} PST</span>
+                        <span className="inline-block">{date}</span>
                     </h1>
                 </div>
             );
