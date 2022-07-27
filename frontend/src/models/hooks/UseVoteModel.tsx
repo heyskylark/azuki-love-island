@@ -55,6 +55,7 @@ export interface VoteState {
     maleVoteSubmission: BracketGroup[];
 
     participants: Map<string, ParticipantResponse>;
+    initialized: boolean;
     twitterHandle?: string;
 }
 
@@ -81,4 +82,5 @@ export type VoteAction =
     | { type: "reset-female-index" }
     | { type: "update-round-group", roundGroup: BracketGroupCreator }
     | { type: "reset" }
+    | { type: "init" }
     ;

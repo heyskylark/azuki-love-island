@@ -25,7 +25,8 @@ const initialVoteState: VoteState = {
     femaleVoteSubmission: [],
     maleVoteSubmission: [],
     newRoundGroup: {},
-    participants: new Map()
+    participants: new Map(),
+    initialized: false
 }
 
 // TODO: do not have to deliver the whole list to components only what the component needs to display
@@ -61,6 +62,8 @@ function useVote(): UseVoteResponse {
 
                     voteDispatch({ type: "set-init-round-groups", femaleInitRoundGroups: latestVoteRound.femaleBracketGroups, maleInitRoundGroups: latestVoteRound.maleBracketGroups })
                 }
+
+                voteDispatch({ type: "init" });
             } catch (err) {
                 if (err instanceof AxiosError && err.response) {
                     toast.error(err.response.data);
@@ -75,20 +78,22 @@ function useVote(): UseVoteResponse {
     }, [])
 
     useEffect(function checkVotingState() {
-        const now = new Date().getTime();
+        if (voteState.initialized) {
+            const now = new Date().getTime();
 
-        if (now > voteState.deadline.getTime()) {
-            voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_ENDED })
-        } else if (now < voteState.startDate.getTime()) {
-            voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_NOT_STARTED }) 
-        } else if (!voteState.twitterHandle) {
-            voteDispatch({ type: "set-mode", state: VoteStateEnum.REGISTER }) 
-        } else if (voteState.roundVotingFinished) {
-            voteDispatch({ type: "set-mode", state: VoteStateEnum.FINISHED_VOTING }) 
-        } else {
-            voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_FEMALE }) 
+            if (now > voteState.deadline.getTime()) {
+                voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_ENDED })
+            } else if (now < voteState.startDate.getTime()) {
+                voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_NOT_STARTED }) 
+            } else if (!voteState.twitterHandle) {
+                voteDispatch({ type: "set-mode", state: VoteStateEnum.REGISTER }) 
+            } else if (voteState.roundVotingFinished) {
+                voteDispatch({ type: "set-mode", state: VoteStateEnum.FINISHED_VOTING }) 
+            } else {
+                voteDispatch({ type: "set-mode", state: VoteStateEnum.VOTING_FEMALE }) 
+            }
         }
-    }, [voteState.roundVotingFinished, voteState.deadline, voteState.startDate, voteState.twitterHandle])
+    }, [voteState.roundVotingFinished, voteState.deadline, voteState.startDate, voteState.twitterHandle, voteState.initialized])
 
     async function fetchParticipants(seasonNumber: number) {
         const seasonsParticipantsResponse = await getSeasonParticipants(seasonNumber);
@@ -438,6 +443,9 @@ function voteReducer(state: VoteState, action: VoteAction): VoteState {
         case "reset": {
             // TODO: implement reset method for catastrophic events.
             return state;
+        }
+        case "init": {
+            return { ...state, initialized: true }
         }
         default:
             return state;
