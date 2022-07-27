@@ -9,6 +9,7 @@ interface Props {
     twitterHandle: string
     imageUrl: string
     color: string
+    quote: string
     bio?: string
     hobbies?: string[]
     artUrl?: string
@@ -75,10 +76,19 @@ function GalleryCard(props: Props) {
         }
     }
 
+    function renderQuote() {
+        return (
+            <div className="mt-4 w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
+                <p className="underline text-3xs opacity-50 font-mono uppercase">Quote:</p>
+                <p className="text-3xs opacity-50 font-mono uppercase">{props.quote}</p>
+            </div>
+        );
+    }
+
     function renderBio() {
         if (props.bio && props.bio.length > 0) {
             return (
-                <div className="mt-4 w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
+                <div className="w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
                     <p className="underline text-3xs opacity-50 font-mono uppercase">Bio:</p>
                     <p className="text-3xs opacity-50 font-mono uppercase">{props.bio}</p>
                 </div>
@@ -186,6 +196,8 @@ function GalleryCard(props: Props) {
 
                 <div className="grid h-full grid-cols-1">
                     <div className="overlay-item flex flex-col z-50" style={{opacity: 1, transform: `translate3d(0%, 0%, 0px)`}}>
+                        {renderQuote()}
+
                         {renderBio()}
 
                         {renderHobbies()}

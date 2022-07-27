@@ -12,8 +12,9 @@ interface ParticipantResponse {
     twitterHandle: string;
     seasonNumber: number;
     gender: string;
-    bio: string | undefined;
-    hobbies: string[] | undefined;
+    quote: string;
+    bio?: string;
+    hobbies?: string[];
     submitted: boolean;
     validated: boolean;
     image?: ParticipantArt

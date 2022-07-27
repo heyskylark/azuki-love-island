@@ -5,17 +5,18 @@ interface Props {
     twitterHandle: string;
     modalImageUrl: string;
     color: string;
+    quote: string;
     bio?: string;
     hobbies?: string[];
     artUrl?: string;
-    openModal: (azukId: number, twitterHandle: string, color: string, imageUrl: string, bio?: string, hobbies?: string[], artUrl?: string) => void;
+    openModal: (azukId: number, twitterHandle: string, color: string, imageUrl: string, quote: string, bio?: string, hobbies?: string[], artUrl?: string) => void;
 }
 
 function GalleryPreview(props: Props) {
     function open(e: { preventDefault: () => void }) {
         e.preventDefault();
 
-        props.openModal(props.azukiId, props.twitterHandle, props.color, props.modalImageUrl, props.bio, props.hobbies, props.artUrl);
+        props.openModal(props.azukiId, props.twitterHandle, props.color, props.modalImageUrl, props.quote, props.bio, props.hobbies, props.artUrl);
     }
 
     function getPreviewUrl(): string {

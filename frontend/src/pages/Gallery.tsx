@@ -27,6 +27,7 @@ function Gallery() {
     const [twitterHandle, setTwitterHandle] = useState<string>("");
     const [color, setColor] = useState<string>("");
     const [imageUrl, setImageUrl] = useState<string>("");
+    const [quote, setQuote] = useState<string>("");
     const [bio, setBio] = useState<string>("");
     const [hobbies, setHobbies] = useState<string[]>([]);
     const [artUrl, setArtUrl] = useState<string>("");
@@ -126,11 +127,12 @@ function Gallery() {
         });
     }
 
-    function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, bio?: string, hobbies?: string[], artUrl?: string) {
+    function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, quote: string, bio?: string, hobbies?: string[], artUrl?: string) {
         setAzukiId(azukId);
         setTwitterHandle(twitterHandle);
         setColor(color);
         setImageUrl(imageUrl);
+        setQuote(quote);
         setBio(bio ? bio : "");
         setHobbies(hobbies ? hobbies : []);
         setArtUrl(artUrl ? artUrl : "");
@@ -145,6 +147,7 @@ function Gallery() {
         setTwitterHandle("");
         setColor("");
         setImageUrl("");
+        setQuote("");
         setBio("");
         setHobbies([])
         setArtUrl("")
@@ -160,6 +163,7 @@ function Gallery() {
                     twitterHandle={twitterHandle}
                     color={color}
                     imageUrl={imageUrl}
+                    quote={quote}
                     bio={bio}
                     hobbies={hobbies}
                     closeModal={closeModal}
@@ -182,6 +186,7 @@ function Gallery() {
                         twitterHandle={participant.twitterHandle}
                         color={participant.backgroundTrait}
                         modalImageUrl={participant.imageUrl}
+                        quote={participant.quote}
                         bio={participant.bio}
                         hobbies={participant.hobbies}
                         artUrl={participant.image?.secureUrl}
