@@ -22,19 +22,22 @@ function Results() {
         async function getInitData(): Promise<void> {
             try {
                 const initBracketResponse = await getSeasonsInitialBracket();
-                const initBrakcet = initBracketResponse.data;
-                setNextResultsDate(calculateNextVoteResults(initBrakcet))
+                const initBracket = initBracketResponse.data;
 
                 const latestSeasonVoteResults = await getLatestSeasonsTotalVoteResults();
                 const currMaxSeason = latestSeasonVoteResults.data.seasonNumber;
-                const rounds = latestSeasonVoteResults.data.rounds;
+
+                const rounds = [];
+                rounds.push(convertInitToRoundResults(initBracket));
+                rounds.push.apply(rounds, latestSeasonVoteResults.data.rounds);
 
                 const participantsResponse = await getSeasonParticipants(currMaxSeason);
                 const participants = participantsResponse.data.participants
                 setParticipants(new Map(participants.map(p => [p.id, p])));
 
+                const latestRound = Math.max(...latestSeasonVoteResults.data.rounds.map((round) => round.roundNumber))
+                setNextResultsDate(calculateNextVoteResults(initBracket, latestRound));
                 setResultsSeason(currMaxSeason);
-
                 setVoteResults(rounds);
             } catch (err) {
                 if (err instanceof AxiosError && err.response?.data) {
@@ -52,15 +55,38 @@ function Results() {
         document.title = "Results / Azuki Love Island"
 
         getInitData();
-    }, [])
+    }, []);
 
-    function calculateNextVoteResults(initBracket: GenderedInitialBracket): number {
+    function convertInitToRoundResults(initBracket: GenderedInitialBracket): GenderedRoundWinners {
+        const maleBracketGroups = initBracket.maleBracketGroups.map((group) => {
+            return {
+                sortOrder: group.sortOrder,
+                submissionId1: group.submissionId1,
+                submissionId2: group.submissionId2 ? group.submissionId2 : "" // Typescript workaround trying to get feature out in a tight schedule D:
+            }
+        });
+        const femaleBracketGroups = initBracket.femaleBracketGroups.map((group) => {
+            return {
+                sortOrder: group.sortOrder,
+                submissionId1: group.submissionId1,
+                submissionId2: group.submissionId2 ? group.submissionId2 : ""
+            }
+        });
+
+        return {
+            roundNumber: 0,
+            maleWinners: maleBracketGroups,
+            femaleWinners: femaleBracketGroups
+        }
+    }
+
+    function calculateNextVoteResults(initBracket: GenderedInitialBracket, currentRound: number): number {
         const now = Date.now();
         const startDateMilli = initBracket.voteStartDate;
         const deadilineMilli = initBracket.voteDeadline;
         const voteGapsMilli = initBracket.voteGapTimeMilliseconds;
 
-        if (!voteGapsMilli || now >= deadilineMilli) {
+        if (!voteGapsMilli || now >= deadilineMilli || currentRound >= initBracket.numOfBrackets) {
             return -1;   
         }
 
@@ -106,16 +132,26 @@ function Results() {
     function renderResults() {
         if (loading) {
             return <Loading />
-        } else if (voteResults.length === 0 && nextResultsDate !== -1) {
+        } else if (voteResults.length === 1 && nextResultsDate !== -1) {
             const date = new Date(nextResultsDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
             
             return (
+                <>
+                <RoundResults
+                    key={0}
+                    results={voteResults[0]}
+                    filterState={filterState}
+                    participants={participants}
+                    finalRound={5} // TODO: Pass in final round number with response
+                />
+
                 <div className="mt-32 text-center">
                     <h1 className="mb-6 uppercase font-black text-2xl lg:text-4xl whitespace-pre-line">
                         <span className="inline-block">First Results Coming:&nbsp;</span>
                         <span className="inline-block">{date}</span>
                     </h1>
                 </div>
+                </>
             );
         } else {
             const results: JSX.Element[] = []
@@ -131,7 +167,25 @@ function Results() {
                 );
             });
 
-            return results;
+
+            let nextResults;
+            if (nextResultsDate !== -1) {
+                const date = new Date(nextResultsDate).toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+                nextResults = (
+                    <div className="mt-32 text-center">
+                        <h1 className="mb-6 uppercase font-black text-2xl lg:text-4xl whitespace-pre-line">
+                            <span className="inline-block">Next Results Coming:&nbsp;</span>
+                            <span className="inline-block">{date}</span>
+                        </h1>
+                    </div>
+                )
+            }
+
+            return (<>
+                {results}
+                {nextResults}
+                </>
+            );
         }
     }
 

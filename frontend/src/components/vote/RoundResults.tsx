@@ -34,7 +34,9 @@ interface Props {
 
 function RoundResults(props: Props) {
     function getRoundNumber(): string {
-        if (props.finalRound === props.results.roundNumber) {
+        if (props.results.roundNumber === 0) {
+            return "Initial";
+        } else if (props.finalRound === props.results.roundNumber) {
             return "Winner";
         } else {
             return `Round ${props.results.roundNumber}`;
