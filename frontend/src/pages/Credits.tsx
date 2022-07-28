@@ -40,6 +40,12 @@ function Credits() {
                                 <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/UberFlux" target="_blank" rel="noreferrer">@UberFlux.</a>
                             </div>
 
+                            <div className="mb-6">
+                                <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">Tsar_Bizarre</h1>
+                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Auzki Love Island Video Creation/Editing.</p>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/tsar_bizarre" target="_blank" rel="noreferrer">@Tsar_Bizarre.</a>
+                            </div>
+
                             <div>
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">AzukiOfficial</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Inspired off the characters and world of Azuki.</p>
