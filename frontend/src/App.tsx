@@ -23,7 +23,7 @@ function App() {
       <Nav />
 
       <Routes>
-        <Route path="/" element={<Gallery />} />
+        <Route path="/" element={<Vote />} />
         <Route path="/vote" element={<Vote />} />
         <Route path="/results" element={<Results />} />
         <Route path="/gallery" element={<Gallery />} />
