@@ -31,7 +31,7 @@ function VoteCard(props: VoteCardProps) {
         if (props.participant.bio && props.participant.bio.length > 0) {
             return (
                 <div className="w-full bg-white rounded bg-opacity-10 mb-2 py-2 px-2">
-                    <p className="text-3xs opacity-50 font-mono uppercase">{props.participant.bio}</p>
+                    <p className="text-3xs lg:text-sm opacity-50 font-mono uppercase">{props.participant.bio}</p>
                 </div>
             )
         }
@@ -53,7 +53,7 @@ function VoteCard(props: VoteCardProps) {
                 <div className="grid-cols-1">
                     <div className="overlay-item flex flex-col z-50" style={{opacity: 1, transform: `translate3d(0%, 0%, 0px)`}}>
                         <div className="mt-2 w-full bg-white rounded bg-opacity-10 mb-2 py-2 px-4">
-                            <p className="text-3xs opacity-50 font-mono uppercase">@{parseTwitterHandle()}</p>
+                            <p className="text-3xs lg:text-sm opacity-50 font-mono uppercase">@{parseTwitterHandle()}</p>
                         </div>
                     </div>
                     <div className="overlay-item flex flex-col z-50" style={{opacity: 1, transform: `translate3d(0%, 0%, 0px)`}}>
