@@ -46,6 +46,12 @@ function Credits() {
                                 <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/tsar_bizarre" target="_blank" rel="noreferrer">@Tsar_Bizarre.</a>
                             </div>
 
+                            <div className="mb-6">
+                                <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">Keeks</h1>
+                                <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Creator of Love Island Season 2 Logo.</p>
+                                <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/its_kiki_hehe" target="_blank" rel="noreferrer">@its_kiki_hehe.</a>
+                            </div>
+
                             <div>
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">AzukiOfficial</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">Inspired off the characters and world of Azuki.</p>
