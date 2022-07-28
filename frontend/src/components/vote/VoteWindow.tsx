@@ -44,7 +44,7 @@ function VoteCard(props: VoteCardProps) {
     }
 
     return (
-        <div className={`rounded-2xl lg:h-[750px] md:h-[600px] h-[27rem] overflow-hidden grid-cols-1 ${textColor(props.participant.backgroundTrait)}`} style={{background: `${getBackgroundColor(props.participant.backgroundTrait)} none repeat scroll 0% 0%`}}>
+        <div className={`rounded-2xl lg:h-[700px] md:h-[600px] h-[27rem] overflow-hidden grid-cols-1 ${textColor(props.participant.backgroundTrait)}`} style={{background: `${getBackgroundColor(props.participant.backgroundTrait)} none repeat scroll 0% 0%`}}>
             <div className="col-span-6 square grid-cols-1 relative">
                 <img className="lg:w-full overlay-item mx-auto square" src={getPreviewUrl()} alt='' />
             </div>
