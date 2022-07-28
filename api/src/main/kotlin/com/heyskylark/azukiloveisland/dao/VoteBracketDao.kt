@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository("VoteBracketDao")
 interface VoteBracketDao : CrudRepository<VoteBracket, String> {
-    fun findByTwitterHandle(twitterHandle: String): List<VoteBracket>
+    fun findByTwitterHandleAndSeasonNumber(twitterHandle: String, seasonNumber: Int): List<VoteBracket>
 
     fun findByIpAndSeasonNumber(ip: String, seasonNumber: Int): List<VoteBracket>
 

@@ -566,7 +566,7 @@ class VoteService(
 
         validateIfUserFinishedVotingForTheSeason(ip, latestSeasonNumber)?.let { return it }
 
-        validateTwitterHandle(voteRequestDto, previousUsersVote)?.let { return it }
+        validateTwitterHandle(voteRequestDto, latestSeasonNumber, previousUsersVote)?.let { return it }
 
         validateNumberOfGroups(
             voteRequestDto = voteRequestDto,
@@ -648,6 +648,7 @@ class VoteService(
 
     private fun validateTwitterHandle(
         voteRequestDto: VoteRequestDto,
+        latestSeasonNumber: Int,
         previousBracket: VoteBracket?
     ): ServiceResponse<VoteBracket>? {
         // Twitter Handle Check
@@ -658,7 +659,7 @@ class VoteService(
                 return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_TWITTER_HANDLE)
             }
 
-            if (voteBracketDao.findByTwitterHandle(voteRequestDto.twitterHandle).isNotEmpty()) {
+            if (voteBracketDao.findByTwitterHandleAndSeasonNumber(voteRequestDto.twitterHandle, latestSeasonNumber).isNotEmpty()) {
                 return ServiceResponse.errorResponse(VoteBracketErrorCodes.TWITTER_HANDLE_USED)
             }
         } else {

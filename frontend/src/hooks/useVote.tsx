@@ -51,7 +51,7 @@ function useVote(): UseVoteResponse {
                     voteDispatch({ type: "register", handle: latestVoteRound.twitterHandle });
                 }
 
-                voteDispatch({ type: "set-curr-round", currentRoundNumber: latestVoteRound.roundNumber + 1 });
+                voteDispatch({ type: "set-curr-round", currentRoundNumber: Math.min(latestVoteRound.roundNumber + 1, initialRound.numOfBrackets) });
                 voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
                 voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
 
@@ -148,7 +148,6 @@ function useVote(): UseVoteResponse {
 
         if (state === VoteStateEnum.VOTING_FEMALE || state === VoteStateEnum.VOTING_MALE) {
             // This for the final round where the vote is only done for one female and one male
-            console.log(`Current round: ${voteState.currentRoundNumber}, final round: ${voteState.finalRoundNumber}`)
             if ((voteState.currentRoundNumber === voteState.finalRoundNumber) && voteState.initFemaleRoundGroups.length === 1) {
                 if (state === VoteStateEnum.VOTING_FEMALE) {
                     const group = {

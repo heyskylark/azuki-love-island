@@ -1,4 +1,5 @@
 import ParticipantResponse from "../../models/api/ParticipantResponse";
+import serialToImageNameJson from "../../models/image/ImageToUUIDMapping";
 import { getBackgroundColor, textColor } from "../../util/ColorUtil";
 
 interface Props {
@@ -36,10 +37,16 @@ function VoteCard(props: VoteCardProps) {
         }
     }
 
+    function getPreviewUrl(): string {
+        // @ts-ignore
+        const uuid = serialToImageNameJson[props.participant.azukiId];
+        return `https://azk.imgix.net/images/${uuid}.png?fm=jpg&w=800`;
+    }
+
     return (
         <div className={`rounded-2xl lg:h-[600px] md:h-[600px] h-[27rem] overflow-hidden grid-cols-1 ${textColor(props.participant.backgroundTrait)}`} style={{background: `${getBackgroundColor(props.participant.backgroundTrait)} none repeat scroll 0% 0%`}}>
             <div className="col-span-6 square grid-cols-1 relative">
-                <img className="lg:w-full overlay-item mx-auto square" src={props.participant.imageUrl} alt='' />
+                <img className="lg:w-full overlay-item mx-auto square" src={getPreviewUrl()} alt='' />
             </div>
 
             <div className="relative col-span-6 px-0 lg:px-0 py-0 lg:py-0 flex-col w-full flex justify-center content-start">
@@ -69,15 +76,16 @@ function VoteWindow(props: Props) {
         }
     }
 
+    // TODO: Add onLoad for both card images to add a loading bar
     return (
         <div className="flex">
-            <div className="pr-2">
+            <div className="pr-2 w-1/2">
                 <button id="participant1" onClick={e => vote(e, "participant1")}>
                     <VoteCard participant={props.participant1} />
                 </button>
             </div>
 
-            <div className="pl-2">
+            <div className="pl-2 w-1/2">
                 <button id="participant2" onClick={e => vote(e, "participant2")}>
                     <VoteCard participant={props.participant2} />
                 </button>
