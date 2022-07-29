@@ -165,7 +165,7 @@ function useVote(): UseVoteResponse {
                     }
 
                     voteDispatch({ type: "update-round-group", roundGroup: {} });
-                    sendVoteRequest([...voteState.maleVoteSubmission, group]);
+                    await sendVoteRequest([...voteState.maleVoteSubmission, group]);
                     return;
                 }
             }
@@ -204,7 +204,7 @@ function useVote(): UseVoteResponse {
                             sortOrder: voteState.maleVoteSubmission.length
                         }
 
-                        sendVoteRequest([...voteState.maleVoteSubmission, group]);
+                        await sendVoteRequest([...voteState.maleVoteSubmission, group]);
                     } else {
                         voteDispatch({ type: "update-round-group", roundGroup: { ...voteState.newRoundGroup, submissionId2: participantId } });
                     }
@@ -233,7 +233,7 @@ function useVote(): UseVoteResponse {
         }
     }
 
-    function sendVoteRequest(maleVoteGroup: BracketGroup[]) {
+    async function sendVoteRequest(maleVoteGroup: BracketGroup[]) {
         voteDispatch({ type: "set-mode", state: VoteStateEnum.LOADING });
 
         if (!voteState.twitterHandle) {
@@ -248,21 +248,21 @@ function useVote(): UseVoteResponse {
             maleBracketGroups: maleVoteGroup
         }
 
-        voteOnGenderedBracket(voteRequest)
-            .then ((res) => res.data)
-            .then (() => {
-                voteDispatch({ type: "set-mode", state: VoteStateEnum.FINISHED_VOTING });
-            })
-            .catch((err) => {
-                if (err instanceof AxiosError && err.response) {
-                    toast.error(err.response.data);
-                } else {
-                    console.log(err);
-                    toast.error("There was a problem sending the vote.");
-                }
+        try {
+            await voteOnGenderedBracket(voteRequest);
+            voteDispatch({ type: "set-mode", state: VoteStateEnum.FINISHED_VOTING });
+        } catch (err) {
+            if (err instanceof AxiosError && err.response) {
+                const expectedErr = err.response?.data?.message;
+                const printErr = expectedErr ? expectedErr : "There was a problem sending the vote."
+                toast.error(printErr);
+            } else {
+                console.log(err);
+                toast.error("There was a problem sending the vote.");
+            }
 
-                voteDispatch({ type: "reset" });
-            });
+            voteDispatch({ type: "reset" }); 
+        }
     }
 
     function undo() {
