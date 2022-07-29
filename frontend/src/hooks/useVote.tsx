@@ -66,11 +66,14 @@ function useVote(): UseVoteResponse {
                 voteDispatch({ type: "init" });
             } catch (err) {
                 if (err instanceof AxiosError && err.response) {
-                    toast.error(err.response.data);
+                    const errMessage = err.response?.data?.message ? err.response?.data?.message : "There was a problem getting the vote info.";
+                    toast.error(errMessage);
                 } else {
                     console.log(err);
                     toast.error("There was a problem getting the vote info.");
                 }
+
+                voteDispatch({ type: "reset" });
             }
         }
 
@@ -440,8 +443,7 @@ function voteReducer(state: VoteState, action: VoteAction): VoteState {
             return { ...state, maleVoteIndex: 0 }
         }
         case "reset": {
-            // TODO: implement reset method for catastrophic events.
-            return state;
+            return { ...state, state: VoteStateEnum.REGISTER, femaleVoteSubmission: [], maleVoteSubmission: [], newRoundGroup: {}, twitterHandle: undefined };
         }
         case "init": {
             return { ...state, initialized: true }
