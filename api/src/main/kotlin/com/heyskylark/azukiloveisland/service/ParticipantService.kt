@@ -5,6 +5,7 @@ import com.heyskylark.azukiloveisland.dao.ParticipantDao
 import com.heyskylark.azukiloveisland.dto.ParticipantSubmissionDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantCountDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantResponseDto
+import com.heyskylark.azukiloveisland.dto.participant.ParticipantWalletAddressesResponseDto
 import com.heyskylark.azukiloveisland.dto.participant.SeasonParticipantsResponseDto
 import com.heyskylark.azukiloveisland.model.azuki.AzukiInfo
 import com.heyskylark.azukiloveisland.model.Participant
@@ -29,6 +30,43 @@ class ParticipantService(
         private const val MAX_QUOTE_LENGTH = 100
         private const val MAX_BIO_LENGTH = 200
         private const val MAX_HOBBIES = 5
+    }
+
+    fun getLatestSeasonWalletAddresses(): ServiceResponse<ParticipantWalletAddressesResponseDto> {
+        val latestInitialBracket = initialBracketDao.findFirstByOrderBySeasonNumberDesc()
+            ?: return ServiceResponse.errorResponse(SeasonErrorCodes.NO_SEASONS_FOUND)
+
+        val participantIds = latestInitialBracket.combinedGroups.map {
+            it.submissionId2?.let { sub2 ->
+                listOf(it.submissionId1, sub2)
+            } ?: listOf(it.submissionId1)
+        }.flatten().toSet()
+
+        val participants = participantDao.findAllById(participantIds).toSet()
+
+        val walletAddresses = participants.map { it.ownerAddress }.toSet()
+
+        return ServiceResponse.successResponse(
+            ParticipantWalletAddressesResponseDto(
+                seasonNumber = latestInitialBracket.seasonNumber,
+                walletAddresses = walletAddresses,
+                newlineSeparatedAddresses = buildAddressString(walletAddresses)
+            )
+        )
+    }
+
+    fun buildAddressString(walletAddresses: Set<String>): String {
+        val walletStringBuilder = StringBuilder()
+
+        walletAddresses.forEachIndexed { index, address ->
+            walletStringBuilder.append(address)
+
+            if (index < walletAddresses.size - 1) {
+                walletStringBuilder.appendLine()
+            }
+        }
+
+        return walletStringBuilder.toString()
     }
 
     fun getLatestSeasonContestants(): ServiceResponse<SeasonParticipantsResponseDto> {

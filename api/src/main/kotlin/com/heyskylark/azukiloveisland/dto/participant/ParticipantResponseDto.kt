@@ -6,6 +6,12 @@ import com.heyskylark.azukiloveisland.model.azuki.BackgroundTrait
 import com.heyskylark.azukiloveisland.model.azuki.Gender
 import java.net.URL
 
+data class ParticipantWalletAddressesResponseDto(
+    val seasonNumber: Int,
+    val walletAddresses: Set<String>,
+    val newlineSeparatedAddresses: String
+)
+
 data class SeasonParticipantsResponseDto(
     val seasonNumber: Int,
     val participants: Set<ParticipantResponseDto>

@@ -34,6 +34,12 @@ class ParticipantResource(
         )
     }
 
+    @GetMapping("/seasons/latest/addresses")
+    fun getLatestSeasonContestantsWalletAddresses(): ResponseEntity<String> {
+        return ResponseEntity.notFound().build()
+//        return ResponseBuilder.buildResponse(participantService.getLatestSeasonWalletAddresses())
+    }
+
     /* Submissions */
     @GetMapping("/seasons/{seasonNumber}/submissions")
     fun getSeasonSubmissions(
