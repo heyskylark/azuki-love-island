@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 import { useEffect, useReducer } from "react";
 import { toast } from "react-toastify";
-import { getLatestVoteBracket, getSeasonParticipants, getSeasonsInitialBracket, voteOnGenderedBracket } from "../clients/MainClient";
+import { getLatestVoteBracket, getLatestVoteBracketByTwitterHandle, getSeasonParticipants, getSeasonsInitialBracket, voteOnGenderedBracket } from "../clients/MainClient";
 import BracketGroup from "../models/api/BracketGroup";
 import GenderedInitialBracket from "../models/api/GenderedInitialBracket";
 import ParticipantResponse from "../models/api/ParticipantResponse";
@@ -329,8 +329,28 @@ function useVote(): UseVoteResponse {
         return true;
     }
 
-    function registerTwitterHandle(handle: string) {
-        voteDispatch({ type: "register", handle: handle });
+    async function registerTwitterHandle(handle: string) {
+        voteDispatch({ type: "set-mode", state: VoteStateEnum.LOADING })
+        
+        try {
+            const latestVoteRoundResponse = await getLatestVoteBracketByTwitterHandle(handle);
+            const latestVoteRound = latestVoteRoundResponse.data;
+
+            voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
+            voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
+
+            voteDispatch({ type: "register", handle: handle });
+        } catch(err) {
+            if (err instanceof AxiosError && err.response) {
+                const errMessage = err.response?.data?.message ? err.response?.data?.message : "There was a problem registering your twitter handle right now.";
+                toast.error(errMessage);
+            } else {
+                console.log(err);
+                toast.error("There was a problem registering your twitter handle right now.");
+            }
+
+            voteDispatch({ type: "reset" });
+        }
     }
 
     function getRemainingVotes(): number {
@@ -443,7 +463,7 @@ function voteReducer(state: VoteState, action: VoteAction): VoteState {
             return { ...state, maleVoteIndex: 0 }
         }
         case "reset": {
-            return { ...state, state: VoteStateEnum.REGISTER, femaleVoteSubmission: [], maleVoteSubmission: [], newRoundGroup: {}, twitterHandle: undefined };
+            return { ...state, state: VoteStateEnum.REGISTER, femaleVoteSubmission: [], maleVoteSubmission: [], newRoundGroup: {}, votedAtLeastOnce: false, roundVotingFinished: false, twitterHandle: undefined };
         }
         case "init": {
             return { ...state, initialized: true }

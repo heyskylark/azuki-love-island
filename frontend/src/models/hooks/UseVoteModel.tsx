@@ -20,7 +20,7 @@ export interface UseVoteResponse {
     undo: () => void;
     vote: (participantId: string) => void;
     nextRoundDate: () => Date | undefined,
-    registerTwitterHandle: (handle: string) => void;
+    registerTwitterHandle: (handle: string) => Promise<void>;
 }
 
 export enum VoteStateEnum {

@@ -30,6 +30,10 @@ export async function getLatestVoteBracket(): Promise<AxiosResponse<GenderedVote
     return axios.get(`${BASE_URL}/vote/latest`);
 }
 
+export async function getLatestVoteBracketByTwitterHandle(twitterHandle: string): Promise<AxiosResponse<GenderedVoteBracket>> {
+    return axios.get(`${BASE_URL}/vote/latest/users/${twitterHandle}`);
+}
+
 export async function getLatestSeason(): Promise<AxiosResponse<Season>> {
     return axios.get(`${BASE_URL}/seasons/latest`);
 }

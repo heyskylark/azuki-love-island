@@ -131,7 +131,8 @@ function Gallery() {
     function tweetViewEvent() {
         ReactGA.event({
             category: "engagement",
-            action: "view_tweet_view"
+            action: "view_tweet_view",
+            nonInteraction: true
         });
     }
 
@@ -273,6 +274,7 @@ function Gallery() {
 
     function enableTweetView() {
         if (!tweetView) {
+            console.log("View tweet view")
             tweetViewEvent();
         }
 
