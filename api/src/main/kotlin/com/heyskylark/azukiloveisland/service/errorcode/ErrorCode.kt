@@ -6,6 +6,12 @@ interface ErrorCode {
     val type: ErrorType
 }
 
+data class BaseErrorCode(
+    override val code: String,
+    override val message: String,
+    override val type: ErrorType
+) : ErrorCode
+
 enum class ErrorType(val value: Int) {
     RESET_CONTENT(205),
     BAD_REQUEST(400),

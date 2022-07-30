@@ -23,6 +23,7 @@ class HttpRequestUtil {
         )
     }
 
+    @Throws(RuntimeException::class)
     fun getClientIpAddressIfServletRequestExist(): String {
         if (RequestContextHolder.getRequestAttributes() == null) {
             return "0.0.0.0"

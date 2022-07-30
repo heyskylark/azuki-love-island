@@ -25,6 +25,8 @@ dependencies {
 
 	implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
+	implementation("com.twitter:twitter-api-java-sdk:1.1.4")
+
 	implementation("commons-io:commons-io:2.11.0")
 	implementation("org.apache.logging.log4j:log4j-core:2.17.2")
 	implementation("org.apache.commons:commons-lang3:3.12.0")

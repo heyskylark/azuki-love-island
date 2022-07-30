@@ -40,13 +40,13 @@ class VoteResource(
         return ResponseBuilder.buildResponse(voteService.vote(voteRequestDto))
     }
 
-    //    @GetMapping("/totals/latest/{roundNumber}")
-    //    fun getRoundVotesForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
-    //        return ResponseBuilder.buildResponse(voteService.calculateRoundVotesForLatestSeason(roundNumber))
-    //    }
-    //
-    //    @GetMapping("/totals/latest/{roundNumber}/parsed")
-    //    fun getParsedRoundVotesForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
-    //        return ResponseBuilder.buildResponse(voteService.calculateParsedRoundVotesForLastSeason(roundNumber))
-    //    }
+    @GetMapping("/totals/latest/{roundNumber}")
+    fun getRoundVotesForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(voteService.calculateRoundVotesForLatestSeason(roundNumber))
+    }
+
+    @GetMapping("/totals/latest/{roundNumber}/parsed")
+    fun getParsedRoundVotesForLatestSeason(@PathVariable("roundNumber") roundNumber: Int): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(voteService.calculateParsedRoundVotesForLastSeason(roundNumber))
+    }
 }

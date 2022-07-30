@@ -11,7 +11,7 @@ enum class VoteBracketErrorCodes(
         type = ErrorType.INTERNAL_SERVER_ERROR
     ),
     TWITTER_HANDLE_USED(
-        message = "The twitter handle given has already been used to vote.",
+        message = "The twitter handle given has already been used to vote this round.",
         code = "twitterHandleUsed",
         type = ErrorType.BAD_REQUEST
     ),
