@@ -128,14 +128,6 @@ function Gallery() {
         });
     }
 
-    function tweetViewEvent() {
-        ReactGA.event({
-            category: "engagement",
-            action: "view_tweet_view",
-            nonInteraction: true
-        });
-    }
-
     function openModal(azukId: number, twitterHandle: string, color: string, imageUrl: string, quote: string, bio?: string, hobbies?: string[], artUrl?: string) {
         setAzukiId(azukId);
         setTwitterHandle(twitterHandle);
@@ -274,8 +266,6 @@ function Gallery() {
 
     function enableTweetView() {
         if (!tweetView) {
-            console.log("View tweet view")
-
             ReactGA.event({
                 category: "engagement",
                 action: "view_tweet_view",
