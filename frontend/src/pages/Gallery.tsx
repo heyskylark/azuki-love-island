@@ -13,6 +13,7 @@ import { GalleryFilterState } from "../models/GalleryFilterState";
 
 function Gallery() {
     const [loading, setLoading] = useState<boolean>(true);
+    const [tweetView, setTweetView] = useState<boolean>(false);
     const [votingOpen, setVotingOpen] = useState<boolean>(false);
     const [modalClosed, setModalClosed] = useState<boolean>(true);
 
@@ -163,6 +164,7 @@ function Gallery() {
                     twitterHandle={twitterHandle}
                     color={color}
                     imageUrl={imageUrl}
+                    tweetView={tweetView}
                     quote={quote}
                     bio={bio}
                     hobbies={hobbies}
@@ -262,6 +264,29 @@ function Gallery() {
         }
     }
 
+    function renderTweetViewButton(): JSX.Element {
+        return (
+            <div className="lg:w-1/2 ml-4 -ml-2 px-2 sm:px-0 py-0">
+                <div className="flex p-1 space-x-1 duration-300 bg-gray-200 lg:rounded-xl rounded justify-end">
+                    <button
+                        id="allFilter"
+                        className={`w-full py-[0.3rem] lg:py-1.5 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${!tweetView ? "bg-white" : ""}`}
+                        onClick={() => setTweetView(false)}
+                    >
+                        BIO VIEW
+                    </button>
+                    <button
+                        id="femaleFilter"
+                        className={`w-full py-[0.3rem] lg:py-1.5 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${tweetView ? "bg-white" : ""}`}
+                        onClick={() => setTweetView(true)}
+                    >
+                        TWEET VIEW
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
         <div className="container mx-auto">
@@ -272,8 +297,8 @@ function Gallery() {
                         <h1 className="mb-6 uppercase font-black text-3xl lg:text-4xl whitespace-pre-line">Contestants&nbsp;<span className="opacity-10"> //</span></h1>
                     </div>
 
-                    <div className="flex lg:w-7/12 mb-7">
-					    <div className="w-full md:w-8/12 -ml-2 px-2 sm:px-0 py-0">
+                    <div className="flex lg:w-full mb-7">
+					    <div className="w-full md:w-8/12 mr-4 lg:w-1/2 -ml-2 px-2 sm:px-0 py-0">
                             <div className="flex p-1 space-x-1 duration-300 bg-gray-200 lg:rounded-xl rounded justify-end">
                                 <button
                                     id="allFilter"
@@ -298,6 +323,8 @@ function Gallery() {
                                 </button>
                             </div>
                         </div>
+
+                        {renderTweetViewButton()}
                     </div>
 
                     {renderResults()}

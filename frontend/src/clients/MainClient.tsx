@@ -9,6 +9,7 @@ import VoteRequest from "../models/api/VoteRequest";
 import { GenderedVoteRoundsResponse } from "../models/api/GenderedRoundWinners";
 import { CloudinarySignatureRequest, CloudinarySignatureResponse } from "../models/api/CloudinaryRequest";
 import CloudinaryUploadResponse from "../models/api/CloudinaryUploadResponse";
+import IslandTweets from "../models/api/IslandTweetsResponse";
 
 const BASE_URL = process.env.REACT_APP_BASE_API_URL;
 const CLOUDINARY_UPLOAD_URL = process.env.REACT_APP_CLOUDINARY_UPLOAD_URL;
@@ -61,4 +62,8 @@ export async function uploadImageToCloudinary(body: FormData, transformations: s
     const url = transformations.length > 0 ? `${CLOUDINARY_UPLOAD_URL}?transformation=${transformations}` : `${CLOUDINARY_UPLOAD_URL}`;
 
     return axios.post(url, body);
+}
+
+export async function getUsersLoveIslandTweets(twitterHandle: string): Promise<AxiosResponse<IslandTweets[]>> {
+    return axios.get(`${BASE_URL}/twitter/island?handle=${twitterHandle}`)
 }

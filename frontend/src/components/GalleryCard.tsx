@@ -2,7 +2,11 @@ import { getBackgroundColor, textColor } from "../util/ColorUtil"
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "../carousel-override.css"
 import { Carousel } from "react-responsive-carousel";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { TwitterTweetEmbed } from "react-twitter-embed";
+import IslandTweets from "../models/api/IslandTweetsResponse";
+import { getUsersLoveIslandTweets } from "../clients/MainClient";
+import Loading from "./Loading";
 
 interface Props {
     azukiId: number
@@ -10,6 +14,7 @@ interface Props {
     imageUrl: string
     color: string
     quote: string
+    tweetView: boolean
     bio?: string
     hobbies?: string[]
     artUrl?: string
@@ -17,8 +22,39 @@ interface Props {
 }
 
 function GalleryCard(props: Props) {
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    const [fetchTweetLoading, setFetchTweetLoading] = useState<boolean>(props.tweetView);
+    const [loading, setLoading] = useState<boolean>(props.tweetView);
+    const [tweetView, setTweetView] = useState<boolean>(props.tweetView);
     const [artView, setArtView] = useState<boolean>(false);
     const [selected, setSelected] = useState<number>(0);
+    const [tweets, setTweets] = useState<IslandTweets[]>([]);
+
+    useEffect(() => {
+        if (props.tweetView) {
+            getUsersLoveIslandTweets(props.twitterHandle)
+                .then((res) => res.data)
+                .then((data) => {
+                    setTweets(data);
+
+                    if (data.length < 1) {
+                        setTweetView(false);
+                    }
+
+                    // setLoading(false);
+                })
+                .catch((err) => {
+                    setTweetView(false);
+                    console.log("There was a problem getting the tweets: ", err);
+
+                    // setLoading(false);
+                })
+                .finally(() => {
+                    setFetchTweetLoading(false);
+                })
+        }
+    }, [props.tweetView, props.twitterHandle])
 
     function close(e: { preventDefault: () => void }) {
         e.preventDefault();
@@ -34,10 +70,6 @@ function GalleryCard(props: Props) {
         }
 
         setArtView(!artView);
-    }
-
-    function closeAnimation() {
-
     }
 
     function parseHobbies(): string {
@@ -78,7 +110,7 @@ function GalleryCard(props: Props) {
 
     function renderQuote() {
         return (
-            <div className="mt-4 w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
+            <div className="mt-2 w-full bg-white rounded bg-opacity-10 mb-2 py-2 px-4">
                 <p className="underline text-3xs opacity-50 font-mono uppercase">Quote:</p>
                 <p className="text-3xs opacity-50 font-mono uppercase">{props.quote}</p>
             </div>
@@ -88,7 +120,7 @@ function GalleryCard(props: Props) {
     function renderBio() {
         if (props.bio && props.bio.length > 0) {
             return (
-                <div className="w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
+                <div className="w-full bg-white rounded bg-opacity-10 mb-2 py-2 px-4">
                     <p className="underline text-3xs opacity-50 font-mono uppercase">Bio:</p>
                     <p className="text-3xs opacity-50 font-mono uppercase">{props.bio}</p>
                 </div>
@@ -99,7 +131,7 @@ function GalleryCard(props: Props) {
     function renderHobbies() {
         if (props.hobbies && props.hobbies.length > 0) {
             return (
-                <div className="w-full bg-white rounded bg-opacity-10 mb-4 py-2 px-4">
+                <div className="w-full bg-white rounded bg-opacity-10 mb-2 py-2 px-4">
                     <p className="underline text-3xs opacity-50 font-mono uppercase">Hobbies:</p>
                     <p className="text-3xs opacity-50 font-mono uppercase">{parseHobbies()}</p>
                 </div>
@@ -118,7 +150,6 @@ function GalleryCard(props: Props) {
     }
 
     function images() {
-        console.log(props.artUrl?.length)
         const images = [
             (
                 <div className="select-none">
@@ -154,10 +185,44 @@ function GalleryCard(props: Props) {
         );
     }
 
+    function renderTweet() {
+        if (tweets.length > 0) {
+            if (fetchTweetLoading) {
+                <Loading />
+            } else {
+                const firstTweet = tweets[0];
+                const tweetId = firstTweet.id
+
+                let height = 330;
+                console.log(cardRef.current)
+                if (cardRef.current) {
+                    height = cardRef.current.clientHeight - 140;
+                }
+
+                console.log(height)
+
+                return (
+                    <div className={`mt-2 hidden lg:block ${ loading ? "lg:overflow-hidden" : "lg:overflow-scroll"}`} style={{height: `${height}px`}}>
+                        <TwitterTweetEmbed tweetId={tweetId} onLoad={() => setLoading(false)} placeholder={<Loading />}/>
+                    </div>
+                );
+            }   
+        }
+    }
+
     function renderModalView() {
+        let renderView = [];
+        if (tweetView) {
+            renderView.push(renderTweet())
+        } else {
+            renderView.push(renderQuote())
+            renderView.push(renderBio())
+            renderView.push(renderHobbies())
+        }
+
         return (
             <>
-            <div className="col-span-6 square grid grid-cols-1 relative">
+            <div ref={cardRef} className="col-span-6 square grid grid-cols-1 relative">
                 <Carousel
                     showArrows={artUrlPresent()}
                     showIndicators={artUrlPresent()}
@@ -196,11 +261,7 @@ function GalleryCard(props: Props) {
 
                 <div className="grid h-full grid-cols-1">
                     <div className="overlay-item flex flex-col z-50" style={{opacity: 1, transform: `translate3d(0%, 0%, 0px)`}}>
-                        {renderQuote()}
-
-                        {renderBio()}
-
-                        {renderHobbies()}
+                        {renderView}
                     </div>
                 </div>
             </div>
