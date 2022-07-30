@@ -266,7 +266,7 @@ function Gallery() {
 
     function renderTweetViewButton(): JSX.Element {
         return (
-            <div className="lg:w-1/2 ml-4 -ml-2 px-2 sm:px-0 py-0">
+            <div className="hidden lg:block lg:w-1/2 ml-4 -ml-2 px-2 sm:px-0 py-0">
                 <div className="flex p-1 space-x-1 duration-300 bg-gray-200 lg:rounded-xl rounded justify-end">
                     <button
                         id="allFilter"
