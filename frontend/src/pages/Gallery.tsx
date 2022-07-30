@@ -8,7 +8,7 @@ import GalleryCard from "../components/GalleryCard";
 import GalleryPreview from "../components/GalleryPreview";
 import Loading from "../components/Loading";
 import GenderedRoundWinners from "../models/api/GenderedRoundWinners";
-import ParticipantResponse, { ParticipantArt } from "../models/api/ParticipantResponse";
+import ParticipantResponse from "../models/api/ParticipantResponse";
 import { GalleryFilterState } from "../models/GalleryFilterState";
 
 function Gallery() {
@@ -125,6 +125,13 @@ function Gallery() {
             category: "engagement",
             action: "view_gallery_bio",
             value: azukiId,
+        });
+    }
+
+    function tweetViewEvent() {
+        ReactGA.event({
+            category: "engagement",
+            action: "view_tweet_view"
         });
     }
 
@@ -264,6 +271,11 @@ function Gallery() {
         }
     }
 
+    function enableTweetView() {
+        setTweetView(true);
+        tweetViewEvent();
+    }
+
     function renderTweetViewButton(): JSX.Element {
         return (
             <div className="hidden lg:block lg:w-1/2 ml-4 -ml-2 px-2 sm:px-0 py-0">
@@ -278,7 +290,7 @@ function Gallery() {
                     <button
                         id="femaleFilter"
                         className={`w-full py-[0.3rem] lg:py-1.5 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${tweetView ? "bg-white" : ""}`}
-                        onClick={() => setTweetView(true)}
+                        onClick={() => enableTweetView()}
                     >
                         TWEET VIEW
                     </button>
