@@ -275,7 +275,12 @@ function Gallery() {
     function enableTweetView() {
         if (!tweetView) {
             console.log("View tweet view")
-            tweetViewEvent();
+
+            ReactGA.event({
+                category: "engagement",
+                action: "view_tweet_view",
+                nonInteraction: true
+            });
         }
 
         setTweetView(true);
