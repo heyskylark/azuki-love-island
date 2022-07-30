@@ -272,8 +272,11 @@ function Gallery() {
     }
 
     function enableTweetView() {
+        if (!tweetView) {
+            tweetViewEvent();
+        }
+
         setTweetView(true);
-        tweetViewEvent();
     }
 
     function renderTweetViewButton(): JSX.Element {
@@ -281,14 +284,14 @@ function Gallery() {
             <div className="hidden lg:block lg:w-1/2 ml-4 -ml-2 px-2 sm:px-0 py-0">
                 <div className="flex p-1 space-x-1 duration-300 bg-gray-200 lg:rounded-xl rounded justify-end">
                     <button
-                        id="allFilter"
+                        id="bioView"
                         className={`w-full py-[0.3rem] lg:py-1.5 sm:px-1 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${!tweetView ? "bg-white" : ""}`}
                         onClick={() => setTweetView(false)}
                     >
                         BIO VIEW
                     </button>
                     <button
-                        id="femaleFilter"
+                        id="tweetView"
                         className={`w-full py-[0.3rem] lg:py-1.5 lg:text-xl text-xs leading-5 font-extrabold text-black lg:rounded-lg rounded-sm focus:outline-none hover:bg-white/[0.5] duration-300 ${tweetView ? "bg-white" : ""}`}
                         onClick={() => enableTweetView()}
                     >
