@@ -115,11 +115,15 @@ class VoteService(
 
         val lastClosedRound = calculateLastFinishedRound(initialBracket)
 
+        val ipsVoteBrackets = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeasonNumber)
         // Get users last vote
-        val usersLatestVoteBracket = voteBracketDao.findByIpAndSeasonNumber(ip, latestSeasonNumber)
-            .maxByOrNull {
-                it.bracketNumber
-            }
+        val usersLatestVoteBracket = if (ipsVoteBrackets.isNotEmpty()) {
+            val firstVote = ipsVoteBrackets.first()
+            voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(latestSeasonNumber, firstVote.twitterHandle)
+                .maxByOrNull {
+                    it.bracketNumber
+                }
+        } else null
 
         val responseVoteBracket = if (lastClosedRound < 1) {
             GenderedVoteBracketResponseDto(

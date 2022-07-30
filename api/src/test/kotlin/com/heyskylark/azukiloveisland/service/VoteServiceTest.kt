@@ -53,9 +53,7 @@ class VoteServiceTest {
         every { timeService.getNow() } returns Instant.ofEpochMilli(APRIL_9_2022_MILLI)
             .plusMillis((mockInitialBracket.voteGapTimeMilliseconds ?: 0) + 1)
 
-        every {
-            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
-        } returns getListOfGenderedVoteBracketsForUser(
+        val mockVoteResponse = getListOfGenderedVoteBracketsForUser(
             ip = DEFAULT_IP,
             twitterHandle = DEFAULT_TWITTER_HANDLE,
             seasonNumber = mockInitialBracket.seasonNumber,
@@ -63,6 +61,13 @@ class VoteServiceTest {
             femaleBracketGroups = mockInitialBracket.femaleBracketGroups,
             numOfRounds = 1
         )
+        every {
+            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
+        } returns mockVoteResponse
+
+        every {
+            voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(mockInitialBracket.seasonNumber, mockVoteResponse.first().twitterHandle)
+        } returns mockVoteResponse
 
         every {
             participantService.getNoneDtoSeasonsContestants(mockInitialBracket.seasonNumber)
@@ -115,9 +120,7 @@ class VoteServiceTest {
         every { timeService.getNow() } returns Instant.ofEpochMilli(APRIL_9_2022_MILLI)
             .plusMillis((mockInitialBracket.voteGapTimeMilliseconds ?: 0) + 1)
 
-        every {
-            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
-        } returns getListOfGenderedVoteBracketsForUser(
+        val mockVoteResponse = getListOfGenderedVoteBracketsForUser(
             ip = DEFAULT_IP,
             twitterHandle = DEFAULT_TWITTER_HANDLE,
             seasonNumber = mockInitialBracket.seasonNumber,
@@ -125,6 +128,13 @@ class VoteServiceTest {
             femaleBracketGroups = mockInitialBracket.femaleBracketGroups,
             numOfRounds = 2
         )
+        every {
+            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
+        } returns mockVoteResponse
+
+        every {
+            voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(mockInitialBracket.seasonNumber, mockVoteResponse.first().twitterHandle)
+        } returns mockVoteResponse
 
         every {
             participantService.getNoneDtoSeasonsContestants(mockInitialBracket.seasonNumber)
@@ -177,9 +187,7 @@ class VoteServiceTest {
         every { timeService.getNow() } returns Instant.ofEpochMilli(APRIL_9_2022_MILLI)
             .plusMillis((mockInitialBracket.voteGapTimeMilliseconds ?: 0) * 2 + 1)
 
-        every {
-            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
-        } returns getListOfGenderedVoteBracketsForUser(
+        val mockVoteResponse = getListOfGenderedVoteBracketsForUser(
             ip = DEFAULT_IP,
             twitterHandle = DEFAULT_TWITTER_HANDLE,
             seasonNumber = mockInitialBracket.seasonNumber,
@@ -187,6 +195,13 @@ class VoteServiceTest {
             femaleBracketGroups = mockInitialBracket.femaleBracketGroups,
             numOfRounds = 2
         )
+        every {
+            voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
+        } returns mockVoteResponse
+
+        every {
+            voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(mockInitialBracket.seasonNumber, mockVoteResponse.first().twitterHandle)
+        } returns mockVoteResponse
 
         every {
             participantService.getNoneDtoSeasonsContestants(mockInitialBracket.seasonNumber)
