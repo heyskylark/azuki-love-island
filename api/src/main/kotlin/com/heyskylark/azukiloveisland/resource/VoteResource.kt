@@ -25,6 +25,13 @@ class VoteResource(
         return ResponseBuilder.buildResponse(voteService.getLatestVoteBracketForLatestSeason())
     }
 
+    @GetMapping("latest/users/{handle}")
+    fun getTotalVoteResultsForLatestSeasonByHandle(
+        @PathVariable("handle") twitterHandle: String
+    ): ResponseEntity<String> {
+        return ResponseBuilder.buildResponse(voteService.getLatestVoteBracketForLatestSeason(twitterHandle))
+    }
+
     @GetMapping("/totals/latest")
     fun getTotalVoteResultsForLatestSeason(): ResponseEntity<String> {
         return ResponseBuilder.buildResponse(voteService.calculateTotalVotesForLatestSeason())

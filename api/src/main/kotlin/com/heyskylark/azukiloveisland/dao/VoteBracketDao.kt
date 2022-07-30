@@ -8,11 +8,16 @@ import org.springframework.stereotype.Repository
 interface VoteBracketDao : CrudRepository<VoteBracket, String> {
     fun findByTwitterHandleAndSeasonNumber(twitterHandle: String, seasonNumber: Int): List<VoteBracket>
 
-    fun findByTwitterHandleAndSeasonNumberAndBracketNumber(
-        twitterHandle: String,
+    fun findBySeasonNumberAndBracketNumberAndTwitterHandleIgnoreCase(
         seasonNumber: Int,
-        bracketNumber: Int
+        bracketNumber: Int,
+        twitterHandle: String
     ): VoteBracket?
+
+    fun findBySeasonNumberAndTwitterHandleIgnoreCase(
+        seasonNumber: Int,
+        twitterHandle: String
+    ): List<VoteBracket>
 
     fun findByIpAndSeasonNumber(ip: String, seasonNumber: Int): List<VoteBracket>
 

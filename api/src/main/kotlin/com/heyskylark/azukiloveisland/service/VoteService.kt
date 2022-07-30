@@ -33,6 +33,72 @@ class VoteService(
     private val httpRequestUtil: HttpRequestUtil,
     private val timeService: TimeService
 ) : BaseService() {
+    fun getLatestVoteBracketForLatestSeason(twitterHandle: String): ServiceResponse<GenderedVoteBracketResponseDto> {
+        val initialBracketResponse = bracketService.getLatestSeasonBracket()
+        val initialBracket = if (initialBracketResponse.isSuccess()) {
+            (initialBracketResponse.getSuccessValue() as? GenderedInitialBracket)
+                ?: return ServiceResponse.errorResponse(BracketErrorCodes.NO_BRACKET_FOUND)
+        } else {
+            val errorResponse = initialBracketResponse as ErrorResponse
+            return ServiceResponse.errorResponse(errorResponse.errorCode)
+        }
+
+        val latestSeasonNumber = initialBracket.seasonNumber
+
+        val lastClosedRound = calculateLastFinishedRound(initialBracket)
+
+        val usersLatestVoteBracket = voteBracketDao
+            .findBySeasonNumberAndTwitterHandleIgnoreCase(
+                twitterHandle = twitterHandle,
+                seasonNumber = latestSeasonNumber
+            ).maxByOrNull {
+                it.bracketNumber
+            }
+
+        val responseVoteBracket = if (lastClosedRound < 1) {
+            GenderedVoteBracketResponseDto(
+                twitterHandle = usersLatestVoteBracket?.twitterHandle,
+                seasonNumber = latestSeasonNumber,
+                roundNumber = lastClosedRound,
+                maleBracketGroups = initialBracket.maleBracketGroups,
+                femaleBracketGroups = initialBracket.femaleBracketGroups,
+                finishedVoting = usersLatestVoteBracket != null &&
+                        (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
+                finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Final round is currently the opened round or is finished
+                hasVoted = usersLatestVoteBracket != null
+            )
+        } else {
+            // Get last rounds winners
+            val resultsResponse = calculateRoundVotesForLatestSeason(
+                initialBracket = initialBracket,
+                roundNumber = lastClosedRound,
+                isRoundByRoundVoting = initialBracket.voteGapTimeMilliseconds != null
+            )
+
+            val lastRoundsWinners = if (resultsResponse.isSuccess()) {
+                resultsResponse.getSuccessValue()
+                    ?: return ServiceResponse.errorResponse(VoteBracketErrorCodes.WINNER_CALC_ISSUE)
+            } else {
+                val errorResponse = resultsResponse as ErrorResponse
+                return ServiceResponse.errorResponse(errorResponse.errorCode)
+            }
+
+            GenderedVoteBracketResponseDto(
+                twitterHandle = usersLatestVoteBracket?.twitterHandle,
+                seasonNumber = latestSeasonNumber,
+                roundNumber = lastClosedRound, // Cap the round to the max being the final round
+                maleBracketGroups = lastRoundsWinners.maleWinners.map { BracketGroup(it) }.toSet(),
+                femaleBracketGroups = lastRoundsWinners.femaleWinners.map { BracketGroup(it) }.toSet(),
+                finishedVoting = usersLatestVoteBracket != null &&
+                        (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
+                finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Last closed round is round before the final round or is completely finished
+                hasVoted = usersLatestVoteBracket != null
+            )
+        }
+
+        return ServiceResponse.successResponse(responseVoteBracket)
+    }
+
     fun getLatestVoteBracketForLatestSeason(): ServiceResponse<GenderedVoteBracketResponseDto> {
         val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
 
@@ -708,7 +774,7 @@ class VoteService(
         } else {
             val previousTwitterHandle = previousBracket.twitterHandle
 
-            if (previousTwitterHandle != voteRequestDto.twitterHandle) {
+            if (previousTwitterHandle.lowercase() != voteRequestDto.twitterHandle.lowercase()) {
                 return ServiceResponse.errorResponse(VoteBracketErrorCodes.INVALID_TWITTER_HANDLE)
             }
         }
@@ -716,7 +782,9 @@ class VoteService(
         // TODO: Prob remove most IP comparisons, although IP clashing is prob rare
         if (
             lastClosedRound != null &&
-            voteBracketDao.findByTwitterHandleAndSeasonNumberAndBracketNumber(voteRequestDto.twitterHandle, latestSeasonNumber, lastClosedRound + 1) != null
+            voteBracketDao.findBySeasonNumberAndBracketNumberAndTwitterHandleIgnoreCase(
+                latestSeasonNumber, lastClosedRound + 1, voteRequestDto.twitterHandle
+            ) != null
         ) {
             return ServiceResponse.errorResponse(VoteBracketErrorCodes.TWITTER_HANDLE_USED)
         }
