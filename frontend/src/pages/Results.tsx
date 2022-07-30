@@ -181,9 +181,10 @@ function Results() {
                 )
             }
 
-            return (<>
-                {results}
+            return (
+                <>
                 {nextResults}
+                {results.reverse()}
                 </>
             );
         }
