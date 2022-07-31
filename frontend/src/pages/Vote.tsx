@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from "react";
+import { createRef, useEffect } from "react";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
 import Countdown from 'react-countdown';

@@ -52,10 +52,11 @@ function useVote(): UseVoteResponse {
                     voteDispatch({ type: "register", handle: latestVoteRound.twitterHandle });
                 }
 
-                voteDispatch({ type: "set-curr-round", currentRoundNumber: Math.min(latestVoteRound.roundNumber + 1, initialRound.numOfBrackets) });
+                const currentRoundNumber = Math.min(latestVoteRound.roundNumber + 1, initialRound.numOfBrackets)
+                voteDispatch({ type: "set-curr-round", currentRoundNumber: currentRoundNumber });
                 voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
                 voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
-                voteDispatch({ type: "update-poap-claim", canClaimPOAP: latestVoteRound.canClaimPOAP });
+                voteDispatch({ type: "update-poap-claim", canClaimPOAP: latestVoteRound.canClaimPOAP && currentRoundNumber === initialRound.numOfBrackets });
 
                 const votingClosed = votingNotStarted(initialRound) || votingEnded(initialRound);
 
