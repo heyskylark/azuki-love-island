@@ -107,7 +107,7 @@ function Drama(): JSX.Element {
     }
 
     function render(): JSX.Element {
-        if (!loading) {
+        if (loading) {
             return <Loading />;
 
         } else {
