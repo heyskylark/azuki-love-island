@@ -12,18 +12,6 @@ import VoteFinished from "../components/vote/VoteFinished";
 function Vote() {
     const countDownRef = createRef<Countdown>();
 
-    const [joined, setJoined] = useState<boolean>(false);
-    // TODO: need to setup state management where can check if user started voting but never finished the round
-    // useEffect(() => {
-    //     return function voteCheck() {
-    //         if (joined)  {
-    //             console.log("Mic check...", voteState);
-    //         } else {
-    //             setJoined(true);
-    //         }
-    //     }
-    // }, [joined])
-
     const {
         state,
         seasonNumber,

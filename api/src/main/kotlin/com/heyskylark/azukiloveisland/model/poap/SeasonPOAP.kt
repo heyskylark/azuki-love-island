@@ -3,6 +3,7 @@ package com.heyskylark.azukiloveisland.model.poap
 import java.net.URL
 import java.time.Instant
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Version
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "SeasonPoaps")
@@ -13,7 +14,9 @@ data class SeasonPOAP(
     val claimEnds: Instant,
     val claimUrls: Map<String, POAPClaimUrl>,
     val createdAt: Instant = Instant.now(),
-    val updatedAt: Instant = Instant.now()
+    val updatedAt: Instant = Instant.now(),
+
+    @Version val version: Int = 0
 )
 
 data class POAPClaimUrl(

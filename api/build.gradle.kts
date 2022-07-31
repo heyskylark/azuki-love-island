@@ -30,6 +30,7 @@ dependencies {
 	implementation("commons-io:commons-io:2.11.0")
 	implementation("org.apache.logging.log4j:log4j-core:2.17.2")
 	implementation("org.apache.commons:commons-lang3:3.12.0")
+	implementation("org.springframework.retry:spring-retry")
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

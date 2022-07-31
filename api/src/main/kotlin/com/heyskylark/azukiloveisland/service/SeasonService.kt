@@ -4,6 +4,7 @@ import com.heyskylark.azukiloveisland.dao.SeasonsDao
 import com.heyskylark.azukiloveisland.model.season.Season
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 @Component("seasonService")
@@ -11,7 +12,7 @@ class SeasonService(
     private val seasonsDao: SeasonsDao
 ) {
     fun getRawSeason(seasonNumber: Int): Season? {
-        return seasonsDao.findById(seasonNumber).orElse(null)
+        return seasonsDao.findByIdOrNull(seasonNumber)
     }
 
     fun getLatestSeason(): ServiceResponse<Season> {

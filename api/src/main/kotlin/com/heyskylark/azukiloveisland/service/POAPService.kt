@@ -15,6 +15,10 @@ import com.heyskylark.azukiloveisland.service.errorcode.POAPErrorCodes
 import com.heyskylark.azukiloveisland.util.HttpRequestUtil
 import java.net.URL
 import java.time.Instant
+import java.time.ZoneOffset
+import org.springframework.dao.DataAccessException
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Component
 
 @Component("poapService")
@@ -65,7 +69,7 @@ class POAPService(
         seasonNumber: Int,
         poapLoadRequestDto: POAPLoadRequestDto
     ): ServiceResponse<Unit>? {
-        poapDao.findById(seasonNumber).orElse(null)?.let {
+        poapDao.findByIdOrNull(seasonNumber)?.let {
             return ServiceResponse.errorResponse(POAPErrorCodes.POAP_EXIST_FOR_SEASON)
         }
         validatePOAPClaimWindow(poapLoadRequestDto)?.let { return it }
@@ -95,7 +99,20 @@ class POAPService(
     ): ServiceResponse<POAPClaimResponseDto> {
         val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
 
-        val seasonPOAPs = poapDao.findById(seasonNumber).orElse(null)
+        return retryablePOAPClaim(
+            ip = ip,
+            seasonNumber = seasonNumber,
+            poapClaimRequestDto = poapClaimRequestDto
+        )
+    }
+
+    @Retryable(value = [DataAccessException::class], maxAttempts = 10)
+    private fun retryablePOAPClaim(
+        ip: String,
+        seasonNumber: Int,
+        poapClaimRequestDto: POAPClaimRequestDto
+    ): ServiceResponse<POAPClaimResponseDto> {
+        val seasonPOAPs = poapDao.findByIdOrNull(seasonNumber)
             ?: return ServiceResponse.errorResponse(POAPErrorCodes.SEASON_POAP_NOT_FOUND)
 
         return validatePOAPClaim(
@@ -179,7 +196,7 @@ class POAPService(
         twitterHandle: String,
         seasonNumber: Int
     ): Boolean {
-        val seasonPOAPs = poapDao.findById(seasonNumber).orElse(null)
+        val seasonPOAPs = poapDao.findByIdOrNull(seasonNumber)
             ?: return false
 
         validatePOAPClaimIsActive(seasonPOAPs)?.let { return false }

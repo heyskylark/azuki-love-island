@@ -16,8 +16,6 @@ function PoapClaim(props: Props) {
     async function claimPoapRequest(e: { preventDefault: () => void }) {
         e.preventDefault();
 
-        console.log("Click ", props.twitterHandle)
-
         if (props.twitterHandle) {
             setLoading(true);
 

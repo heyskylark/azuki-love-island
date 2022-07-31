@@ -16,6 +16,7 @@ import com.heyskylark.azukiloveisland.service.errorcode.ParticipantErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes
 import com.heyskylark.azukiloveisland.service.errorcode.Web3ErrorCodes
 import com.heyskylark.azukiloveisland.util.isValidTwitterHandle
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
 
 @Component("participantService")
@@ -151,7 +152,7 @@ class ParticipantService(
     }
 
     fun getParticipant(participantId: String): ServiceResponse<Participant?> {
-        return ServiceResponse.successResponse(participantDao.findById(participantId).orElse(null))
+        return ServiceResponse.successResponse(participantDao.findByIdOrNull(participantId))
     }
 
     fun submitParticipant(participantSubmissionDto: ParticipantSubmissionDto): ServiceResponse<ParticipantResponseDto> {
@@ -169,7 +170,7 @@ class ParticipantService(
         } else {
             val errorResponse = azukiInfoResponse as ErrorResponse
 
-            LOG.info("There was an error when trying to fetch Azuki info form the azukiWeb3Service: ${errorResponse.errorCode.message}")
+            LOG.error("There was an error when trying to fetch Azuki info form the azukiWeb3Service: ${errorResponse.errorCode.message}")
             return ServiceResponse.errorResponse(errorResponse.errorCode)
         }
 
