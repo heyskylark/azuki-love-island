@@ -16,6 +16,8 @@ export interface UseVoteResponse {
     deadline: Date;
     remainingVotes: number;
     undoDisabled: boolean;
+    canClaimPoap: boolean;
+    twitterHandle?: string;
     currentVoteGroup?: DenormalizedBracketGroup;
     undo: () => void;
     vote: (participantId: string) => void;

@@ -362,6 +362,13 @@ function useVote(): UseVoteResponse {
         }
     }
 
+    function canClaimPoap(): boolean {
+        const now = Date.now()
+        const votingClosed = (voteState.currentRoundNumber === voteState.finalRoundNumber && voteState.roundVotingFinished) || now > voteState.deadline.getTime()
+
+        return voteState.votedAtLeastOnce && votingClosed;
+    }
+
     return {
         state: voteState.state,
         seasonNumber: voteState.seasonNumber,
@@ -369,9 +376,11 @@ function useVote(): UseVoteResponse {
         finalRoundNumber: voteState.finalRoundNumber,
         startDate: voteState.startDate,
         deadline: voteState.deadline,
+        twitterHandle: voteState.twitterHandle,
         remainingVotes: getRemainingVotes(),
         undoDisabled: undoDisabled(),
         currentVoteGroup: getCurrentVoteGroup(),
+        canClaimPoap: canClaimPoap(),
         nextRoundDate: getNextRoundDate,
         undo: undo,
         vote: vote,

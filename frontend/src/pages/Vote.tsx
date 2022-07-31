@@ -1,12 +1,13 @@
 import { createRef, useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import Loading from "../components/Loading";
-import TwitterHandleField from "../components/vote/TwitterHandleField";
-import VoteFinished from "../components/vote/VoteFinished";
-import VoteWindow from "../components/vote/VoteWindow";
 import Countdown from 'react-countdown';
 import useVote from "../hooks/useVote";
 import { VoteStateEnum } from "../models/hooks/UseVoteModel";
+import PoapClaim from "../components/vote/PoapClaim";
+import TwitterHandleField from "../components/vote/TwitterHandleField";
+import VoteWindow from "../components/vote/VoteWindow";
+import VoteFinished from "../components/vote/VoteFinished";
 
 function Vote() {
     const countDownRef = createRef<Countdown>();
@@ -32,6 +33,8 @@ function Vote() {
         remainingVotes,
         undoDisabled,
         currentVoteGroup,
+        canClaimPoap,
+        twitterHandle,
         nextRoundDate,
         undo,
         vote,
@@ -73,19 +76,37 @@ function Vote() {
         return header
     }
 
+    function renderPOAPClaim(): JSX.Element {
+        if (!canClaimPoap) {
+            return (
+                <PoapClaim seasonNumber={seasonNumber} twitterHandle={twitterHandle} />
+            );
+        } else {
+            console.log("Cannot claim poap right now.");
+
+            return <></>;
+        }
+    }
+
     function renderVoteSection(): JSX.Element {
         if (state === VoteStateEnum.LOADING) {
             return <Loading />;
         }
 
         if (state === VoteStateEnum.VOTING_ENDED) {
+            if (canClaimPoap) {
+                return renderPOAPClaim();
+            }
+            
             return <VoteFinished text={`Season ${seasonNumber} voting has ended`} />;
         } else if (state === VoteStateEnum.VOTING_NOT_STARTED) {
             return <VoteFinished text={""} />;
         } else if (state === VoteStateEnum.FINISHED_VOTING) {
             const nextRound = nextRoundDate();
 
-            if (nextRound) {
+            if (canClaimPoap) {
+                return renderPOAPClaim();
+            } else if (nextRound) {
                 const dateString = nextRound.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
                 return <VoteFinished text={`Next Round Starts:\n${dateString}`} />;
             } else {

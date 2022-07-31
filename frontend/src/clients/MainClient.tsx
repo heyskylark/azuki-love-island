@@ -10,6 +10,7 @@ import { GenderedVoteRoundsResponse } from "../models/api/GenderedRoundWinners";
 import { CloudinarySignatureRequest, CloudinarySignatureResponse } from "../models/api/CloudinaryRequest";
 import CloudinaryUploadResponse from "../models/api/CloudinaryUploadResponse";
 import IslandTweets from "../models/api/IslandTweetsResponse";
+import POAPGenerationResponse from "../models/api/PoapGenerationResponse";
 
 const BASE_URL = process.env.REACT_APP_BASE_API_URL;
 const CLOUDINARY_UPLOAD_URL = process.env.REACT_APP_CLOUDINARY_UPLOAD_URL;
@@ -70,4 +71,12 @@ export async function uploadImageToCloudinary(body: FormData, transformations: s
 
 export async function getUsersLoveIslandTweets(twitterHandle: string): Promise<AxiosResponse<IslandTweets[]>> {
     return axios.get(`${BASE_URL}/twitter/island?handle=${twitterHandle}`)
+}
+
+export async function claimPoap(seasonNumber: number, twitterHandle: string): Promise<AxiosResponse<POAPGenerationResponse>> {
+    const body = {
+        twitterHandle: twitterHandle
+    }
+
+    return axios.post(`${BASE_URL}/poaps/seasons/${seasonNumber}/claim`, body);
 }
