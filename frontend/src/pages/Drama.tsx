@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
+import { createRenderer } from "react-dom/test-utils";
 import { toast } from "react-toastify";
 import { getDailyDramaTweets } from "../clients/MainClient";
 import Footer from "../components/Footer";
@@ -106,11 +107,14 @@ function Drama(): JSX.Element {
     }
 
     function render(): JSX.Element {
-        if (loading) {
-            return <Loading />
+        if (!loading) {
+            return <Loading />;
+
         } else {
             return (
-                <>{renderTweets()}</>
+                <div className="w-full mb-8 flex flex-wrap justify-center md:grid md:gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {renderTweets()}
+                </div>
             );
         }
     }
@@ -124,9 +128,7 @@ function Drama(): JSX.Element {
                         <h1 className="uppercase font-black text-2xl md:text-4xl lg:text-5xl whitespace-pre-line">The Daily Drama <span>✨</span></h1>
                     </div>
 
-                    <div className="w-full mb-8 flex flex-wrap justify-center md:grid md:gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {render()}
-                    </div>
+                    {render()}                    
 
                     {renderButton()}
                 </section>
