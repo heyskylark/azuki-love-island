@@ -1,6 +1,6 @@
+import ReactGA from "react-ga4";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { createRenderer } from "react-dom/test-utils";
 import { toast } from "react-toastify";
 import { getDailyDramaTweets } from "../clients/MainClient";
 import Footer from "../components/Footer";
@@ -47,6 +47,12 @@ function Drama(): JSX.Element {
 
     async function loadMoreTweets(e: { preventDefault: () => void }) {
         e.preventDefault();
+
+        ReactGA.event({
+            category: "engagement",
+            action: "load_more_tweets",
+            nonInteraction: true
+        });
 
         try {
             setLoadingMoreTweets(true);
