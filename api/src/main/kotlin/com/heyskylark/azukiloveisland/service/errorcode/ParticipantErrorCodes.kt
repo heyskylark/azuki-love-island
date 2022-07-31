@@ -10,6 +10,11 @@ enum class ParticipantErrorCodes(
         code = "seasonContestantsNotFound",
         type = ErrorType.BAD_REQUEST
     ),
+    PARTICIPANT_TWITTER_NOT_FOUND(
+        message = "Participant with given twitter handle could not be found.",
+        code = "participantTwitterNotFound",
+        type = ErrorType.BAD_REQUEST
+    ),
     INVALID_TWITTER_HANDLE(
         message = "Twitter handle is invalid.",
         code = "invalidTwitterHandle",

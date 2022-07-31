@@ -16,7 +16,7 @@ export interface UseVoteResponse {
     deadline: Date;
     remainingVotes: number;
     undoDisabled: boolean;
-    canClaimPoap: boolean;
+    canClaimPOAP: boolean;
     twitterHandle?: string;
     currentVoteGroup?: DenormalizedBracketGroup;
     undo: () => void;
@@ -40,6 +40,7 @@ export interface VoteState {
     seasonNumber: number;
     votedAtLeastOnce: boolean;
     roundVotingFinished: boolean;
+    canClaimPOAP: boolean;
     startDate: Date;
     deadline: Date;
     voteGapTimeMilli: number;
@@ -62,6 +63,7 @@ export interface VoteState {
 }
 
 export type VoteAction =
+    | { type: "update-poap-claim", canClaimPOAP: boolean }
     | { type: "set-mode", state: VoteStateEnum }
     | { type: "set-dates", deadline: Date, startDate: Date, voteGapTimeMilli: number }
     | { type: "set-season-number", seasonNumber: number }

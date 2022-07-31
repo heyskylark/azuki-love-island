@@ -11,19 +11,15 @@ import com.twitter.clientlib.model.Tweet
 import com.twitter.clientlib.model.User
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import org.springframework.stereotype.Component
 
 @Component("twitterClient")
 class TwitterClient(
     private val twitterApi: TwitterApi
 ): BaseService() {
-    companion object {
-        val HASHTAGS = listOf(
-            "#AzukiLoveIsland",
-            "#AzukiLoveIsland2"
-        )
-    }
-
     fun getUsersId(
         twitterHandle: String,
         expansions: Set<String>? = null,
@@ -49,34 +45,25 @@ class TwitterClient(
         }
     }
 
-    fun getUsersLoveIslandTweet(
-        twitterHandle: String
+    fun getLoveIslandTweets(
+        query: String,
+        tweetLimit: Int = 10,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null
     ): ServiceResponse<List<Tweet>> {
-        val queryBuilder = StringBuilder()
-        HASHTAGS.forEachIndexed {index, hashtag ->
-            if (index < HASHTAGS.size - 1) {
-                queryBuilder.append("$hashtag OR ")
-            } else {
-                queryBuilder.append(hashtag)
-            }
-        }
-
-        queryBuilder.append(" from:$twitterHandle")
-
         try {
-            val testQuery = "(#AzukiLoveIsland OR #AzukiLoveIsland2) -is:retweet -is:reply from:$twitterHandle"
             val searchResponse = twitterApi.tweets().tweetsRecentSearch(
-                testQuery,
+                query,
+                startTime,
+                endTime,
                 null,
                 null,
-                null,
-                null,
-                null,
+                tweetLimit,
                 null,
                 null,
                 null,
                 setOf("attachments.media_keys"),
-                setOf("attachments"),
+                setOf("attachments", "created_at"),
                 null,
                 setOf("preview_image_url", "url"),
                 null,
@@ -87,12 +74,12 @@ class TwitterClient(
                 searchResponse.data?.mapNotNull { it } ?: emptyList()
             )
         } catch (e: ApiException) {
-            LOG.error("There was a problem fetching $twitterHandle Azuki Love Island Tweets.", e)
+            LOG.error("There was a problem fetching Azuki Love Island tweets.", e)
 
             return ServiceResponse.errorResponse(
                 BaseErrorCode(
                     code = "twitterUserLookupError",
-                    message = e.responseBody ?: "There was a problem looking up the twitter user $twitterHandle",
+                    message = e.responseBody ?: "There was a problem fetching Azuki Love Island tweets.",
                     type = ErrorType.fromCode(e.code) ?: ErrorType.BAD_REQUEST
                 )
             )

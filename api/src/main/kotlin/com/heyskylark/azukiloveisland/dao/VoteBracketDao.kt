@@ -19,6 +19,12 @@ interface VoteBracketDao : CrudRepository<VoteBracket, String> {
         twitterHandle: String
     ): List<VoteBracket>
 
+    fun findByIpAndSeasonNumberAndBracketNumber(
+        ip: String,
+        seasonNumber: Int,
+        bracketNumber: Int
+    ): List<VoteBracket>
+
     fun findByIpAndSeasonNumber(ip: String, seasonNumber: Int): List<VoteBracket>
 
     fun findBySeasonNumberAndBracketNumber(

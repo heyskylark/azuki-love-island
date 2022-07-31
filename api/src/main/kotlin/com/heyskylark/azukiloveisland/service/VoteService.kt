@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component
 class VoteService(
     private val bracketService: BracketService,
     private val participantService: ParticipantService,
+    private val poapService: POAPService,
     private val voteBracketDao: VoteBracketDao,
     private val httpRequestUtil: HttpRequestUtil,
     private val timeService: TimeService
@@ -55,6 +56,14 @@ class VoteService(
                 it.bracketNumber
             }
 
+        val canClaimPOAP = if (usersLatestVoteBracket != null) {
+            poapService.canClaimPOAP(
+                ip = usersLatestVoteBracket.ip,
+                twitterHandle = usersLatestVoteBracket.twitterHandle,
+                seasonNumber = latestSeasonNumber
+            )
+        } else false
+
         val responseVoteBracket = if (lastClosedRound < 1) {
             GenderedVoteBracketResponseDto(
                 twitterHandle = usersLatestVoteBracket?.twitterHandle,
@@ -65,7 +74,8 @@ class VoteService(
                 finishedVoting = usersLatestVoteBracket != null &&
                         (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
                 finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Final round is currently the opened round or is finished
-                hasVoted = usersLatestVoteBracket != null
+                hasVoted = usersLatestVoteBracket != null,
+                canClaimPOAP = canClaimPOAP
             )
         } else {
             // Get last rounds winners
@@ -92,7 +102,8 @@ class VoteService(
                 finishedVoting = usersLatestVoteBracket != null &&
                         (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
                 finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Last closed round is round before the final round or is completely finished
-                hasVoted = usersLatestVoteBracket != null
+                hasVoted = usersLatestVoteBracket != null,
+                canClaimPOAP = canClaimPOAP
             )
         }
 
@@ -125,6 +136,14 @@ class VoteService(
                 }
         } else null
 
+        val canClaimPOAP = if (usersLatestVoteBracket != null) {
+            poapService.canClaimPOAP(
+                ip = usersLatestVoteBracket.ip,
+                twitterHandle = usersLatestVoteBracket.twitterHandle,
+                seasonNumber = latestSeasonNumber
+            )
+        } else false
+
         val responseVoteBracket = if (lastClosedRound < 1) {
             GenderedVoteBracketResponseDto(
                 twitterHandle = usersLatestVoteBracket?.twitterHandle,
@@ -135,7 +154,8 @@ class VoteService(
                 finishedVoting = usersLatestVoteBracket != null &&
                         (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
                 finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Final round is currently the opened round or is finished
-                hasVoted = usersLatestVoteBracket != null
+                hasVoted = usersLatestVoteBracket != null,
+                canClaimPOAP = canClaimPOAP
             )
         } else {
             // Get last rounds winners
@@ -162,7 +182,8 @@ class VoteService(
                 finishedVoting = usersLatestVoteBracket != null &&
                         (usersLatestVoteBracket.bracketNumber == initialBracket.numOfBrackets || usersLatestVoteBracket.bracketNumber == (lastClosedRound + 1)), // User voted on final round or on current open round
                 finalRound = lastClosedRound >= (initialBracket.numOfBrackets - 1), // Last closed round is round before the final round or is completely finished
-                hasVoted = usersLatestVoteBracket != null
+                hasVoted = usersLatestVoteBracket != null,
+                canClaimPOAP = canClaimPOAP
             )
         }
 
@@ -647,7 +668,7 @@ class VoteService(
 
             // TODO: (initialBracket.numberOfBrackets() - 1) if want to end right before last bracket for Bobu vote
             if (voteBracket.bracketNumber == initialBracket.numberOfBrackets()) {
-                updateVotesToFinishedVoting(ip, latestSeasonNumber)
+                updateVotesToFinishedVoting(voteRequestDto.twitterHandle, latestSeasonNumber)
             }
 
             // Update all votes finishedVoting flag after final bracket
@@ -655,8 +676,8 @@ class VoteService(
         }
     }
 
-    private fun updateVotesToFinishedVoting(ip: String, seasonNumber: Int) {
-        val updatedVotes = voteBracketDao.findByIpAndSeasonNumber(ip, seasonNumber).map { previousVote ->
+    private fun updateVotesToFinishedVoting(twitterHandle: String, seasonNumber: Int) {
+        val updatedVotes = voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(seasonNumber, twitterHandle).map { previousVote ->
             // TODO: Need to make more generalized for when we have non-gendered brackets,
             //  should just change to left and right bracket?
             (previousVote as GenderedVoteBracket).copy(
@@ -680,9 +701,11 @@ class VoteService(
             votingRound = (previousRound?.roundNumber ?: 0) + 1
         )?.let { return it }
 
-        validateIfUserFinishedVotingForTheSeason(ip, latestSeasonNumber)?.let { return it }
+        validateIfUserFinishedVotingForTheSeason(voteRequestDto.twitterHandle, latestSeasonNumber)?.let { return it }
 
         validateTwitterHandle(voteRequestDto, latestSeasonNumber, previousRound?.roundNumber, previousUsersVote)?.let { return it }
+
+        validateIPVotedThisRound(ip, latestSeasonNumber, previousRound?.roundNumber)
 
         validateNumberOfGroups(
             voteRequestDto = voteRequestDto,
@@ -720,6 +743,22 @@ class VoteService(
             currentVoteBracketNum = previousBracketNum + 1,
             lastVotableBracketNum = lastVotableBracket
         )?.let { return it }
+
+        return null
+    }
+
+    private fun validateIPVotedThisRound(
+        ip: String,
+        latestSeasonNumber: Int,
+        lastClosedRound: Int?,
+    ): ServiceResponse<VoteBracket>? {
+        lastClosedRound?.let {
+            voteBracketDao.findByIpAndSeasonNumberAndBracketNumber(
+                ip = ip,
+                seasonNumber = latestSeasonNumber,
+                bracketNumber = it + 1
+            )
+        }
 
         return null
     }
@@ -825,10 +864,10 @@ class VoteService(
      * Validates if user already finished voting for the season, baring them from voting again.
      */
     private fun validateIfUserFinishedVotingForTheSeason(
-        ip: String,
+        twitterHandle: String,
         seasonNumber: Int
     ): ServiceResponse<VoteBracket>? {
-        val previousVotes = voteBracketDao.findByIpAndSeasonNumber(ip, seasonNumber)
+        val previousVotes = voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(seasonNumber, twitterHandle)
 
         if (previousVotes.firstOrNull()?.finishedVoting == true) {
             return ServiceResponse.errorResponse(VoteBracketErrorCodes.CANNOT_VOTE_AGAIN)

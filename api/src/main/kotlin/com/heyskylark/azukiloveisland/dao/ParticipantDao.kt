@@ -17,5 +17,5 @@ interface ParticipantDao : CrudRepository<Participant, String> {
 
     fun findByOwnerAddressAndSeasonNumber(ownerAddress: String, seasonNumber: Int): Participant?
 
-    fun findByTwitterHandleAndSeasonNumber(twitterHandle: String, seasonNumber: Int): Participant?
+    fun findBySeasonNumberAndTwitterHandleIgnoreCase(seasonNumber: Int, twitterHandle: String): Participant?
 }

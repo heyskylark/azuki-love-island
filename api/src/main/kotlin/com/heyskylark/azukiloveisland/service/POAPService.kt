@@ -174,6 +174,29 @@ class POAPService(
         return null
     }
 
+    fun canClaimPOAP(
+        ip: String,
+        twitterHandle: String,
+        seasonNumber: Int
+    ): Boolean {
+        val seasonPOAPs = poapDao.findById(seasonNumber).orElse(null)
+            ?: return false
+
+        validatePOAPClaimIsActive(seasonPOAPs)?.let { return false }
+        validatePOAPClaimsAvailable(seasonPOAPs)?.let { return false }
+        validateIfUserHasClaimedPoap(
+            ip = ip,
+            twitterHandle = twitterHandle,
+            seasonPOAPs = seasonPOAPs
+        )?.let { return false }
+        validateUserVotedAndIsAbleToClaimPoap(
+            seasonNumber = seasonNumber,
+            twitterHandle = twitterHandle
+        )?.let { return false }
+
+        return true
+    }
+
     private fun validateIfUserHasClaimedPoap(
         ip: String,
         twitterHandle: String,

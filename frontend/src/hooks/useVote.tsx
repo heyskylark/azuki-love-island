@@ -13,6 +13,7 @@ const initialVoteState: VoteState = {
     seasonNumber: 0,
     votedAtLeastOnce: false,
     roundVotingFinished: false,
+    canClaimPOAP: false,
     startDate: new Date(),
     deadline: new Date(),
     voteGapTimeMilli: -1,
@@ -54,6 +55,7 @@ function useVote(): UseVoteResponse {
                 voteDispatch({ type: "set-curr-round", currentRoundNumber: Math.min(latestVoteRound.roundNumber + 1, initialRound.numOfBrackets) });
                 voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
                 voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
+                voteDispatch({ type: "update-poap-claim", canClaimPOAP: latestVoteRound.canClaimPOAP });
 
                 const votingClosed = votingNotStarted(initialRound) || votingEnded(initialRound);
 
@@ -254,6 +256,13 @@ function useVote(): UseVoteResponse {
         try {
             await voteOnGenderedBracket(voteRequest);
             voteDispatch({ type: "set-mode", state: VoteStateEnum.FINISHED_VOTING });
+
+            const latestVoteRoundResponse = await getLatestVoteBracketByTwitterHandle(voteState.twitterHandle);
+            const latestVoteRound = latestVoteRoundResponse.data;
+
+            voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
+            voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
+            voteDispatch({ type: "update-poap-claim", canClaimPOAP: latestVoteRound.canClaimPOAP });
         } catch (err) {
             if (err instanceof AxiosError && err.response) {
                 const expectedErr = err.response?.data?.message;
@@ -338,6 +347,7 @@ function useVote(): UseVoteResponse {
 
             voteDispatch({ type: "set-voted-once", votedAtLeastOnce: latestVoteRound.hasVoted });
             voteDispatch({ type: "set-round-voting-finished", roundVotingFinished: latestVoteRound.finishedVoting });
+            voteDispatch({ type: "update-poap-claim", canClaimPOAP: latestVoteRound.canClaimPOAP });
 
             voteDispatch({ type: "register", handle: handle });
         } catch(err) {
@@ -362,13 +372,6 @@ function useVote(): UseVoteResponse {
         }
     }
 
-    function canClaimPoap(): boolean {
-        const now = Date.now()
-        const votingClosed = (voteState.currentRoundNumber === voteState.finalRoundNumber && voteState.roundVotingFinished) || now > voteState.deadline.getTime()
-
-        return voteState.votedAtLeastOnce && votingClosed;
-    }
-
     return {
         state: voteState.state,
         seasonNumber: voteState.seasonNumber,
@@ -377,10 +380,10 @@ function useVote(): UseVoteResponse {
         startDate: voteState.startDate,
         deadline: voteState.deadline,
         twitterHandle: voteState.twitterHandle,
+        canClaimPOAP: voteState.canClaimPOAP,
         remainingVotes: getRemainingVotes(),
         undoDisabled: undoDisabled(),
         currentVoteGroup: getCurrentVoteGroup(),
-        canClaimPoap: canClaimPoap(),
         nextRoundDate: getNextRoundDate,
         undo: undo,
         vote: vote,
@@ -390,6 +393,9 @@ function useVote(): UseVoteResponse {
 
 function voteReducer(state: VoteState, action: VoteAction): VoteState {
     switch (action.type) {
+        case "update-poap-claim": {
+            return { ...state, canClaimPOAP: action.canClaimPOAP }
+        }
         case "set-mode": {
             return { ...state, state: action.state }
         }

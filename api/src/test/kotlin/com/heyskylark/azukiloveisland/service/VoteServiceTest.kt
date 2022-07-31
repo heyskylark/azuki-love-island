@@ -29,6 +29,7 @@ class VoteServiceTest {
     @MockK lateinit var voteBracketDao: VoteBracketDao
     @MockK lateinit var httpRequestUtil: HttpRequestUtil
     @MockK lateinit var timeService: TimeService
+    @MockK lateinit var poapService: POAPService
 
     private lateinit var voteService: VoteService
 
@@ -39,7 +40,8 @@ class VoteServiceTest {
             participantService = participantService,
             voteBracketDao = voteBracketDao,
             httpRequestUtil = httpRequestUtil,
-            timeService = timeService
+            timeService = timeService,
+            poapService = poapService
         )
     }
 
@@ -68,6 +70,14 @@ class VoteServiceTest {
         every {
             voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(mockInitialBracket.seasonNumber, mockVoteResponse.first().twitterHandle)
         } returns mockVoteResponse
+
+        every {
+            poapService.canClaimPOAP(
+                ip = DEFAULT_IP,
+                twitterHandle = DEFAULT_TWITTER_HANDLE,
+                seasonNumber = mockInitialBracket.seasonNumber
+            )
+        } returns false
 
         every {
             participantService.getNoneDtoSeasonsContestants(mockInitialBracket.seasonNumber)
@@ -137,6 +147,14 @@ class VoteServiceTest {
         } returns mockVoteResponse
 
         every {
+            poapService.canClaimPOAP(
+                ip = DEFAULT_IP,
+                twitterHandle = DEFAULT_TWITTER_HANDLE,
+                seasonNumber = mockInitialBracket.seasonNumber
+            )
+        } returns false
+
+        every {
             participantService.getNoneDtoSeasonsContestants(mockInitialBracket.seasonNumber)
         } returns mockInitialBracket.combinedGroups.map {
             val subId2 = it.submissionId2
@@ -198,6 +216,14 @@ class VoteServiceTest {
         every {
             voteBracketDao.findByIpAndSeasonNumber(DEFAULT_IP, mockInitialBracket.seasonNumber)
         } returns mockVoteResponse
+
+        every {
+            poapService.canClaimPOAP(
+                ip = DEFAULT_IP,
+                twitterHandle = DEFAULT_TWITTER_HANDLE,
+                seasonNumber = mockInitialBracket.seasonNumber
+            )
+        } returns false
 
         every {
             voteBracketDao.findBySeasonNumberAndTwitterHandleIgnoreCase(mockInitialBracket.seasonNumber, mockVoteResponse.first().twitterHandle)

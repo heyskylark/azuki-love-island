@@ -33,7 +33,7 @@ function Vote() {
         remainingVotes,
         undoDisabled,
         currentVoteGroup,
-        canClaimPoap,
+        canClaimPOAP,
         twitterHandle,
         nextRoundDate,
         undo,
@@ -77,7 +77,7 @@ function Vote() {
     }
 
     function renderPOAPClaim(): JSX.Element {
-        if (!canClaimPoap) {
+        if (canClaimPOAP) {
             return (
                 <PoapClaim seasonNumber={seasonNumber} twitterHandle={twitterHandle} />
             );
@@ -94,7 +94,7 @@ function Vote() {
         }
 
         if (state === VoteStateEnum.VOTING_ENDED) {
-            if (canClaimPoap) {
+            if (canClaimPOAP) {
                 return renderPOAPClaim();
             }
             
@@ -104,7 +104,7 @@ function Vote() {
         } else if (state === VoteStateEnum.FINISHED_VOTING) {
             const nextRound = nextRoundDate();
 
-            if (canClaimPoap) {
+            if (canClaimPOAP) {
                 return renderPOAPClaim();
             } else if (nextRound) {
                 const dateString = nextRound.toLocaleDateString('en-us', { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });

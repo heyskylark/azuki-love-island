@@ -11,7 +11,8 @@ data class GenderedVoteBracketResponseDto(
     val femaleBracketGroups: Set<BracketGroup>,
     val hasVoted: Boolean,
     val finishedVoting: Boolean,
-    val finalRound: Boolean
+    val finalRound: Boolean,
+    val canClaimPOAP: Boolean
 ) {
     val type: BracketType = BracketType.GENDERED
 }

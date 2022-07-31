@@ -7,6 +7,7 @@ interface GenderedVoteBracket {
     femaleBracketGroups: BracketGroup[];
     hasVoted: boolean;
     finishedVoting: boolean;
+    canClaimPOAP: boolean
     twitterHandle?: string;
 }
 

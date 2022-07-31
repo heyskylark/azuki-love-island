@@ -76,7 +76,7 @@ class ParticipantServiceTest {
         } returns null
 
         every {
-            participantDao.findByTwitterHandleAndSeasonNumber(testDto.twitterHandle, testSeason.seasonNumber)
+            participantDao.findBySeasonNumberAndTwitterHandleIgnoreCase(testSeason.seasonNumber, testDto.twitterHandle)
         } returns null
 
         every { participantDao.save(ofType(Participant::class)) } returnsArgument 0
@@ -400,7 +400,7 @@ class ParticipantServiceTest {
         } returns null
 
         every {
-            participantDao.findByTwitterHandleAndSeasonNumber(testDto.twitterHandle, testSeason.seasonNumber)
+            participantDao.findBySeasonNumberAndTwitterHandleIgnoreCase(testSeason.seasonNumber, testDto.twitterHandle)
         } returns testParticipant
 
         val response = participantService.submitParticipant(testDto)

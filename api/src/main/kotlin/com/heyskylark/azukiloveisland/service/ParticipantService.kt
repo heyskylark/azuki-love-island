@@ -246,7 +246,7 @@ class ParticipantService(
     }
 
     private fun validateTwitterHandle(twitterHandle: String, season: Season): ServiceResponse<ParticipantResponseDto>? {
-        participantDao.findByTwitterHandleAndSeasonNumber(twitterHandle, season.seasonNumber)?.let {
+        participantDao.findBySeasonNumberAndTwitterHandleIgnoreCase(season.seasonNumber, twitterHandle)?.let {
             return ServiceResponse.errorResponse(ParticipantErrorCodes.TWITTER_HANDLE_EXISTS)
         }
 
