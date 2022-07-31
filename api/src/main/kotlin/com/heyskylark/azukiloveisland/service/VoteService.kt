@@ -56,7 +56,8 @@ class VoteService(
                 it.bracketNumber
             }
 
-        val canClaimPOAP = if (usersLatestVoteBracket != null) {
+        val isFinalRound = lastClosedRound >= initialBracket.numOfBrackets - 1
+        val canClaimPOAP = if (usersLatestVoteBracket != null && isFinalRound) {
             poapService.canClaimPOAP(
                 ip = usersLatestVoteBracket.ip,
                 twitterHandle = usersLatestVoteBracket.twitterHandle,
@@ -136,7 +137,8 @@ class VoteService(
                 }
         } else null
 
-        val canClaimPOAP = if (usersLatestVoteBracket != null) {
+        val isFinalRound = lastClosedRound >= initialBracket.numOfBrackets - 1
+        val canClaimPOAP = if (usersLatestVoteBracket != null && isFinalRound) {
             poapService.canClaimPOAP(
                 ip = usersLatestVoteBracket.ip,
                 twitterHandle = usersLatestVoteBracket.twitterHandle,

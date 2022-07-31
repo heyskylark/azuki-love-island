@@ -119,7 +119,7 @@ class POAPService(
             ip = ip,
             seasonNumber = seasonNumber,
             seasonPOAPs = seasonPOAPs,
-            poapClaimRequestDto = poapClaimRequestDto
+            twitterHandle = poapClaimRequestDto.twitterHandle
         ) ?: run {
             val poapMap = seasonPOAPs.claimUrls.toMutableMap()
             val claimablePoap = poapMap.map { it.value }.find { it.claimedBy == null }
@@ -146,22 +146,22 @@ class POAPService(
         }
     }
 
-    private fun validatePOAPClaim(
+    fun validatePOAPClaim(
         ip: String,
         seasonNumber: Int,
         seasonPOAPs: SeasonPOAP,
-        poapClaimRequestDto: POAPClaimRequestDto
+        twitterHandle: String
     ): ServiceResponse<POAPClaimResponseDto>? {
         validatePOAPClaimIsActive(seasonPOAPs)?.let { return it }
         validatePOAPClaimsAvailable(seasonPOAPs)?.let { return it }
         validateIfUserHasClaimedPoap(
             ip = ip,
-            twitterHandle = poapClaimRequestDto.twitterHandle,
+            twitterHandle = twitterHandle,
             seasonPOAPs = seasonPOAPs
         )?.let { return it }
         validateUserVotedAndIsAbleToClaimPoap(
             seasonNumber = seasonNumber,
-            twitterHandle = poapClaimRequestDto.twitterHandle
+            twitterHandle = twitterHandle
         )?.let { return it }
 
         return null
