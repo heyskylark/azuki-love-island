@@ -40,6 +40,8 @@ function Drama(): JSX.Element {
             }
         }
 
+        document.title = "Drama / Azuki Love Island";
+
         init();
     }, []);
 
