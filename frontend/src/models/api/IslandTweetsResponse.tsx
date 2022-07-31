@@ -5,6 +5,7 @@ interface TweetAttachments {
 interface IslandTweets {
     id: string;
     text: string;
+    createdAt: number;
     attachments?: TweetAttachments
 }
 

@@ -73,6 +73,20 @@ export async function getUsersLoveIslandTweets(twitterHandle: string): Promise<A
     return axios.get(`${BASE_URL}/twitter/island?handle=${twitterHandle}`)
 }
 
+export async function getDailyDramaTweets(startTimeMilli?: number, endTimeMilli?: number): Promise<AxiosResponse<IslandTweets[]>> {
+    let url = `${BASE_URL}/twitter/island/drama`;
+
+    if (startTimeMilli) {
+        url = url + `?startTime=${startTimeMilli}`;
+    }
+
+    if (endTimeMilli) {
+        url = url + `?endTime=${endTimeMilli}`;
+    }
+
+    return axios.get(url);
+}
+
 export async function claimPoap(seasonNumber: number, twitterHandle: string): Promise<AxiosResponse<POAPGenerationResponse>> {
     const body = {
         twitterHandle: twitterHandle

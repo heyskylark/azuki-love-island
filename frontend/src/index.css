@@ -165,3 +165,24 @@
     position: absolute;
     width: 100%;
 }
+
+.rainbow-text-slow {
+    background-image: radial-gradient(circle, #893464, #b73f5f, #db5750, #f07a38, #f3a515, #d8b90f, #b8ca2b, #93d94f, #66ce6f, #42c087, #32b095, #409f99);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;  
+    animation: move 360s linear infinite;
+}
+
+.rainbow-text-fast {
+    background-image: radial-gradient(circle, #893464, #b73f5f, #db5750, #f07a38, #f3a515, #d8b90f, #b8ca2b, #93d94f, #66ce6f, #42c087, #32b095, #409f99);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;  
+    animation: move 60s linear infinite;
+}
+
+@keyframes move {
+	to {
+		background-position-x: 500vh;
+        background-position-y: 725vh;
+	}
+}
