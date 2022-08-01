@@ -25,7 +25,8 @@ class POAPResource(
     fun loadPOAPLinksForLatestSeason(
         @RequestBody poapLoadRequestDto: POAPLoadRequestDto
     ): ResponseEntity<String> {
-        return ResponseBuilder.buildResponse(poapService.loadPOAPLinksToLatestSeason(poapLoadRequestDto))
+//        return ResponseBuilder.buildResponse(poapService.loadPOAPLinksToLatestSeason(poapLoadRequestDto))
+        return ResponseEntity.notFound().build()
     }
 
     @PostMapping("/seasons/{seasonNumber}/claim")

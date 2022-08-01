@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MockKExtension::class)
 class VoteServiceTest {
     companion object {
+        private val MOCK_VALID_IP = setOf("10.0.0.1")
         private const val DEFAULT_IP = "69.420.69.7"
         private const val DEFAULT_TWITTER_HANDLE = "degenman"
     }
@@ -36,6 +37,7 @@ class VoteServiceTest {
     @BeforeEach
     fun setUp() {
         voteService = VoteService(
+            validIps = MOCK_VALID_IP,
             bracketService = bracketService,
             participantService = participantService,
             voteBracketDao = voteBracketDao,

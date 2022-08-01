@@ -18,15 +18,20 @@ import com.heyskylark.azukiloveisland.model.voting.VoteBracket
 import com.heyskylark.azukiloveisland.model.voting.WinningResultsBracketGroup
 import com.heyskylark.azukiloveisland.serialization.ErrorResponse
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse
+import com.heyskylark.azukiloveisland.service.errorcode.BaseErrorCode
 import com.heyskylark.azukiloveisland.service.errorcode.BracketErrorCodes
+import com.heyskylark.azukiloveisland.service.errorcode.ErrorType
 import com.heyskylark.azukiloveisland.service.errorcode.VoteBracketErrorCodes
 import com.heyskylark.azukiloveisland.util.HttpRequestUtil
 import com.heyskylark.azukiloveisland.util.isValidTwitterHandle
 import kotlin.math.min
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component("voteService")
 class VoteService(
+    @Value("\${security.ips}")
+    private val validIps: Set<String>,
     private val bracketService: BracketService,
     private val participantService: ParticipantService,
     private val poapService: POAPService,
@@ -193,6 +198,17 @@ class VoteService(
     }
 
     fun calculateParsedRoundVotesForLastSeason(roundNumber: Int): ServiceResponse<ParsedGenderedRoundWinners> {
+        val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
+        if (!validIps.contains(ip)) {
+            return ServiceResponse.errorResponse(
+                BaseErrorCode(
+                    code = "notFound",
+                    message = "Not Found.",
+                    type = ErrorType.NOT_FOUND
+                )
+            )
+        }
+
         val initialBracketResponse = bracketService.getLatestSeasonBracket()
         val initialBracket = if (initialBracketResponse.isSuccess()) {
             initialBracketResponse.getSuccessValue()
@@ -329,6 +345,17 @@ class VoteService(
     }
 
     fun calculateRoundVotesForLatestSeason(roundNumber: Int): ServiceResponse<GenderedRoundWinners> {
+        val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
+        if (!validIps.contains(ip)) {
+            return ServiceResponse.errorResponse(
+                BaseErrorCode(
+                    code = "notFound",
+                    message = "Not Found.",
+                    type = ErrorType.NOT_FOUND
+                )
+            )
+        }
+
         val initialBracketResponse = bracketService.getLatestSeasonBracket()
         val initialBracket = if (initialBracketResponse.isSuccess()) {
             initialBracketResponse.getSuccessValue()
@@ -446,6 +473,17 @@ class VoteService(
     }
 
     fun calculateLatestSeasonVoteCountForRound(roundNumber: Int): ServiceResponse<GenderedVoteCountResults> {
+        val ip = httpRequestUtil.getClientIpAddressIfServletRequestExist()
+        if (!validIps.contains(ip)) {
+            return ServiceResponse.errorResponse(
+                BaseErrorCode(
+                    code = "notFound",
+                    message = "Not Found.",
+                    type = ErrorType.NOT_FOUND
+                )
+            )
+        }
+
         val initialBracketResponse = bracketService.getLatestSeasonBracket()
         val initialBracket = if (initialBracketResponse.isSuccess()) {
             initialBracketResponse.getSuccessValue()
