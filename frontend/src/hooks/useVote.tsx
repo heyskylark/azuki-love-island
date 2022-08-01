@@ -114,9 +114,13 @@ function useVote(): UseVoteResponse {
     }
 
     function getNextRoundDate(): Date | undefined {
+        const now = new Date().getTime();
+
         if ((voteState.currentRoundNumber) < voteState.finalRoundNumber && voteState.voteGapTimeMilli > -1) {
             const nextRoundMilli = voteState.startDate.getTime() + (voteState.voteGapTimeMilli * (voteState.currentRoundNumber))
             return new Date(nextRoundMilli);
+        } else if (voteState.currentRoundNumber === voteState.finalRoundNumber && now < voteState.deadline.getTime()) {
+            return voteState.deadline;
         }
     }
 
