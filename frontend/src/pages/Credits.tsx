@@ -28,7 +28,7 @@ function Credits() {
                                 <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/aetherfloweth" target="_blank" rel="noreferrer">@aetherfloweth.</a>
                             </div>
 
-                            <div>
+                            <div className="mb-6">
                                 <h1 className="uppercase font-black text-xl lg:text-2xl tracking-tight whitespace-pre-line">LeviNotAckerman</h1>
                                 <p className="font-mono text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4">The Artist behind the Azuki Love Island Voters and Participant POAP.</p>
                                 <a className="font-mono underline text-gray-500 hover:text-gray-800 lg:text-sm text-xs lg:leading-6 leading-4" href="https://twitter.com/LeviNotAckerman" target="_blank" rel="noreferrer">@LeviNotAckerman.</a>
