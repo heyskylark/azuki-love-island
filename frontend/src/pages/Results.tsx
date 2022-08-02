@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getLatestSeasonsTotalVoteResults, getSeasonParticipants, getSeasonsInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
@@ -190,6 +191,22 @@ function Results() {
         }
     }
 
+    function renderPOAPBanner(): JSX.Element {
+        return (
+            <div className="flex w-full content-center mb-7">
+                <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Contestant POAP Claim:&nbsp;</h1>
+                <a
+                    className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200"
+                    href="https://poap.delivery/azuki-love-island-2"
+                    rel="noreferrer"
+                    target="_blank"
+                >
+                    Claim POAP →
+                </a>
+            </div>
+        );
+    }
+
     return (
         <>
         <div className="container mx-auto">
@@ -199,6 +216,8 @@ function Results() {
                         <h1 className="uppercase font-black text-4xl lg:text-5xl whitespace-pre-line">Results&nbsp;<span className="opacity-10"> //</span></h1>
                         <h1 className="mb-6 uppercase font-black text-3xl lg:text-4xl whitespace-pre-line">Season: {getSeasonNumber()}</h1>
                     </div>
+
+                    {renderPOAPBanner()}
 
                     <div className="flex lg:w-7/12 mb-7">
 					    <div className="w-full md:w-8/12 -ml-2 px-2 sm:px-0 py-0">
