@@ -194,7 +194,7 @@ function Results() {
     function renderPOAPBanner(): JSX.Element {
         return (
             <div className="flex w-full content-center mb-7">
-                <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-xl lg:text-2xl whitespace-pre-line">Contestant POAP Claim:&nbsp;</h1>
+                <h1 className="pt-1 lg:pt-0.5 mr-2 uppercase font-black text-md md:text-2xl lg:text-3xl whitespace-pre-line">Contestant POAP:&nbsp;</h1>
                 <a
                     className="uppercase font-semibold text-xs hover:opacity-60 duration-300 py-3 px-4 rounded bg-gray-200"
                     href="https://poap.delivery/azuki-love-island-2"
