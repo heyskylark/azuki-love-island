@@ -249,7 +249,7 @@ class VoteService(
                     val sub1 = participantMap[it.submissionId1]
                     val sub2 = participantMap[it.submissionId2]
 
-                    if (sub1 != null && sub2 != null) {
+                    if (sub1 != null) {
                         ParsedWinningResultsBracketGroup(
                             submission1 = sub1,
                             submission2 = sub2,
@@ -263,7 +263,7 @@ class VoteService(
                     val sub1 = participantMap[it.submissionId1]
                     val sub2 = participantMap[it.submissionId2]
 
-                    if (sub1 != null && sub2 != null) {
+                    if (sub1 != null) {
                         ParsedWinningResultsBracketGroup(
                             submission1 = sub1,
                             submission2 = sub2,
@@ -539,7 +539,8 @@ class VoteService(
         val maleVoteCountResults = maleVoteCountMap.mapNotNull { (participantId, voteCount) ->
             participantMap[participantId]?.let {
                 VoteCountResults(
-                    participant = it,
+                    azukiId = it.azukiId,
+                    twitterHandle = it.twitterHandle,
                     voteCount = voteCount
                 )
             }
@@ -548,7 +549,8 @@ class VoteService(
         val femaleVoteResults = femaleVoteCountMap.mapNotNull { (participantId, voteCount) ->
             participantMap[participantId]?.let {
                 VoteCountResults(
-                    participant = it,
+                    azukiId = it.azukiId,
+                    twitterHandle = it.twitterHandle,
                     voteCount = voteCount
                 )
             }

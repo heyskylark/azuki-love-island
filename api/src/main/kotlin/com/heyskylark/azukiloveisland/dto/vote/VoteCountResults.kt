@@ -8,6 +8,7 @@ data class GenderedVoteCountResults(
 )
 
 data class VoteCountResults(
-    val participant: Participant,
+    val twitterHandle: String,
+    val azukiId: Long,
     val voteCount: Int
 )
