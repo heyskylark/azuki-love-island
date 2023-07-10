@@ -1,5 +1,6 @@
 # Azuki Love Island
-![ali-banner](https://github.com/heyskylark/azuki-love-island/assets/5904744/3edaf593-8fcc-455e-912a-f150163daf2f)
+
+![ali2-art](https://github.com/heyskylark/azuki-love-island/assets/5904744/9ceee5ee-53dd-4d56-8fcf-3da40c509950)
 
 **Azuki Love Island (Season 1 & 2), love in paradise**
 
