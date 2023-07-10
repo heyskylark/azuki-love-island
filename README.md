@@ -25,6 +25,8 @@ npm start:dev
 
 The backend service uses Kotlin and Spring Boot and runs on a Tomcat instance within a docker container. You can run the service locally, as there is a docker-compose file that will start up the web server and a local instance of MongoDb.
 
+I would reconmend [IntelliJ Community Edition](https://www.jetbrains.com/idea/download/?section=mac) to view and edit the Spring Book Kotlin code as that IDE is built for that development environment.
+
 To run locally:
 - Install or run docker. For OSX, I use [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
