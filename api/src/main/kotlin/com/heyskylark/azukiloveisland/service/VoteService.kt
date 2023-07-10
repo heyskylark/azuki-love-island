@@ -1,6 +1,6 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.VoteBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.VoteBracketDao
 import com.heyskylark.azukiloveisland.dto.vote.GenderedRoundWinners
 import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteBracketResponseDto
 import com.heyskylark.azukiloveisland.dto.vote.GenderedVoteCountResults

@@ -1,7 +1,6 @@
 FROM tomcat:9-jdk11-adoptopenjdk-hotspot
 
 COPY ../server.xml /usr/local/tomcat/conf/server.xml
-COPY ../rds-combined-ca-bundle.pem
 
 RUN mkdir -p /opt/provision
 RUN echo "local" > /opt/provision/on_disk_version

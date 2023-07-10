@@ -1,6 +1,6 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.SeasonsDao
+import com.heyskylark.azukiloveisland.resource.dao.SeasonsDao
 import com.heyskylark.azukiloveisland.model.season.Season
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse
 import com.heyskylark.azukiloveisland.service.errorcode.SeasonErrorCodes

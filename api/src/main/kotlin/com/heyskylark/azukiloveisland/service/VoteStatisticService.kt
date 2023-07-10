@@ -1,8 +1,8 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.InitialBracketDao
-import com.heyskylark.azukiloveisland.dao.ParticipantDao
-import com.heyskylark.azukiloveisland.dao.VoteBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.InitialBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.ParticipantDao
+import com.heyskylark.azukiloveisland.resource.dao.VoteBracketDao
 import com.heyskylark.azukiloveisland.model.azuki.Gender
 import com.heyskylark.azukiloveisland.model.voting.GenderedVoteBracket
 import com.heyskylark.azukiloveisland.serialization.ServiceResponse

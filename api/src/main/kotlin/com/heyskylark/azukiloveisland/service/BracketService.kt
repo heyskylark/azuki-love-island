@@ -1,6 +1,6 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.InitialBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.InitialBracketDao
 import com.heyskylark.azukiloveisland.dto.bracket.BracketCreationRequestDto
 import com.heyskylark.azukiloveisland.model.Participant
 import com.heyskylark.azukiloveisland.model.azuki.Gender

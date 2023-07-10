@@ -1,7 +1,7 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.POAPDao
-import com.heyskylark.azukiloveisland.dao.VoteBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.POAPDao
+import com.heyskylark.azukiloveisland.resource.dao.VoteBracketDao
 import com.heyskylark.azukiloveisland.dto.poap.POAPClaimRequestDto
 import com.heyskylark.azukiloveisland.dto.poap.POAPClaimResponseDto
 import com.heyskylark.azukiloveisland.dto.poap.POAPLoadRequestDto

@@ -1,4 +1,4 @@
-package com.heyskylark.azukiloveisland.dao
+package com.heyskylark.azukiloveisland.resource.dao
 
 import com.heyskylark.azukiloveisland.model.poap.SeasonPOAP
 import org.springframework.data.repository.CrudRepository

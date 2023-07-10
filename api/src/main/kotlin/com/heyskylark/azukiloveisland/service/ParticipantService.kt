@@ -1,7 +1,7 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.InitialBracketDao
-import com.heyskylark.azukiloveisland.dao.ParticipantDao
+import com.heyskylark.azukiloveisland.resource.dao.InitialBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.ParticipantDao
 import com.heyskylark.azukiloveisland.dto.ParticipantSubmissionDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantCountDto
 import com.heyskylark.azukiloveisland.dto.participant.ParticipantResponseDto

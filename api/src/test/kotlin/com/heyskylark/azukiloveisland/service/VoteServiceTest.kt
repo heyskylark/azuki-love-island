@@ -1,6 +1,6 @@
 package com.heyskylark.azukiloveisland.service
 
-import com.heyskylark.azukiloveisland.dao.VoteBracketDao
+import com.heyskylark.azukiloveisland.resource.dao.VoteBracketDao
 import com.heyskylark.azukiloveisland.factory.InitialBracketFactory.Companion.createInitialBracket
 import com.heyskylark.azukiloveisland.factory.ParticipantFactory.Companion.createParticipant
 import com.heyskylark.azukiloveisland.factory.VoteBracketFactory.Companion.createVotes

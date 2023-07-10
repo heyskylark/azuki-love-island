@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getLatestSeasonsTotalVoteResults, getSeasonParticipants, getSeasonsInitialBracket } from "../clients/MainClient";
 import Footer from "../components/Footer";
@@ -57,6 +56,26 @@ function Results() {
 
         getInitData();
     }, []);
+
+    useEffect(() => {
+        async function getSeasonResults(): Promise<void> {
+            try {
+
+            } catch (err) {
+                let errMessage = "There was a problem getting the season results.";
+
+                if (err instanceof AxiosError && err.response?.data) {
+                    errMessage = err.response?.data?.message ? err.response?.data?.message : errMessage;
+                }
+
+                toast.error(errMessage);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        getSeasonResults();
+    }, [resultsSeason]);
 
     function convertInitToRoundResults(initBracket: GenderedInitialBracket): GenderedRoundWinners {
         const maleBracketGroups = initBracket.maleBracketGroups.map((group) => {
