@@ -39,6 +39,11 @@ docker ls
 docker exec -it api bash
 tail -f logs/api.log
 ```
+
+## Disclaimer
+
+It looks like I had a lot of un-pushed code changes left over (maybe from changes I was making on the fly for season 2?). So I'm not 100% sure on how this will run right now, so I would mainly encourage to use this as a reference.
+
 ## Questions or Contact
 
 Twitter: [@heyskylark](https://twitter.com/heyskylark)
